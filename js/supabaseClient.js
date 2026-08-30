@@ -85,6 +85,10 @@ function renderNav(user, activePage) {
   const el = document.getElementById('app-nav');
   if (!el) return;
 
+  // Get current language from localStorage
+  const lang = localStorage.getItem('gym_lang') || 'en';
+  
+  // Navigation links with proper keys
   const links = [
     { href: 'dashboard.html', label: 'dashboard', key: 'dashboard' },
     { href: 'check-in.html', label: 'checkin', key: 'check-in' },
@@ -93,14 +97,23 @@ function renderNav(user, activePage) {
     { href: 'settings.html', label: 'settings', key: 'settings' }
   ];
 
-  const lang = localStorage.getItem('gym_lang') || 'en';
-  
+  // Get translations for nav items
+  const navLabels = {
+    dashboard: lang === 'ar' ? 'لوحة التحكم' : 'Dashboard',
+    checkin: lang === 'ar' ? 'تسجيل الحضور' : 'Check-In',
+    members: lang === 'ar' ? 'الأعضاء' : 'Members',
+    loyalty: lang === 'ar' ? 'برنامج الولاء' : 'Loyalty',
+    settings: lang === 'ar' ? 'الإعدادات' : 'Settings',
+    gymmanagement: lang === 'ar' ? '🏋️ إدارة الجيم' : '🏋️ Gym Management',
+    signout: lang === 'ar' ? 'تسجيل الخروج' : 'Sign Out'
+  };
+
   el.innerHTML = `
     <nav class="bg-white shadow-sm border-b">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16 items-center flex-wrap gap-3">
           <div class="flex items-center gap-8">
-            <h1 class="text-xl font-bold text-gray-800" data-i18n="nav.gymmanagement">🏋️ Gym Management</h1>
+            <h1 class="text-xl font-bold text-gray-800">${navLabels.gymmanagement}</h1>
             <div class="hidden md:flex items-center gap-1">
               ${links
                 .map(
@@ -109,7 +122,7 @@ function renderNav(user, activePage) {
                     l.key === activePage
                       ? 'bg-blue-50 text-blue-700'
                       : 'text-gray-600 hover:bg-gray-50'
-                  }" data-i18n="nav.${l.label}">${l.label}</a>
+                  }">${navLabels[l.label]}</a>
               `
                 )
                 .join('')}
@@ -120,36 +133,33 @@ function renderNav(user, activePage) {
             <button id="lang-toggle" class="px-3 py-1 text-sm font-medium text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
               ${lang === 'ar' ? 'EN' : 'عربي'}
             </button>
-            <button id="sign-out-btn" class="text-sm text-red-600 hover:text-red-800" data-i18n="nav.signout">Sign Out</button>
+            <button id="sign-out-btn" class="text-sm text-red-600 hover:text-red-800">${navLabels.signout}</button>
           </div>
         </div>
       </div>
     </nav>
   `;
 
-  // Language toggle - use the function from language.js if available
-  const langToggle = document.getElementById('lang-toggle');
-  if (langToggle) {
-    langToggle.addEventListener('click', () => {
-      if (typeof setLanguage === 'function') {
-        const newLang = currentLang === 'ar' ? 'en' : 'ar';
-        setLanguage(newLang);
-      } else {
-        const newLang = localStorage.getItem('gym_lang') === 'ar' ? 'en' : 'ar';
-        localStorage.setItem('gym_lang', newLang);
-        window.location.reload();
-      }
-    });
-  }
+  // Language toggle - DIRECT IMPLEMENTATION
+  document.getElementById('lang-toggle').addEventListener('click', function(e) {
+    e.preventDefault();
+    const currentLang = localStorage.getItem('gym_lang') || 'en';
+    const newLang = currentLang === 'ar' ? 'en' : 'ar';
+    
+    // Save to localStorage
+    localStorage.setItem('gym_lang', newLang);
+    
+    // Update HTML direction
+    document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = newLang;
+    
+    // Reload page to apply all changes
+    window.location.reload();
+  });
 
   // Sign out
   document.getElementById('sign-out-btn').addEventListener('click', async () => {
     await sb.auth.signOut();
     window.location.href = 'login.html';
   });
-
-  // Apply translations if language.js is loaded
-  if (typeof updatePageLanguage === 'function') {
-    setTimeout(updatePageLanguage, 50);
-  }
 }

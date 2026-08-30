@@ -86,19 +86,21 @@ function renderNav(user, activePage) {
   if (!el) return;
 
   const links = [
-    { href: 'dashboard.html', label: 'Dashboard', key: 'dashboard' },
-    { href: 'check-in.html', label: 'Check-In', key: 'check-in' },
-    { href: 'members.html', label: 'Members', key: 'members' },
-    { href: 'loyalty.html', label: 'Loyalty', key: 'loyalty' },
-    { href: 'settings.html', label: 'Settings', key: 'settings' }
+    { href: 'dashboard.html', label: 'dashboard', key: 'dashboard' },
+    { href: 'check-in.html', label: 'checkin', key: 'check-in' },
+    { href: 'members.html', label: 'members', key: 'members' },
+    { href: 'loyalty.html', label: 'loyalty', key: 'loyalty' },
+    { href: 'settings.html', label: 'settings', key: 'settings' }
   ];
 
+  const lang = localStorage.getItem('gym_lang') || 'en';
+  
   el.innerHTML = `
     <nav class="bg-white shadow-sm border-b">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16 items-center flex-wrap gap-3">
           <div class="flex items-center gap-8">
-            <h1 class="text-xl font-bold text-gray-800">🏋️ Gym Management</h1>
+            <h1 class="text-xl font-bold text-gray-800" data-i18n="nav.gymmanagement">🏋️ Gym Management</h1>
             <div class="hidden md:flex items-center gap-1">
               ${links
                 .map(
@@ -107,7 +109,7 @@ function renderNav(user, activePage) {
                     l.key === activePage
                       ? 'bg-blue-50 text-blue-700'
                       : 'text-gray-600 hover:bg-gray-50'
-                  }">${l.label}</a>
+                  }" data-i18n="nav.${l.label}">${l.label}</a>
               `
                 )
                 .join('')}
@@ -115,15 +117,39 @@ function renderNav(user, activePage) {
           </div>
           <div class="flex items-center space-x-4">
             <span class="text-sm text-gray-600">${user.email}</span>
-            <button id="sign-out-btn" class="text-sm text-red-600 hover:text-red-800">Sign Out</button>
+            <button id="lang-toggle" class="px-3 py-1 text-sm font-medium text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
+              ${lang === 'ar' ? 'EN' : 'عربي'}
+            </button>
+            <button id="sign-out-btn" class="text-sm text-red-600 hover:text-red-800" data-i18n="nav.signout">Sign Out</button>
           </div>
         </div>
       </div>
     </nav>
   `;
 
+  // Language toggle - use the function from language.js if available
+  const langToggle = document.getElementById('lang-toggle');
+  if (langToggle) {
+    langToggle.addEventListener('click', () => {
+      if (typeof setLanguage === 'function') {
+        const newLang = currentLang === 'ar' ? 'en' : 'ar';
+        setLanguage(newLang);
+      } else {
+        const newLang = localStorage.getItem('gym_lang') === 'ar' ? 'en' : 'ar';
+        localStorage.setItem('gym_lang', newLang);
+        window.location.reload();
+      }
+    });
+  }
+
+  // Sign out
   document.getElementById('sign-out-btn').addEventListener('click', async () => {
     await sb.auth.signOut();
     window.location.href = 'login.html';
   });
+
+  // Apply translations if language.js is loaded
+  if (typeof updatePageLanguage === 'function') {
+    setTimeout(updatePageLanguage, 50);
+  }
 }

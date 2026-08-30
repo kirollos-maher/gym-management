@@ -72,17 +72,20 @@
     async function init() {
       const auth = await requireAuth();
       if (!auth) return;
+      
       renderNav(auth.user, 'dashboard');
       gymId = auth.profile?.gym_id;
+      
       if (!gymId) {
         document.getElementById('loading-state').innerHTML =
           `<p class="text-gray-500" data-i18n="dashboard.nogym">No gym linked to this account yet.</p>`;
-        updatePageLanguage();
+        setTimeout(updatePageLanguage, 50);
         return;
       }
       await loadDashboard();
       document.getElementById('refresh-btn').addEventListener('click', loadDashboard);
-      updatePageLanguage();
+      
+      setTimeout(updatePageLanguage, 100);
     }
 
     async function loadDashboard() {
@@ -106,10 +109,10 @@
 
       document.getElementById('loading-state').classList.add('hidden');
       document.getElementById('dashboard-content').classList.remove('hidden');
-      updatePageLanguage();
+      setTimeout(updatePageLanguage, 50);
     }
 
-    // ---------- Data fetching (ported from dashboard.service.ts) ----------
+    // ---------- Data fetching ----------
 
     async function getDashboardStats() {
       const today = new Date().toISOString().split('T')[0];
@@ -262,17 +265,26 @@
     // ---------- Rendering ----------
 
     function renderStats(stats) {
+      const lang = localStorage.getItem('gym_lang') || 'en';
+      const titles = {
+        'total.members': lang === 'ar' ? 'إجمالي الأعضاء' : 'Total Members',
+        'active.members': lang === 'ar' ? 'الأعضاء النشطون' : 'Active Members',
+        'today.checkins': lang === 'ar' ? 'تسجيلات اليوم' : "Today's Check-Ins",
+        'monthly.revenue': lang === 'ar' ? 'الإيرادات الشهرية' : 'Monthly Revenue',
+        'of.total': lang === 'ar' ? 'من الإجمالي' : 'of total'
+      };
+
       const cards = [
-        { title: t('dashboard.total.members'), value: stats.totalMembers, icon: '👥', color: 'text-blue-600' },
-        { title: t('dashboard.active.members'), value: stats.activeMembers, icon: '✅', color: 'text-green-600' },
+        { title: titles['total.members'], value: stats.totalMembers, icon: '👥', color: 'text-blue-600' },
+        { title: titles['active.members'], value: stats.activeMembers, icon: '✅', color: 'text-green-600' },
         {
-          title: t('dashboard.today.checkins'),
+          title: titles['today.checkins'],
           value: stats.todayCheckIns,
           icon: '📅',
           color: 'text-purple-600',
-          subtitle: `${stats.checkInRate}% ${t('dashboard.of.total')}`
+          subtitle: `${stats.checkInRate}% ${titles['of.total']}`
         },
-        { title: t('dashboard.monthly.revenue'), value: `$${stats.monthlyRevenue.toLocaleString()}`, icon: '💰', color: 'text-yellow-600' }
+        { title: titles['monthly.revenue'], value: `$${stats.monthlyRevenue.toLocaleString()}`, icon: '💰', color: 'text-yellow-600' }
       ];
 
       document.getElementById('stats-cards').innerHTML = cards
@@ -295,8 +307,15 @@
 
     function renderRenewals(subs) {
       const el = document.getElementById('renewals-list');
+      const lang = localStorage.getItem('gym_lang') || 'en';
+      const noRenewals = lang === 'ar' ? 'لا توجد تجديدات قادمة' : 'No upcoming renewals';
+      const daysRemainingText = lang === 'ar' ? 'يوم متبقي' : 'days remaining';
+      const urgentText = lang === 'ar' ? 'عاجل' : 'Urgent';
+      const unknownText = lang === 'ar' ? 'عضو غير معروف' : 'Unknown Member';
+      const noEmailText = lang === 'ar' ? 'لا يوجد بريد إلكتروني' : 'No email';
+
       if (!subs.length) {
-        el.innerHTML = `<div class="text-center py-8 text-gray-500"><p data-i18n="dashboard.no.renewals">No upcoming renewals</p></div>`;
+        el.innerHTML = `<div class="text-center py-8 text-gray-500"><p>${noRenewals}</p></div>`;
         return;
       }
       el.innerHTML = subs
@@ -308,17 +327,17 @@
             <div class="flex items-center space-x-3 space-x-reverse">
               <div class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center">👤</div>
               <div>
-                <p class="font-medium text-gray-900">${sub.user?.full_name || t('common.unknown')}</p>
-                <p class="text-xs text-gray-500">${sub.user?.email || t('common.noemail')}</p>
+                <p class="font-medium text-gray-900">${sub.user?.full_name || unknownText}</p>
+                <p class="text-xs text-gray-500">${sub.user?.email || noEmailText}</p>
               </div>
             </div>
             <div class="text-left">
               <div class="text-sm text-gray-600">${formatDate(sub.end_date)}</div>
               <div class="flex items-center justify-end gap-2 mt-1">
-                <span class="text-xs text-gray-500">${daysRemaining} ${t('dashboard.days.remaining')}</span>
+                <span class="text-xs text-gray-500">${daysRemaining} ${daysRemainingText}</span>
                 ${
                   isUrgent
-                    ? `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 animate-pulse" data-i18n="dashboard.urgent">Urgent</span>`
+                    ? `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 animate-pulse">${urgentText}</span>`
                     : ''
                 }
               </div>
@@ -326,13 +345,18 @@
           </div>`;
         })
         .join('');
-      updatePageLanguage();
     }
 
     function renderActivity(activities) {
       const el = document.getElementById('activity-list');
+      const lang = localStorage.getItem('gym_lang') || 'en';
+      const noActivity = lang === 'ar' ? 'لا يوجد نشاط حديث' : 'No recent activity';
+      const unknownText = lang === 'ar' ? 'عضو غير معروف' : 'Unknown Member';
+      const noEmailText = lang === 'ar' ? 'لا يوجد بريد إلكتروني' : 'No email';
+      const checkedInText = lang === 'ar' ? 'تم تسجيل الحضور' : 'Checked In';
+
       if (!activities.length) {
-        el.innerHTML = `<div class="text-center py-8 text-gray-500"><p data-i18n="dashboard.no.activity">No recent activity</p></div>`;
+        el.innerHTML = `<div class="text-center py-8 text-gray-500"><p>${noActivity}</p></div>`;
         return;
       }
       el.innerHTML = activities
@@ -341,21 +365,20 @@
         <div class="flex items-start space-x-3 space-x-reverse p-3 rounded-lg hover:bg-gray-50 transition-colors">
           <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">👤</div>
           <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium text-gray-900">${a.user?.full_name || t('common.unknown')}</p>
-            <p class="text-xs text-gray-500">${a.user?.email || t('common.noemail')}</p>
+            <p class="text-sm font-medium text-gray-900">${a.user?.full_name || unknownText}</p>
+            <p class="text-xs text-gray-500">${a.user?.email || noEmailText}</p>
             <div class="flex items-center gap-3 mt-1">
               <span class="text-xs text-gray-500">${formatDateTime(a.check_in_time)}</span>
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800" data-i18n="dashboard.checked.in">Checked In</span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">${checkedInText}</span>
             </div>
           </div>
           <div class="text-xs text-gray-400">${a.method === 'qr_code' ? '📱 QR' : '✏️ Manual'}</div>
         </div>`
         )
         .join('');
-      updatePageLanguage();
     }
 
-    // ---------- Charts (plain canvas, ported from the original React components) ----------
+    // ---------- Charts ----------
 
     function setupCanvas(canvas) {
       const rect = canvas.parentElement.getBoundingClientRect();
@@ -479,6 +502,8 @@
       const canvas = document.getElementById('distribution-chart');
       const legendEl = document.getElementById('distribution-legend');
       const colors = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'];
+      const lang = localStorage.getItem('gym_lang') || 'en';
+      const totalText = lang === 'ar' ? 'الإجمالي' : 'Total';
 
       if (!data.length) {
         legendEl.innerHTML = '';
@@ -519,7 +544,7 @@
       ctx.font = 'bold 20px sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(t('dashboard.total'), centerX, centerY - 12);
+      ctx.fillText(totalText, centerX, centerY - 12);
       ctx.font = 'bold 24px sans-serif';
       ctx.fillText(total.toString(), centerX, centerY + 18);
 
@@ -535,7 +560,12 @@
         .join('');
     }
 
-    init();
+    // Run init when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
   </script>
 </body>
 </html>

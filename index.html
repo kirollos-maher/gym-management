@@ -11,46 +11,53 @@
   <main class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
     <div class="max-w-4xl w-full bg-white rounded-2xl shadow-xl p-8">
       <div class="text-center">
-        <h1 class="text-4xl font-bold text-gray-800 mb-4">🏋️ Gym Management System</h1>
-        <p class="text-gray-600 text-lg mb-8">
-          Complete solution for gym check-in, loyalty points, and notifications
-        </p>
+        <div class="flex justify-end mb-4">
+          <button id="lang-toggle" class="px-4 py-2 text-sm font-medium text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
+            عربي
+          </button>
+        </div>
+        <h1 class="text-4xl font-bold text-gray-800 mb-4" data-i18n="nav.gymmanagement">🏋️ Gym Management System</h1>
+        <p class="text-gray-600 text-lg mb-8" data-i18n="index.subtitle">Complete solution for gym check-in, loyalty points, and notifications</p>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <div class="bg-blue-50 p-6 rounded-xl">
             <div class="text-3xl mb-2">✅</div>
-            <h3 class="font-semibold text-gray-700">Check-In</h3>
-            <p class="text-sm text-gray-500">QR Code &amp; Manual</p>
+            <h3 class="font-semibold text-gray-700" data-i18n="nav.checkin">Check-In</h3>
+            <p class="text-sm text-gray-500" data-i18n="index.checkin.desc">QR Code &amp; Manual</p>
           </div>
           <div class="bg-purple-50 p-6 rounded-xl">
             <div class="text-3xl mb-2">⭐</div>
-            <h3 class="font-semibold text-gray-700">Loyalty Points</h3>
-            <p class="text-sm text-gray-500">Earn &amp; Redeem</p>
+            <h3 class="font-semibold text-gray-700" data-i18n="nav.loyalty">Loyalty Points</h3>
+            <p class="text-sm text-gray-500" data-i18n="index.loyalty.desc">Earn &amp; Redeem</p>
           </div>
           <div class="bg-green-50 p-6 rounded-xl">
             <div class="text-3xl mb-2">📱</div>
-            <h3 class="font-semibold text-gray-700">Notifications</h3>
-            <p class="text-sm text-gray-500">WhatsApp, SMS, Email</p>
+            <h3 class="font-semibold text-gray-700" data-i18n="index.notifications">Notifications</h3>
+            <p class="text-sm text-gray-500" data-i18n="index.notifications.desc">WhatsApp, SMS, Email</p>
           </div>
         </div>
 
         <div class="space-x-4 space-x-reverse">
-          <a href="check-in.html" class="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+          <a href="check-in.html" class="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition" data-i18n="nav.checkin">
             Start Check-In
           </a>
-          <a href="dashboard.html" class="inline-block bg-gray-200 text-gray-700 px-8 py-3 rounded-lg font-semibold hover:bg-gray-300 transition">
+          <a href="dashboard.html" class="inline-block bg-gray-200 text-gray-700 px-8 py-3 rounded-lg font-semibold hover:bg-gray-300 transition" data-i18n="nav.dashboard">
             Dashboard
           </a>
         </div>
 
         <p class="mt-6 text-sm text-gray-400">
-          Don't have an account?
-          <a href="signup.html" class="text-blue-600 hover:underline">Create one</a>
+          <span data-i18n="auth.noaccount">Don't have an account?</span>
+          <a href="signup.html" class="text-blue-600 hover:underline" data-i18n="auth.create">Create one</a>
           ·
-          <a href="login.html" class="text-blue-600 hover:underline">Sign in</a>
+          <a href="login.html" class="text-blue-600 hover:underline" data-i18n="auth.signin.link">Sign in</a>
         </p>
       </div>
     </div>
   </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabaseClient.js"></script>
+  <script src="js/language.js"></script>
 </body>
 </html>

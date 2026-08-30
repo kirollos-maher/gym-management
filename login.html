@@ -10,29 +10,32 @@
 <body>
   <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
     <div class="w-full max-w-md bg-white rounded-lg shadow-md overflow-hidden">
-      <div class="px-6 py-4 border-b">
-        <h2 class="text-2xl font-semibold text-gray-900 text-center">Sign In</h2>
+      <div class="px-6 py-4 border-b flex items-center justify-between">
+        <h2 class="text-2xl font-semibold text-gray-900 text-center flex-1" data-i18n="auth.signin">Sign In</h2>
+        <button id="lang-toggle" class="px-3 py-1 text-sm font-medium text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
+          عربي
+        </button>
       </div>
       <div class="px-6 py-4">
         <form id="login-form" class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input type="email" id="email" required placeholder="Enter your email"
+            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="auth.email">Email</label>
+            <input type="email" id="email" required data-i18n-placeholder="auth.enter.email"
               class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-            <input type="password" id="password" required placeholder="Enter your password"
+            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="auth.password">Password</label>
+            <input type="password" id="password" required data-i18n-placeholder="auth.enter.password"
               class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           <div id="error-box" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm"></div>
           <button type="submit" id="submit-btn"
             class="w-full rounded-lg font-medium bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 flex items-center justify-center">
-            Sign In
+            <span data-i18n="auth.signin">Sign In</span>
           </button>
           <p class="text-center text-sm text-gray-500">
-            Don't have an account?
-            <a href="signup.html" class="text-blue-600 hover:underline">Create one</a>
+            <span data-i18n="auth.noaccount">Don't have an account?</span>
+            <a href="signup.html" class="text-blue-600 hover:underline" data-i18n="auth.create">Create one</a>
           </p>
         </form>
       </div>
@@ -41,6 +44,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabaseClient.js"></script>
+  <script src="js/language.js"></script>
   <script>
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -59,7 +63,8 @@
         errorBox.textContent = error.message;
         errorBox.classList.remove('hidden');
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Sign In';
+        submitBtn.innerHTML = '<span data-i18n="auth.signin">Sign In</span>';
+        updatePageLanguage();
         return;
       }
 

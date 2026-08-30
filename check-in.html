@@ -73,6 +73,7 @@
     async function init() {
       const auth = await requireAuth();
       if (!auth) return;
+      
       renderNav(auth.user, 'check-in');
       gymId = auth.profile?.gym_id;
 
@@ -84,14 +85,21 @@
 
       document.getElementById('change-member-btn').addEventListener('click', resetSelection);
       
-      // Apply language
-      updatePageLanguage();
+      setTimeout(updatePageLanguage, 100);
     }
 
     async function searchMembers(term) {
       const resultsEl = document.getElementById('search-results');
       const loadingEl = document.getElementById('search-loading');
       const noResultsEl = document.getElementById('no-results');
+
+      const lang = localStorage.getItem('gym_lang') || 'en';
+      const searchingText = lang === 'ar' ? 'جاري البحث...' : 'Searching...';
+      const noResultsText = lang === 'ar' ? 'لم يتم العثور على أعضاء. حاول البحث بكلمة مختلفة.' : 'No members found. Try a different search term.';
+      const unknownText = lang === 'ar' ? 'عضو غير معروف' : 'Unknown Member';
+      const noEmailText = lang === 'ar' ? 'لا يوجد بريد إلكتروني' : 'No email';
+      const activeText = lang === 'ar' ? 'عضو نشط' : 'Active Member';
+      const inactiveText = lang === 'ar' ? 'غير نشط' : 'Inactive';
 
       if (!term || term.trim().length < 2) {
         resultsEl.classList.add('hidden');
@@ -100,6 +108,7 @@
       }
 
       loadingEl.classList.remove('hidden');
+      loadingEl.innerHTML = `<div class="spinner h-5 w-5"></div> ${searchingText}`;
       resultsEl.classList.add('hidden');
       noResultsEl.classList.add('hidden');
 
@@ -113,6 +122,7 @@
       loadingEl.classList.add('hidden');
 
       if (!data || data.length === 0) {
+        noResultsEl.textContent = noResultsText;
         noResultsEl.classList.remove('hidden');
         return;
       }
@@ -122,7 +132,7 @@
         .map((m, i) => {
           const sub = Array.isArray(m.subscription) ? m.subscription[0] : m.subscription;
           const isActive = sub?.status === 'active';
-          const activeText = isActive ? t('checkin.active') : t('checkin.inactive');
+          const statusText = isActive ? activeText : inactiveText;
           const statusClass = isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
           return `
           <div class="p-4 hover:bg-gray-50 cursor-pointer transition-colors" data-index="${i}">
@@ -130,11 +140,11 @@
               <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">👤</div>
                 <div>
-                  <p class="font-medium text-gray-900">${m.full_name || t('checkin.unknown')}</p>
-                  <p class="text-sm text-gray-500">${m.email || t('checkin.noemail')}</p>
+                  <p class="font-medium text-gray-900">${m.full_name || unknownText}</p>
+                  <p class="text-sm text-gray-500">${m.email || noEmailText}</p>
                 </div>
               </div>
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}">${activeText}</span>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}">${statusText}</span>
             </div>
           </div>`;
         })
@@ -151,14 +161,20 @@
       document.getElementById('result-state').classList.add('hidden');
       document.getElementById('selected-state').classList.remove('hidden');
 
+      const lang = localStorage.getItem('gym_lang') || 'en';
+      const activeText = lang === 'ar' ? 'عضو نشط' : 'Active Member';
+      const inactiveText = lang === 'ar' ? 'غير نشط' : 'Inactive';
+      const unknownText = lang === 'ar' ? 'عضو غير معروف' : 'Unknown Member';
+      const noEmailText = lang === 'ar' ? 'لا يوجد بريد إلكتروني' : 'No email';
+
       const sub = Array.isArray(member.subscription) ? member.subscription[0] : member.subscription;
       const isActive = sub?.status === 'active';
-      const statusText = isActive ? t('checkin.active') : t('checkin.inactive');
+      const statusText = isActive ? activeText : inactiveText;
       const statusClass = isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
 
       document.getElementById('selected-avatar').textContent = getInitials(member.full_name);
-      document.getElementById('selected-name').textContent = member.full_name || t('checkin.unknown');
-      document.getElementById('selected-email').textContent = member.email || t('checkin.noemail');
+      document.getElementById('selected-name').textContent = member.full_name || unknownText;
+      document.getElementById('selected-email').textContent = member.email || noEmailText;
       const statusEl = document.getElementById('selected-status');
       statusEl.textContent = statusText;
       statusEl.className = `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-2 ${statusClass}`;
@@ -173,7 +189,7 @@
       document.getElementById('selected-state').classList.add('hidden');
       document.getElementById('result-state').classList.add('hidden');
       document.getElementById('search-state').classList.remove('hidden');
-      updatePageLanguage();
+      setTimeout(updatePageLanguage, 50);
     }
 
     async function hasActiveSubscription(userId) {
@@ -195,9 +211,19 @@
       btn.disabled = true;
       btn.innerHTML = '<div class="spinner h-5 w-5"></div>';
 
+      const lang = localStorage.getItem('gym_lang') || 'en';
+      const noActiveText = lang === 'ar' ? 'العضو ليس لديه اشتراك نشط.' : 'Member does not have an active subscription.';
+      const alreadyText = lang === 'ar' ? 'هذا العضو مسجل الحضور بالفعل.' : 'This member is already checked in.';
+      const errorText = lang === 'ar' ? 'حدث خطأ' : 'An error occurred';
+      const unknownText = lang === 'ar' ? 'عضو غير معروف' : 'Unknown Member';
+      const successTitle = lang === 'ar' ? 'تم تسجيل الحضور بنجاح!' : 'Check-In Successful!';
+      const failedTitle = lang === 'ar' ? 'فشل تسجيل الحضور' : 'Check-In Failed';
+      const newText = lang === 'ar' ? 'تسجيل حضور جديد' : 'New Check-In';
+      const tryAgainText = lang === 'ar' ? 'حاول مرة أخرى' : 'Try Again';
+
       const active = await hasActiveSubscription(member.id);
       if (!active) {
-        showResult(false, t('checkin.noactive'));
+        showResult(false, noActiveText);
         return;
       }
 
@@ -210,7 +236,7 @@
         .limit(1);
 
       if (existing && existing.length > 0) {
-        showResult(false, t('checkin.already'));
+        showResult(false, alreadyText);
         return;
       }
 
@@ -221,7 +247,7 @@
         .single();
 
       if (error || !checkIn) {
-        showResult(false, t('common.error'));
+        showResult(false, errorText);
         return;
       }
 
@@ -233,29 +259,41 @@
       const resultEl = document.getElementById('result-state');
       resultEl.classList.remove('hidden');
 
+      const lang = localStorage.getItem('gym_lang') || 'en';
+      const unknownText = lang === 'ar' ? 'عضو غير معروف' : 'Unknown Member';
+      const successTitle = lang === 'ar' ? 'تم تسجيل الحضور بنجاح!' : 'Check-In Successful!';
+      const failedTitle = lang === 'ar' ? 'فشل تسجيل الحضور' : 'Check-In Failed';
+      const newText = lang === 'ar' ? 'تسجيل حضور جديد' : 'New Check-In';
+      const tryAgainText = lang === 'ar' ? 'حاول مرة أخرى' : 'Try Again';
+
       if (success) {
         resultEl.innerHTML = `
           <div class="p-6 border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg text-center">
             <div class="w-20 h-20 rounded-full bg-green-500 flex items-center justify-center mx-auto mb-4 text-4xl">✅</div>
-            <h2 class="text-2xl font-bold text-green-800 mb-2" data-i18n="checkin.success">Check-In Successful!</h2>
-            <p class="text-green-700 mb-4">${member.full_name || t('checkin.unknown')} — ${new Date(checkInTime).toLocaleTimeString()}</p>
-            <button id="new-checkin-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-6 py-2" data-i18n="checkin.new">New Check-In</button>
+            <h2 class="text-2xl font-bold text-green-800 mb-2">${successTitle}</h2>
+            <p class="text-green-700 mb-4">${member.full_name || unknownText} — ${new Date(checkInTime).toLocaleTimeString()}</p>
+            <button id="new-checkin-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-6 py-2">${newText}</button>
           </div>`;
       } else {
         resultEl.innerHTML = `
           <div class="p-6 border-2 border-red-200 bg-red-50 rounded-lg text-center">
             <div class="w-20 h-20 rounded-full bg-red-500 flex items-center justify-center mx-auto mb-4 text-4xl">❌</div>
-            <h2 class="text-2xl font-bold text-red-800 mb-2" data-i18n="checkin.failed">Check-In Failed</h2>
+            <h2 class="text-2xl font-bold text-red-800 mb-2">${failedTitle}</h2>
             <p class="text-red-700 mb-4">${errorMessage}</p>
-            <button id="new-checkin-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-6 py-2" data-i18n="checkin.tryagain">Try Again</button>
+            <button id="new-checkin-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-6 py-2">${tryAgainText}</button>
           </div>`;
       }
 
       document.getElementById('new-checkin-btn').addEventListener('click', resetSelection);
-      updatePageLanguage();
+      setTimeout(updatePageLanguage, 50);
     }
 
-    init();
+    // Run init when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
   </script>
 </body>
 </html>

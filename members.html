@@ -18,16 +18,16 @@
     <div id="content" class="hidden space-y-6">
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-2xl font-bold text-gray-800">Members</h1>
-          <p class="text-sm text-gray-500">Manage your gym members and their subscriptions</p>
+          <h1 class="text-2xl font-bold text-gray-800" data-i18n="members.title">Members</h1>
+          <p class="text-sm text-gray-500" data-i18n="members.desc">Manage your gym members and their subscriptions</p>
         </div>
       </div>
 
       <div class="bg-white rounded-lg shadow-md p-6">
         <div class="flex items-center gap-4 mb-6">
-          <input type="text" id="search-input" placeholder="Search by name, email, or phone..."
+          <input type="text" id="search-input" data-i18n-placeholder="members.search"
             class="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          <button id="refresh-btn" class="rounded-lg border border-gray-300 px-4 py-2 hover:bg-gray-50">Refresh</button>
+          <button id="refresh-btn" class="rounded-lg border border-gray-300 px-4 py-2 hover:bg-gray-50" data-i18n="members.refresh">Refresh</button>
         </div>
 
         <div id="members-list" class="space-y-3"></div>
@@ -39,6 +39,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabaseClient.js"></script>
+  <script src="js/language.js"></script>
   <script>
     let gymId = null;
     let allMembers = [];
@@ -52,6 +53,7 @@
       await fetchMembers();
       document.getElementById('refresh-btn').addEventListener('click', fetchMembers);
       document.getElementById('search-input').addEventListener('input', (e) => renderMembers(e.target.value));
+      updatePageLanguage();
     }
 
     async function fetchMembers() {
@@ -71,6 +73,7 @@
       document.getElementById('loading-state').classList.add('hidden');
       document.getElementById('content').classList.remove('hidden');
       renderMembers(document.getElementById('search-input').value);
+      updatePageLanguage();
     }
 
     function renderMembers(searchTerm) {
@@ -85,20 +88,22 @@
 
       const el = document.getElementById('members-list');
       if (filtered.length === 0) {
-        el.innerHTML = '<div class="text-center py-8 text-gray-500"><p>No members found</p></div>';
+        el.innerHTML = `<div class="text-center py-8 text-gray-500"><p data-i18n="members.noresults">No members found</p></div>`;
       } else {
         el.innerHTML = filtered
           .map((m) => {
             const sub = Array.isArray(m.subscription) ? m.subscription[0] : m.subscription;
             const isActive = sub?.status === 'active';
+            const statusText = isActive ? t('members.active') : t('members.inactive');
+            const statusClass = isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
             return `
             <div class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
               <div class="flex items-center gap-4">
                 <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">👤</div>
                 <div>
-                  <p class="font-medium text-gray-900">${m.full_name || 'Unknown Member'}</p>
+                  <p class="font-medium text-gray-900">${m.full_name || t('members.unknown')}</p>
                   <div class="flex items-center gap-3 text-sm text-gray-500">
-                    <span>${m.email || 'No email'}</span>
+                    <span>${m.email || t('members.noemail')}</span>
                     ${m.phone ? `<span>${m.phone}</span>` : ''}
                   </div>
                 </div>
@@ -107,11 +112,9 @@
                 ${
                   sub
                     ? `
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                  }">${isActive ? 'Active' : 'Inactive'}</span>
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}">${statusText}</span>
                   <p class="text-xs text-gray-500 mt-1">${sub.membership?.name || ''}</p>
-                  <p class="text-xs text-gray-400">Expires ${formatDate(sub.end_date)}</p>
+                  <p class="text-xs text-gray-400">${t('members.expires', { date: formatDate(sub.end_date) })}</p>
                 `
                     : ''
                 }
@@ -121,7 +124,7 @@
           .join('');
       }
 
-      document.getElementById('count-label').textContent = `Showing ${filtered.length} of ${allMembers.length} members`;
+      document.getElementById('count-label').textContent = t('members.showing', { count: filtered.length, total: allMembers.length });
     }
 
     init();

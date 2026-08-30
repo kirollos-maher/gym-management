@@ -52,16 +52,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabaseClient.js"></script>
   <script>
-    function slugify(text) {
-      return (
-        text
-          .toLowerCase()
-          .trim()
-          .replace(/[^a-z0-9]+/g, '-')
-          .replace(/(^-|-$)/g, '') || `gym-${Date.now()}`
-      );
-    }
-
     document.getElementById('signup-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const errorBox = document.getElementById('error-box');
@@ -83,7 +73,8 @@
       };
 
       try {
-        // 1. Create the auth user
+        // 1. Create the auth user (the on_auth_user_created trigger
+        // automatically creates a matching row in public.users)
         const { data: signUpData, error: signUpError } = await sb.auth.signUp({
           email,
           password,
@@ -92,36 +83,20 @@
 
         if (signUpError) return showError(signUpError.message);
 
-        const newUser = signUpData?.user;
-        if (!newUser) {
+        if (!signUpData?.session) {
           return showError(
-            'Account created, but no session was returned. If email confirmation is enabled in Supabase, please confirm your email before signing in.'
+            'Account created, but no session was returned. If email confirmation is enabled in Supabase, please confirm your email before signing in, then contact support to finish gym setup.'
           );
         }
 
-        // 2. Create the gym profile
-        const { data: gymProfile, error: gymError } = await sb
-          .from('gym_profiles')
-          .insert({
-            name: gymName,
-            slug: slugify(gymName),
-            notification_channels: { whatsapp: false, sms: false, email: true }
-          })
-          .select()
-          .single();
-
-        if (gymError || !gymProfile) return showError(gymError?.message || 'Failed to create gym profile');
-
-        // 3. Create the linked row in the users table as gym_owner
-        const { error: profileError } = await sb.from('users').insert({
-          id: newUser.id,
-          gym_id: gymProfile.id,
-          role: 'gym_owner',
-          full_name: fullName,
-          email
+        // 2. Create the gym + promote this user to gym_owner,
+        // via a database function that safely bypasses RLS.
+        const { error: rpcError } = await sb.rpc('create_gym_owner_account', {
+          p_gym_name: gymName,
+          p_full_name: fullName
         });
 
-        if (profileError) return showError(profileError.message);
+        if (rpcError) return showError(rpcError.message);
 
         window.location.href = 'dashboard.html';
       } catch (err) {

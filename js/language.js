@@ -307,6 +307,10 @@ const translations = {
 // Current language - stored in localStorage
 let currentLang = localStorage.getItem('gym_lang') || 'en';
 
+// Apply language direction immediately
+document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+document.documentElement.lang = currentLang;
+
 // Function to get translation
 function t(key, params = {}) {
   const translation = translations[currentLang]?.[key];
@@ -360,7 +364,7 @@ function updatePageLanguage() {
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
     const translation = t(key);
-    if (translation) {
+    if (translation && translation !== key) {
       el.textContent = translation;
     }
   });
@@ -369,7 +373,7 @@ function updatePageLanguage() {
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
     const key = el.getAttribute('data-i18n-placeholder');
     const translation = t(key);
-    if (translation) {
+    if (translation && translation !== key) {
       el.placeholder = translation;
     }
   });
@@ -378,7 +382,7 @@ function updatePageLanguage() {
   document.querySelectorAll('[data-i18n-title]').forEach(el => {
     const key = el.getAttribute('data-i18n-title');
     const translation = t(key);
-    if (translation) {
+    if (translation && translation !== key) {
       el.title = translation;
     }
   });
@@ -387,7 +391,7 @@ function updatePageLanguage() {
   document.querySelectorAll('[data-i18n-aria]').forEach(el => {
     const key = el.getAttribute('data-i18n-aria');
     const translation = t(key);
-    if (translation) {
+    if (translation && translation !== key) {
       el.setAttribute('aria-label', translation);
     }
   });
@@ -396,7 +400,7 @@ function updatePageLanguage() {
   document.querySelectorAll('[data-i18n-value]').forEach(el => {
     const key = el.getAttribute('data-i18n-value');
     const translation = t(key);
-    if (translation) {
+    if (translation && translation !== key) {
       el.value = translation;
     }
   });
@@ -407,12 +411,8 @@ function updatePageLanguage() {
 // Auto-initialize language when DOM is ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
-    document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-    document.documentElement.lang = currentLang;
     updatePageLanguage();
   });
 } else {
-  document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-  document.documentElement.lang = currentLang;
   updatePageLanguage();
 }

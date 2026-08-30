@@ -1,9 +1,9 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Card, CardContent } from '@/components/ui/Card';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useLoyalty } from '@/hooks/useLoyalty';
-import { Award, TrendingUp, Clock } from 'lucide-react';
+import { Award } from 'lucide-react';
 
 interface LoyaltyBalanceProps {
   memberId: string;

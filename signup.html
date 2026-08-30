@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Account - Gym Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+    <div class="w-full max-w-md bg-white rounded-lg shadow-md overflow-hidden">
+      <div class="px-6 py-4 border-b">
+        <h2 class="text-2xl font-semibold text-gray-900 text-center">Create Your Gym Account</h2>
+      </div>
+      <div class="px-6 py-4">
+        <form id="signup-form" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Gym Name</label>
+            <input type="text" id="gym-name" required placeholder="Enter your gym's name"
+              class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Your Full Name</label>
+            <input type="text" id="full-name" required placeholder="Enter your full name"
+              class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input type="email" id="email" required placeholder="Enter your email"
+              class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <input type="password" id="password" required minlength="6" placeholder="At least 6 characters"
+              class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+          <div id="error-box" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm"></div>
+          <button type="submit" id="submit-btn"
+            class="w-full rounded-lg font-medium bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 flex items-center justify-center">
+            Create Account
+          </button>
+          <p class="text-center text-sm text-gray-500">
+            Already have an account?
+            <a href="login.html" class="text-blue-600 hover:underline">Sign in</a>
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabaseClient.js"></script>
+  <script>
+    function slugify(text) {
+      return (
+        text
+          .toLowerCase()
+          .trim()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)/g, '') || `gym-${Date.now()}`
+      );
+    }
+
+    document.getElementById('signup-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errorBox = document.getElementById('error-box');
+      const submitBtn = document.getElementById('submit-btn');
+      errorBox.classList.add('hidden');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<div class="spinner h-5 w-5"></div>';
+
+      const gymName = document.getElementById('gym-name').value;
+      const fullName = document.getElementById('full-name').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      const showError = (msg) => {
+        errorBox.textContent = msg;
+        errorBox.classList.remove('hidden');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Create Account';
+      };
+
+      try {
+        // 1. Create the auth user
+        const { data: signUpData, error: signUpError } = await sb.auth.signUp({
+          email,
+          password,
+          options: { data: { full_name: fullName } }
+        });
+
+        if (signUpError) return showError(signUpError.message);
+
+        const newUser = signUpData?.user;
+        if (!newUser) {
+          return showError(
+            'Account created, but no session was returned. If email confirmation is enabled in Supabase, please confirm your email before signing in.'
+          );
+        }
+
+        // 2. Create the gym profile
+        const { data: gymProfile, error: gymError } = await sb
+          .from('gym_profiles')
+          .insert({
+            name: gymName,
+            slug: slugify(gymName),
+            notification_channels: { whatsapp: false, sms: false, email: true }
+          })
+          .select()
+          .single();
+
+        if (gymError || !gymProfile) return showError(gymError?.message || 'Failed to create gym profile');
+
+        // 3. Create the linked row in the users table as gym_owner
+        const { error: profileError } = await sb.from('users').insert({
+          id: newUser.id,
+          gym_id: gymProfile.id,
+          role: 'gym_owner',
+          full_name: fullName,
+          email
+        });
+
+        if (profileError) return showError(profileError.message);
+
+        window.location.href = 'dashboard.html';
+      } catch (err) {
+        showError(err instanceof Error ? err.message : 'An unexpected error occurred');
+      }
+    });
+  </script>
+</body>
+</html>

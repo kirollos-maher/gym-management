@@ -22,7 +22,9 @@ export function LoyaltyHistory({ memberId, gymId }: LoyaltyHistoryProps) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchHistory();
+    if (memberId && gymId) {
+      fetchHistory();
+    }
   }, [memberId, gymId]);
 
   const fetchHistory = async () => {

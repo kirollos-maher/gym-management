@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Canteen - Gym Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <style>
+    .product-card {
+      transition: all 0.3s ease;
+    }
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    .qr-container {
+      background: white;
+      padding: 1rem;
+      border-radius: 0.75rem;
+      display: inline-block;
+    }
+    .tab-active {
+      border-bottom: 3px solid #3b82f6;
+      color: #1e40af;
+    }
+    .tab-inactive {
+      color: #6b7280;
+      border-bottom: 3px solid transparent;
+    }
+    .tab-inactive:hover {
+      color: #374151;
+      border-bottom: 3px solid #d1d5db;
+    }
+    .scan-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .scan-box {
+      background: white;
+      border-radius: 1rem;
+      padding: 2rem;
+      max-width: 90%;
+      width: 400px;
+    }
+    .scan-frame {
+      border: 4px solid #3b82f6;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      text-align: center;
+    }
+    @keyframes scan-line {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(100%); }
+    }
+    .scan-line {
+      width: 100%;
+      height: 4px;
+      background: #3b82f6;
+      animation: scan-line 2s linear infinite;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <div id="app-nav"></div>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="flex items-center justify-between flex-wrap gap-3 mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-800">🛒 Canteen Management</h1>
+        <p class="text-sm text-gray-500">Manage products, track sales, and process QR code purchases</p>
+      </div>
+      <div class="flex gap-2">
+        <button id="scan-qr-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">
+          📷 Scan QR
+        </button>
+        <button id="add-product-btn" class="bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">
+          ➕ Add Product
+        </button>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex gap-6 border-b mb-6">
+      <button class="tab-active px-4 py-2 font-medium" data-tab="products">📦 Products</button>
+      <button class="tab-inactive px-4 py-2 font-medium" data-tab="inventory">📊 Inventory</button>
+      <button class="tab-inactive px-4 py-2 font-medium" data-tab="sales">💰 Sales</button>
+      <button class="tab-inactive px-4 py-2 font-medium" data-tab="member-qr">👤 Member QR</button>
+    </div>
+
+    <!-- Content -->
+    <div id="tab-content">
+      <!-- Products Tab -->
+      <div id="tab-products" class="space-y-6">
+        <div class="flex gap-4 mb-4">
+          <input type="text" id="product-search" placeholder="Search products..." class="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <select id="category-filter" class="rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">All Categories</option>
+          </select>
+        </div>
+        <div id="products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+      </div>
+
+      <!-- Inventory Tab -->
+      <div id="tab-inventory" class="hidden">
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+          <div class="p-4 border-b">
+            <h3 class="font-semibold text-gray-800">Inventory Status</h3>
+            <p class="text-sm text-gray-500">Track available, sold, and reserved items</p>
+          </div>
+          <div class="p-4">
+            <div id="inventory-stats" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6"></div>
+            <div id="inventory-list" class="space-y-2"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sales Tab -->
+      <div id="tab-sales" class="hidden">
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+          <div class="p-4 border-b">
+            <h3 class="font-semibold text-gray-800">Recent Sales</h3>
+            <p class="text-sm text-gray-500">Track all customer purchases</p>
+          </div>
+          <div class="p-4">
+            <div id="sales-list" class="space-y-3"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Member QR Tab -->
+      <div id="tab-member-qr" class="hidden">
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+          <div class="p-4 border-b">
+            <h3 class="font-semibold text-gray-800">Member QR Codes</h3>
+            <p class="text-sm text-gray-500">Generate and manage member QR codes for check-in</p>
+          </div>
+          <div class="p-4">
+            <div class="flex gap-4 mb-6">
+              <select id="member-select" class="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Select a member</option>
+              </select>
+              <button id="generate-qr-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2">Generate QR</button>
+            </div>
+            <div id="member-qr-display" class="flex flex-col items-center p-6 bg-gray-50 rounded-lg"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal: Add Product -->
+  <div id="add-product-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-800">➕ Add New Product</h2>
+        <button id="close-add-product" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+      </div>
+      <form id="add-product-form" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Product Name *</label>
+          <input type="text" id="p-name" required class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+          <textarea id="p-desc" rows="2" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Price *</label>
+          <input type="number" id="p-price" required min="0.01" step="0.01" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+          <input type="text" id="p-category" placeholder="e.g., Supplements, Drinks, Snacks" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Quantity (Number of items) *</label>
+          <input type="number" id="p-quantity" required min="1" value="1" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <p class="text-xs text-gray-500 mt-1">Each item will get a unique QR code</p>
+        </div>
+        <div class="border-t pt-4 flex gap-3">
+          <button type="button" id="cancel-add-product" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-medium px-4 py-2">Cancel</button>
+          <button type="submit" class="flex-1 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-4 py-2">Add Product</button>
+        </div>
+        <div id="add-product-msg" class="text-sm hidden"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Scan QR -->
+  <div id="scan-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-800">📷 Scan QR Code</h2>
+        <button id="close-scan" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+      </div>
+      <div class="text-center">
+        <div class="scan-frame mb-4">
+          <div class="relative h-48 flex items-center justify-center">
+            <div class="absolute inset-0 border-4 border-blue-500 rounded-lg"></div>
+            <div class="scan-line absolute bottom-0 left-0 right-0"></div>
+            <input type="text" id="qr-input" placeholder="Paste QR code or scan..." class="relative z-10 w-full rounded-lg border-2 border-dashed border-blue-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/90" />
+          </div>
+        </div>
+        <p class="text-sm text-gray-500 mb-4">Enter QR code manually or use a scanner device</p>
+        <button id="process-qr-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2">Process QR Code</button>
+        <div id="scan-result" class="mt-4 text-sm"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Product Items QR -->
+  <div id="product-items-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-800" id="items-modal-title">Product Items</h2>
+        <button id="close-items-modal" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+      </div>
+      <div id="items-grid" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabaseClient.js"></script>
+  <script src="js/language.js"></script>
+  <script>
+    let gymId = null;
+    let products = [];
+    let productItems = [];
+    let members = [];
+    let currentTab = 'products';
+
+    async function init() {
+      const auth = await requireAuth();
+      if (!auth) return;
+      renderNav(auth.user, 'canteen');
+      gymId = auth.profile?.gym_id;
+
+      await loadData();
+      setupEventListeners();
+      renderProducts();
+      renderInventory();
+      renderSales();
+      populateMembers();
+      
+      setTimeout(updatePageLanguage, 100);
+    }
+
+    async function loadData() {
+      // Load products
+      const { data: productsData } = await sb
+        .from('products')
+        .select('*')
+        .eq('gym_id', gymId)
+        .order('created_at', { ascending: false });
+      products = productsData || [];
+
+      // Load product items with QR codes
+      const { data: itemsData } = await sb
+        .from('product_items')
+        .select('*, product:products(name, price)')
+        .eq('gym_id', gymId);
+      productItems = itemsData || [];
+
+      // Load members for dropdown
+      const { data: membersData } = await sb
+        .from('users')
+        .select('id, full_name, email')
+        .eq('gym_id', gymId)
+        .eq('role', 'member');
+      members = membersData || [];
+    }
+
+    function setupEventListeners() {
+      // Tabs
+      document.querySelectorAll('[data-tab]').forEach(tab => {
+        tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+      });
+
+      // Add Product
+      document.getElementById('add-product-btn').addEventListener('click', () => {
+        document.getElementById('add-product-modal').classList.remove('hidden');
+      });
+      document.getElementById('close-add-product').addEventListener('click', () => {
+        document.getElementById('add-product-modal').classList.add('hidden');
+      });
+      document.getElementById('cancel-add-product').addEventListener('click', () => {
+        document.getElementById('add-product-modal').classList.add('hidden');
+      });
+      document.getElementById('add-product-form').addEventListener('submit', addProduct);
+
+      // Scan QR
+      document.getElementById('scan-qr-btn').addEventListener('click', () => {
+        document.getElementById('scan-modal').classList.remove('hidden');
+        document.getElementById('qr-input').value = '';
+        document.getElementById('scan-result').textContent = '';
+        document.getElementById('scan-result').className = 'mt-4 text-sm';
+      });
+      document.getElementById('close-scan').addEventListener('click', () => {
+        document.getElementById('scan-modal').classList.add('hidden');
+      });
+      document.getElementById('process-qr-btn').addEventListener('click', processQR);
+
+      // Member QR
+      document.getElementById('generate-qr-btn').addEventListener('click', generateMemberQR);
+
+      // Search
+      document.getElementById('product-search').addEventListener('input', renderProducts);
+      document.getElementById('category-filter').addEventListener('change', renderProducts);
+
+      // Close items modal
+      document.getElementById('close-items-modal').addEventListener('click', () => {
+        document.getElementById('product-items-modal').classList.add('hidden');
+      });
+
+      // QR input enter key
+      document.getElementById('qr-input').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') processQR();
+      });
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      // Update tab buttons
+      document.querySelectorAll('[data-tab]').forEach(t => {
+        t.className = t.dataset.tab === tab ? 'tab-active px-4 py-2 font-medium' : 'tab-inactive px-4 py-2 font-medium';
+      });
+      // Show/hide content
+      ['products', 'inventory', 'sales', 'member-qr'].forEach(id => {
+        document.getElementById(`tab-${id}`).className = id === tab ? 'space-y-6' : 'hidden';
+      });
+    }
+
+    // ---------- Products ----------
+    async function addProduct(e) {
+      e.preventDefault();
+      const msgEl = document.getElementById('add-product-msg');
+      const submitBtn = document.querySelector('#add-product-form button[type="submit"]');
+      
+      msgEl.classList.add('hidden');
+      submitBtn.disabled = true;
+      submitBtn.textContent = '⏳ Adding...';
+
+      const name = document.getElementById('p-name').value;
+      const description = document.getElementById('p-desc').value;
+      const price = parseFloat(document.getElementById('p-price').value);
+      const category = document.getElementById('p-category').value;
+      const quantity = parseInt(document.getElementById('p-quantity').value);
+
+      try {
+        // Insert product
+        const { data: product, error: productError } = await sb
+          .from('products')
+          .insert({
+            gym_id: gymId,
+            name,
+            description,
+            price,
+            category
+          })
+          .select()
+          .single();
+
+        if (productError) throw productError;
+
+        // Generate QR codes for each item
+        const items = [];
+        for (let i = 0; i < quantity; i++) {
+          const qrCode = `PROD-${product.id}-${Date.now()}-${i}`;
+          items.push({
+            product_id: product.id,
+            gym_id: gymId,
+            qr_code: qrCode,
+            status: 'available'
+          });
+        }
+
+        const { error: itemsError } = await sb
+          .from('product_items')
+          .insert(items);
+
+        if (itemsError) throw itemsError;
+
+        msgEl.textContent = `✅ Product added with ${quantity} items!`;
+        msgEl.className = 'text-sm text-green-600';
+        msgEl.classList.remove('hidden');
+        
+        document.getElementById('add-product-form').reset();
+        await loadData();
+        renderProducts();
+        renderInventory();
+        
+        setTimeout(() => {
+          document.getElementById('add-product-modal').classList.add('hidden');
+          msgEl.classList.add('hidden');
+        }, 1500);
+
+      } catch (err) {
+        msgEl.textContent = '❌ Error: ' + err.message;
+        msgEl.className = 'text-sm text-red-600';
+        msgEl.classList.remove('hidden');
+      }
+
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Add Product';
+    }
+
+    function renderProducts() {
+      const grid = document.getElementById('products-grid');
+      const search = document.getElementById('product-search').value.toLowerCase();
+      const category = document.getElementById('category-filter').value;
+
+      // Update category filter
+      const categories = [...new Set(products.map(p => p.category).filter(Boolean))];
+      const filterEl = document.getElementById('category-filter');
+      const currentVal = filterEl.value;
+      filterEl.innerHTML = '<option value="">All Categories</option>';
+      categories.forEach(c => {
+        filterEl.innerHTML += `<option value="${c}">${c}</option>`;
+      });
+      filterEl.value = currentVal;
+
+      let filtered = products.filter(p => {
+        const matchSearch = p.name.toLowerCase().includes(search) || p.description?.toLowerCase().includes(search);
+        const matchCategory = !category || p.category === category;
+        return matchSearch && matchCategory;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '<div class="col-span-full text-center py-12 text-gray-500">No products found</div>';
+        return;
+      }
+
+      grid.innerHTML = filtered.map(p => {
+        const items = productItems.filter(item => item.product_id === p.id);
+        const available = items.filter(item => item.status === 'available').length;
+        const sold = items.filter(item => item.status === 'sold').length;
+        
+        return `
+          <div class="product-card bg-white rounded-lg shadow-md overflow-hidden border border-gray-100">
+            <div class="p-4">
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <h4 class="font-semibold text-gray-800">${p.name}</h4>
+                  ${p.category ? `<span class="text-xs text-gray-500">${p.category}</span>` : ''}
+                </div>
+                <span class="text-lg font-bold text-blue-600">$${p.price.toFixed(2)}</span>
+              </div>
+              ${p.description ? `<p class="text-sm text-gray-500 mt-1">${p.description}</p>` : ''}
+              <div class="flex items-center gap-4 mt-3 text-sm">
+                <span class="text-green-600">✅ ${available} available</span>
+                <span class="text-red-600">📦 ${sold} sold</span>
+                <span class="text-gray-500">📋 ${items.length} total</span>
+              </div>
+              <div class="flex gap-2 mt-3">
+                <button onclick="showProductItems('${p.id}')" class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full hover:bg-blue-200 transition-colors">
+                  View QR Codes
+                </button>
+                <button onclick="deleteProduct('${p.id}')" class="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full hover:bg-red-200 transition-colors">
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function showProductItems(productId) {
+      const product = products.find(p => p.id === productId);
+      const items = productItems.filter(item => item.product_id === productId);
+      
+      document.getElementById('items-modal-title').textContent = `${product?.name || 'Product'} - Items`;
+      
+      const grid = document.getElementById('items-grid');
+      grid.innerHTML = items.map(item => {
+        const statusColors = {
+          available: 'bg-green-100 text-green-800',
+          sold: 'bg-red-100 text-red-800',
+          reserved: 'bg-yellow-100 text-yellow-800',
+          damaged: 'bg-gray-100 text-gray-800'
+        };
+        
+        return `
+          <div class="border rounded-lg p-3 text-center">
+            <div class="qr-container mx-auto mb-2" id="qr-${item.id}"></div>
+            <p class="text-xs font-mono break-all">${item.qr_code}</p>
+            <span class="inline-block mt-1 text-xs px-2 py-0.5 rounded-full ${statusColors[item.status] || 'bg-gray-100'}">${item.status}</span>
+            ${item.purchased_by ? `<p class="text-xs text-gray-500 mt-1">Sold to: ${item.purchased_by}</p>` : ''}
+          </div>
+        `;
+      }).join('');
+
+      // Generate QR codes
+      items.forEach(item => {
+        const container = document.getElementById(`qr-${item.id}`);
+        if (container && typeof QRCode !== 'undefined') {
+          new QRCode(container, {
+            text: item.qr_code,
+            width: 80,
+            height: 80
+          });
+        }
+      });
+
+      document.getElementById('product-items-modal').classList.remove('hidden');
+    }
+
+    async function deleteProduct(productId) {
+      if (!confirm('Are you sure you want to delete this product and all its items?')) return;
+      
+      const { error } = await sb
+        .from('products')
+        .delete()
+        .eq('id', productId)
+        .eq('gym_id', gymId);
+      
+      if (error) {
+        alert('Error deleting product: ' + error.message);
+        return;
+      }
+      
+      await loadData();
+      renderProducts();
+      renderInventory();
+    }
+
+    // Make functions globally available
+    window.showProductItems = showProductItems;
+    window.deleteProduct = deleteProduct;
+
+    // ---------- Inventory ----------
+    function renderInventory() {
+      const stats = document.getElementById('inventory-stats');
+      const total = productItems.length;
+      const available = productItems.filter(i => i.status === 'available').length;
+      const sold = productItems.filter(i => i.status === 'sold').length;
+      const reserved = productItems.filter(i => i.status === 'reserved').length;
+
+      stats.innerHTML = `
+        <div class="bg-blue-50 p-4 rounded-lg text-center">
+          <p class="text-2xl font-bold text-blue-600">${total}</p>
+          <p class="text-sm text-gray-500">Total Items</p>
+        </div>
+        <div class="bg-green-50 p-4 rounded-lg text-center">
+          <p class="text-2xl font-bold text-green-600">${available}</p>
+          <p class="text-sm text-gray-500">Available</p>
+        </div>
+        <div class="bg-red-50 p-4 rounded-lg text-center">
+          <p class="text-2xl font-bold text-red-600">${sold}</p>
+          <p class="text-sm text-gray-500">Sold</p>
+        </div>
+        <div class="bg-yellow-50 p-4 rounded-lg text-center">
+          <p class="text-2xl font-bold text-yellow-600">${reserved}</p>
+          <p class="text-sm text-gray-500">Reserved</p>
+        </div>
+      `;
+
+      const list = document.getElementById('inventory-list');
+      if (productItems.length === 0) {
+        list.innerHTML = '<div class="text-center py-8 text-gray-500">No items in inventory</div>';
+        return;
+      }
+
+      list.innerHTML = productItems.slice(0, 20).map(item => {
+        const product = products.find(p => p.id === item.product_id);
+        return `
+          <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+            <div>
+              <p class="font-medium text-gray-800">${product?.name || 'Unknown'}</p>
+              <p class="text-xs font-mono text-gray-500">${item.qr_code}</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-xs px-2 py-0.5 rounded-full ${
+                item.status === 'available' ? 'bg-green-100 text-green-800' :
+                item.status === 'sold' ? 'bg-red-100 text-red-800' :
+                'bg-yellow-100 text-yellow-800'
+              }">${item.status}</span>
+              ${item.purchased_by ? `<span class="text-xs text-gray-500">Sold</span>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ---------- Sales ----------
+    async function renderSales() {
+      const { data: sales } = await sb
+        .from('customer_purchases')
+        .select('*, customer:users(full_name, email), product_item:product_items(qr_code, product:products(name, price))')
+        .eq('gym_id', gymId)
+        .order('purchase_date', { ascending: false })
+        .limit(50);
+
+      const list = document.getElementById('sales-list');
+      if (!sales || sales.length === 0) {
+        list.innerHTML = '<div class="text-center py-8 text-gray-500">No sales yet</div>';
+        return;
+      }
+
+      list.innerHTML = sales.map(s => `
+        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+          <div>
+            <p class="font-medium text-gray-800">${s.customer?.full_name || 'Unknown'}</p>
+            <p class="text-xs text-gray-500">${s.product_item?.product?.name || 'Product'}</p>
+            <p class="text-xs font-mono text-gray-400">${s.product_item?.qr_code || ''}</p>
+          </div>
+          <div class="text-right">
+            <p class="font-bold text-blue-600">$${s.price_paid.toFixed(2)}</p>
+            <p class="text-xs text-gray-500">${new Date(s.purchase_date).toLocaleDateString()}</p>
+            ${s.loyalty_points_earned > 0 ? `<p class="text-xs text-green-600">⭐ ${s.loyalty_points_earned} pts</p>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ---------- Scan QR ----------
+    async function processQR() {
+      const qrInput = document.getElementById('qr-input');
+      const resultEl = document.getElementById('scan-result');
+      const qrCode = qrInput.value.trim();
+
+      if (!qrCode) {
+        resultEl.textContent = '⚠️ Please enter a QR code';
+        resultEl.className = 'mt-4 text-sm text-red-600';
+        return;
+      }
+
+      resultEl.textContent = '⏳ Processing...';
+      resultEl.className = 'mt-4 text-sm text-blue-600';
+
+      // Check if it's a product QR
+      const { data: item, error: itemError } = await sb
+        .from('product_items')
+        .select('*, product:products(*)')
+        .eq('qr_code', qrCode)
+        .eq('gym_id', gymId)
+        .single();
+
+      if (item) {
+        // It's a product - process purchase
+        if (item.status === 'sold') {
+          resultEl.textContent = '❌ This item has already been sold!';
+          resultEl.className = 'mt-4 text-sm text-red-600';
+          return;
+        }
+
+        // Show purchase dialog
+        const memberId = await selectMemberForPurchase();
+        if (!memberId) {
+          resultEl.textContent = '❌ Please select a member';
+          resultEl.className = 'mt-4 text-sm text-red-600';
+          return;
+        }
+
+        const { error: purchaseError } = await sb.rpc('record_product_purchase', {
+          p_member_id: memberId,
+          p_product_item_id: item.id,
+          p_gym_id: gymId,
+          p_price_paid: item.product.price,
+          p_payment_method: 'cash'
+        });
+
+        if (purchaseError) {
+          resultEl.textContent = '❌ Error: ' + purchaseError.message;
+          resultEl.className = 'mt-4 text-sm text-red-600';
+          return;
+        }
+
+        resultEl.textContent = `✅ ${item.product.name} sold to member! ⭐ ${Math.floor(item.product.price * 3)} points earned!`;
+        resultEl.className = 'mt-4 text-sm text-green-600';
+        
+        await loadData();
+        renderProducts();
+        renderInventory();
+        renderSales();
+        qrInput.value = '';
+        return;
+      }
+
+      // Check if it's a member QR (for check-in)
+      const { data: memberQR, error: memberError } = await sb
+        .from('member_qr_codes')
+        .select('*, member:users(*)')
+        .eq('qr_code', qrCode)
+        .eq('gym_id', gymId)
+        .single();
+
+      if (memberQR) {
+        // Process check-in
+        const { error: checkinError } = await sb
+          .from('attendance_logs')
+          .insert({
+            user_id: memberQR.member_id,
+            gym_id: gymId,
+            method: 'qr_code',
+            type: 'member'
+          });
+
+        if (checkinError) {
+          resultEl.textContent = '❌ Check-in failed: ' + checkinError.message;
+          resultEl.className = 'mt-4 text-sm text-red-600';
+          return;
+        }
+
+        // Update last used
+        await sb
+          .from('member_qr_codes')
+          .update({ last_used_at: new Date().toISOString() })
+          .eq('id', memberQR.id);
+
+        resultEl.textContent = `✅ ${memberQR.member?.full_name || 'Member'} checked in successfully!`;
+        resultEl.className = 'mt-4 text-sm text-green-600';
+        qrInput.value = '';
+        return;
+      }
+
+      resultEl.textContent = '❌ Invalid QR code - not found in system';
+      resultEl.className = 'mt-4 text-sm text-red-600';
+    }
+
+    async function selectMemberForPurchase() {
+      // Simple prompt - in production use a modal
+      const membersList = members.map(m => `${m.full_name} (${m.email})`).join('\n');
+      const memberName = prompt(`Select a member:\n${membersList}\n\nEnter member name or email:`);
+      if (!memberName) return null;
+      
+      const member = members.find(m => 
+        m.full_name?.toLowerCase().includes(memberName.toLowerCase()) ||
+        m.email?.toLowerCase().includes(memberName.toLowerCase())
+      );
+      
+      return member?.id || null;
+    }
+
+    // ---------- Member QR ----------
+    function populateMembers() {
+      const select = document.getElementById('member-select');
+      select.innerHTML = '<option value="">Select a member</option>';
+      members.forEach(m => {
+        select.innerHTML += `<option value="${m.id}">${m.full_name || 'Unknown'} - ${m.email || 'No email'}</option>`;
+      });
+    }
+
+    async function generateMemberQR() {
+      const memberId = document.getElementById('member-select').value;
+      const display = document.getElementById('member-qr-display');
+
+      if (!memberId) {
+        display.innerHTML = '<p class="text-red-500">Please select a member first</p>';
+        return;
+      }
+
+      const member = members.find(m => m.id === memberId);
+      if (!member) {
+        display.innerHTML = '<p class="text-red-500">Member not found</p>';
+        return;
+      }
+
+      // Check if member already has QR
+      const { data: existing } = await sb
+        .from('member_qr_codes')
+        .select('qr_code')
+        .eq('member_id', memberId)
+        .eq('gym_id', gymId)
+        .eq('is_active', true)
+        .single();
+
+      let qrCode;
+      if (existing) {
+        qrCode = existing.qr_code;
+      } else {
+        // Generate new QR
+        const result = await sb.rpc('ensure_member_qr', {
+          p_member_id: memberId,
+          p_gym_id: gymId
+        });
+        qrCode = result.data;
+      }
+
+      display.innerHTML = `
+        <div class="qr-container">
+          <div id="member-qr-display-canvas"></div>
+        </div>
+        <p class="font-medium text-gray-800 mt-4">${member.full_name || 'Member'}</p>
+        <p class="text-sm text-gray-500">${member.email || ''}</p>
+        <p class="text-xs font-mono text-gray-400 mt-2">${qrCode}</p>
+        <button onclick="downloadMemberQR()" class="mt-4 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-4 py-2">
+          📥 Download QR
+        </button>
+      `;
+
+      // Generate QR
+      if (typeof QRCode !== 'undefined') {
+        new QRCode(document.getElementById('member-qr-display-canvas'), {
+          text: qrCode,
+          width: 150,
+          height: 150
+        });
+      }
+    }
+
+    function downloadMemberQR() {
+      const canvas = document.querySelector('#member-qr-display-canvas canvas');
+      if (canvas) {
+        const link = document.createElement('a');
+        link.download = 'member-qr.png';
+        link.href = canvas.toDataURL();
+        link.click();
+      }
+    }
+
+    // Make functions globally available
+    window.downloadMemberQR = downloadMemberQR;
+    window.generateMemberQR = generateMemberQR;
+
+    // Run init
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  </script>
+</body>
+</html>

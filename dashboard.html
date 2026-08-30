@@ -18,11 +18,11 @@
     <div id="dashboard-content" class="hidden space-y-6">
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-2xl font-bold text-gray-800">Dashboard</h1>
-          <p class="text-sm text-gray-500">Welcome back! Here's what's happening with your gym today.</p>
+          <h1 class="text-2xl font-bold text-gray-800" data-i18n="dashboard.title">Dashboard</h1>
+          <p class="text-sm text-gray-500" data-i18n="dashboard.welcome">Welcome back! Here's what's happening with your gym today.</p>
         </div>
         <button id="refresh-btn" class="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
-          <span>🔄</span> Refresh
+          <span>🔄</span> <span data-i18n="dashboard.refresh">Refresh</span>
         </button>
       </div>
 
@@ -30,18 +30,18 @@
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="bg-white rounded-lg shadow-md overflow-hidden col-span-1">
-          <div class="px-6 py-4 border-b"><h3 class="text-lg font-semibold text-gray-900">Revenue Overview</h3></div>
+          <div class="px-6 py-4 border-b"><h3 class="text-lg font-semibold text-gray-900" data-i18n="dashboard.revenue.overview">Revenue Overview</h3></div>
           <div class="px-6 py-4"><div class="w-full h-[300px]"><canvas id="revenue-chart"></canvas></div></div>
         </div>
         <div class="bg-white rounded-lg shadow-md overflow-hidden col-span-1">
-          <div class="px-6 py-4 border-b"><h3 class="text-lg font-semibold text-gray-900">Check-in Activity</h3></div>
+          <div class="px-6 py-4 border-b"><h3 class="text-lg font-semibold text-gray-900" data-i18n="dashboard.attendance.activity">Check-in Activity</h3></div>
           <div class="px-6 py-4"><div class="w-full h-[300px]"><canvas id="attendance-chart"></canvas></div></div>
         </div>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="lg:col-span-1 bg-white rounded-lg shadow-md overflow-hidden">
-          <div class="px-6 py-4 border-b"><h3 class="text-lg font-semibold text-gray-900">Member Distribution</h3></div>
+          <div class="px-6 py-4 border-b"><h3 class="text-lg font-semibold text-gray-900" data-i18n="dashboard.member.distribution">Member Distribution</h3></div>
           <div class="px-6 py-4">
             <div class="w-full h-[300px]"><canvas id="distribution-chart"></canvas></div>
             <div id="distribution-legend" class="flex flex-wrap gap-3 mt-4 justify-center"></div>
@@ -49,15 +49,15 @@
         </div>
         <div class="lg:col-span-2 bg-white rounded-lg shadow-md overflow-hidden">
           <div class="px-6 py-4 border-b">
-            <h3 class="text-lg font-semibold text-gray-900">Upcoming Renewals</h3>
-            <p class="text-sm text-gray-500">Members expiring in the next 7 days</p>
+            <h3 class="text-lg font-semibold text-gray-900" data-i18n="dashboard.upcoming.renewals">Upcoming Renewals</h3>
+            <p class="text-sm text-gray-500" data-i18n="dashboard.renewals.desc">Members expiring in the next 7 days</p>
           </div>
           <div class="px-6 py-4"><div id="renewals-list" class="space-y-3"></div></div>
         </div>
       </div>
 
       <div class="bg-white rounded-lg shadow-md overflow-hidden">
-        <div class="px-6 py-4 border-b"><h3 class="text-lg font-semibold text-gray-900">Recent Activity</h3></div>
+        <div class="px-6 py-4 border-b"><h3 class="text-lg font-semibold text-gray-900" data-i18n="dashboard.recent.activity">Recent Activity</h3></div>
         <div class="px-6 py-4"><div id="activity-list" class="space-y-4"></div></div>
       </div>
     </div>
@@ -65,6 +65,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabaseClient.js"></script>
+  <script src="js/language.js"></script>
   <script>
     let gymId = null;
 
@@ -75,11 +76,13 @@
       gymId = auth.profile?.gym_id;
       if (!gymId) {
         document.getElementById('loading-state').innerHTML =
-          '<p class="text-gray-500">No gym linked to this account yet.</p>';
+          `<p class="text-gray-500" data-i18n="dashboard.nogym">No gym linked to this account yet.</p>`;
+        updatePageLanguage();
         return;
       }
       await loadDashboard();
       document.getElementById('refresh-btn').addEventListener('click', loadDashboard);
+      updatePageLanguage();
     }
 
     async function loadDashboard() {
@@ -103,6 +106,7 @@
 
       document.getElementById('loading-state').classList.add('hidden');
       document.getElementById('dashboard-content').classList.remove('hidden');
+      updatePageLanguage();
     }
 
     // ---------- Data fetching (ported from dashboard.service.ts) ----------
@@ -259,16 +263,16 @@
 
     function renderStats(stats) {
       const cards = [
-        { title: 'Total Members', value: stats.totalMembers, icon: '👥', color: 'text-blue-600' },
-        { title: 'Active Members', value: stats.activeMembers, icon: '✅', color: 'text-green-600' },
+        { title: t('dashboard.total.members'), value: stats.totalMembers, icon: '👥', color: 'text-blue-600' },
+        { title: t('dashboard.active.members'), value: stats.activeMembers, icon: '✅', color: 'text-green-600' },
         {
-          title: "Today's Check-Ins",
+          title: t('dashboard.today.checkins'),
           value: stats.todayCheckIns,
           icon: '📅',
           color: 'text-purple-600',
-          subtitle: `${stats.checkInRate}% of total`
+          subtitle: `${stats.checkInRate}% ${t('dashboard.of.total')}`
         },
-        { title: 'Monthly Revenue', value: `$${stats.monthlyRevenue.toLocaleString()}`, icon: '💰', color: 'text-yellow-600' }
+        { title: t('dashboard.monthly.revenue'), value: `$${stats.monthlyRevenue.toLocaleString()}`, icon: '💰', color: 'text-yellow-600' }
       ];
 
       document.getElementById('stats-cards').innerHTML = cards
@@ -292,7 +296,7 @@
     function renderRenewals(subs) {
       const el = document.getElementById('renewals-list');
       if (!subs.length) {
-        el.innerHTML = '<div class="text-center py-8 text-gray-500"><p>No upcoming renewals</p></div>';
+        el.innerHTML = `<div class="text-center py-8 text-gray-500"><p data-i18n="dashboard.no.renewals">No upcoming renewals</p></div>`;
         return;
       }
       el.innerHTML = subs
@@ -304,17 +308,17 @@
             <div class="flex items-center space-x-3 space-x-reverse">
               <div class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center">👤</div>
               <div>
-                <p class="font-medium text-gray-900">${sub.user?.full_name || 'Unknown Member'}</p>
-                <p class="text-xs text-gray-500">${sub.user?.email || 'No email'}</p>
+                <p class="font-medium text-gray-900">${sub.user?.full_name || t('common.unknown')}</p>
+                <p class="text-xs text-gray-500">${sub.user?.email || t('common.noemail')}</p>
               </div>
             </div>
             <div class="text-left">
               <div class="text-sm text-gray-600">${formatDate(sub.end_date)}</div>
               <div class="flex items-center justify-end gap-2 mt-1">
-                <span class="text-xs text-gray-500">${daysRemaining} days remaining</span>
+                <span class="text-xs text-gray-500">${daysRemaining} ${t('dashboard.days.remaining')}</span>
                 ${
                   isUrgent
-                    ? '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 animate-pulse">Urgent</span>'
+                    ? `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 animate-pulse" data-i18n="dashboard.urgent">Urgent</span>`
                     : ''
                 }
               </div>
@@ -322,12 +326,13 @@
           </div>`;
         })
         .join('');
+      updatePageLanguage();
     }
 
     function renderActivity(activities) {
       const el = document.getElementById('activity-list');
       if (!activities.length) {
-        el.innerHTML = '<div class="text-center py-8 text-gray-500"><p>No recent activity</p></div>';
+        el.innerHTML = `<div class="text-center py-8 text-gray-500"><p data-i18n="dashboard.no.activity">No recent activity</p></div>`;
         return;
       }
       el.innerHTML = activities
@@ -336,17 +341,18 @@
         <div class="flex items-start space-x-3 space-x-reverse p-3 rounded-lg hover:bg-gray-50 transition-colors">
           <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">👤</div>
           <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium text-gray-900">${a.user?.full_name || 'Unknown Member'}</p>
-            <p class="text-xs text-gray-500">${a.user?.email || 'No email'}</p>
+            <p class="text-sm font-medium text-gray-900">${a.user?.full_name || t('common.unknown')}</p>
+            <p class="text-xs text-gray-500">${a.user?.email || t('common.noemail')}</p>
             <div class="flex items-center gap-3 mt-1">
               <span class="text-xs text-gray-500">${formatDateTime(a.check_in_time)}</span>
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Checked In</span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800" data-i18n="dashboard.checked.in">Checked In</span>
             </div>
           </div>
           <div class="text-xs text-gray-400">${a.method === 'qr_code' ? '📱 QR' : '✏️ Manual'}</div>
         </div>`
         )
         .join('');
+      updatePageLanguage();
     }
 
     // ---------- Charts (plain canvas, ported from the original React components) ----------
@@ -513,7 +519,7 @@
       ctx.font = 'bold 20px sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('Total', centerX, centerY - 12);
+      ctx.fillText(t('dashboard.total'), centerX, centerY - 12);
       ctx.font = 'bold 24px sans-serif';
       ctx.fillText(total.toString(), centerX, centerY + 18);
 

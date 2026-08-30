@@ -16,10 +16,18 @@
     </div>
 
     <div id="content" class="hidden space-y-6">
-      <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 class="text-2xl font-bold text-gray-800" data-i18n="members.title">Members</h1>
           <p class="text-sm text-gray-500" data-i18n="members.desc">Manage your gym members and their subscriptions</p>
+        </div>
+        <div class="flex gap-2">
+          <button id="add-member-btn" class="bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">
+            ➕ <span data-i18n="members.add">Add Member</span>
+          </button>
+          <button id="canteen-btn" class="bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">
+            🛒 <span>Canteen</span>
+          </button>
         </div>
       </div>
 
@@ -37,12 +45,81 @@
     </div>
   </main>
 
+  <!-- Modal: Add Member -->
+  <div id="add-member-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-800">Add New Member</h2>
+        <button id="close-modal-btn" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+      </div>
+      <form id="add-member-form" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+          <input type="text" id="new-fullname" required class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <input type="email" id="new-email" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+          <input type="tel" id="new-phone" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Password *</label>
+          <input type="password" id="new-password" required minlength="6" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <p class="text-xs text-gray-500 mt-1">At least 6 characters</p>
+        </div>
+        <div class="border-t pt-4 flex gap-3">
+          <button type="button" id="cancel-add-btn" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-medium px-4 py-2">Cancel</button>
+          <button type="submit" id="submit-add-btn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2">Add Member</button>
+        </div>
+        <div id="add-msg" class="text-sm hidden"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Canteen Purchase -->
+  <div id="canteen-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-800">🛒 Canteen Purchase</h2>
+        <button id="close-canteen-btn" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+      </div>
+      <form id="canteen-form" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Select Member *</label>
+          <select id="canteen-member" required class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">-- Select Member --</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Purchase Amount (₺) *</label>
+          <input type="number" id="canteen-amount" required min="0.01" step="0.01" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+          <input type="text" id="canteen-description" placeholder="e.g., Protein shake, Snacks" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div id="canteen-points-preview" class="bg-blue-50 p-3 rounded-lg text-sm text-blue-800 hidden">
+          ⭐ This purchase will earn <span id="points-earned">0</span> loyalty points!
+        </div>
+        <div class="border-t pt-4 flex gap-3">
+          <button type="button" id="cancel-canteen-btn" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-medium px-4 py-2">Cancel</button>
+          <button type="submit" id="submit-canteen-btn" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium px-4 py-2">Record Purchase</button>
+        </div>
+        <div id="canteen-msg" class="text-sm hidden"></div>
+      </form>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabaseClient.js"></script>
   <script src="js/language.js"></script>
   <script>
     let gymId = null;
     let allMembers = [];
+    let canteenSettings = null;
 
     async function init() {
       const auth = await requireAuth();
@@ -51,9 +128,214 @@
       gymId = auth.profile?.gym_id;
 
       await fetchMembers();
+      await fetchCanteenSettings();
+      
       document.getElementById('refresh-btn').addEventListener('click', fetchMembers);
       document.getElementById('search-input').addEventListener('input', (e) => renderMembers(e.target.value));
-      updatePageLanguage();
+      
+      // Add Member Modal
+      document.getElementById('add-member-btn').addEventListener('click', () => {
+        document.getElementById('add-member-modal').classList.remove('hidden');
+      });
+      document.getElementById('close-modal-btn').addEventListener('click', () => {
+        document.getElementById('add-member-modal').classList.add('hidden');
+        document.getElementById('add-msg').classList.add('hidden');
+      });
+      document.getElementById('cancel-add-btn').addEventListener('click', () => {
+        document.getElementById('add-member-modal').classList.add('hidden');
+        document.getElementById('add-msg').classList.add('hidden');
+      });
+      document.getElementById('add-member-form').addEventListener('submit', addMember);
+      
+      // Canteen Modal
+      document.getElementById('canteen-btn').addEventListener('click', () => {
+        populateCanteenMembers();
+        document.getElementById('canteen-modal').classList.remove('hidden');
+      });
+      document.getElementById('close-canteen-btn').addEventListener('click', () => {
+        document.getElementById('canteen-modal').classList.add('hidden');
+        document.getElementById('canteen-msg').classList.add('hidden');
+      });
+      document.getElementById('cancel-canteen-btn').addEventListener('click', () => {
+        document.getElementById('canteen-modal').classList.add('hidden');
+        document.getElementById('canteen-msg').classList.add('hidden');
+      });
+      document.getElementById('canteen-amount').addEventListener('input', previewCanteenPoints);
+      document.getElementById('canteen-form').addEventListener('submit', recordCanteenPurchase);
+      
+      setTimeout(updatePageLanguage, 100);
+    }
+
+    async function fetchCanteenSettings() {
+      const { data } = await sb
+        .from('loyalty_settings')
+        .select('points_per_canteen_purchase')
+        .eq('gym_id', gymId)
+        .single();
+      canteenSettings = data || { points_per_canteen_purchase: 0 };
+    }
+
+    function previewCanteenPoints() {
+      const amount = parseFloat(document.getElementById('canteen-amount').value) || 0;
+      const rate = canteenSettings?.points_per_canteen_purchase || 0;
+      const points = Math.round(amount * rate);
+      const previewEl = document.getElementById('canteen-points-preview');
+      if (amount > 0 && rate > 0) {
+        previewEl.classList.remove('hidden');
+        document.getElementById('points-earned').textContent = points;
+      } else {
+        previewEl.classList.add('hidden');
+      }
+    }
+
+    async function populateCanteenMembers() {
+      const select = document.getElementById('canteen-member');
+      select.innerHTML = '<option value="">-- Select Member --</option>';
+      // Get active members with subscriptions
+      const { data } = await sb
+        .from('users')
+        .select('id, full_name, email, subscription:subscriptions(status)')
+        .eq('gym_id', gymId)
+        .eq('role', 'member');
+      
+      (data || []).forEach(m => {
+        const subs = Array.isArray(m.subscription) ? m.subscription : [m.subscription];
+        const isActive = subs.some(s => s?.status === 'active');
+        if (isActive) {
+          const option = document.createElement('option');
+          option.value = m.id;
+          option.textContent = `${m.full_name || 'Unknown'} - ${m.email || 'No email'}`;
+          select.appendChild(option);
+        }
+      });
+    }
+
+    async function recordCanteenPurchase(e) {
+      e.preventDefault();
+      const msgEl = document.getElementById('canteen-msg');
+      const submitBtn = document.getElementById('submit-canteen-btn');
+      
+      msgEl.classList.add('hidden');
+      submitBtn.disabled = true;
+      submitBtn.textContent = '⏳ Saving...';
+
+      const memberId = document.getElementById('canteen-member').value;
+      const amount = parseFloat(document.getElementById('canteen-amount').value);
+      const description = document.getElementById('canteen-description').value || 'Canteen purchase';
+
+      if (!memberId) {
+        msgEl.textContent = 'Please select a member';
+        msgEl.className = 'text-sm text-red-600';
+        msgEl.classList.remove('hidden');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Record Purchase';
+        return;
+      }
+
+      const rate = canteenSettings?.points_per_canteen_purchase || 0;
+      const points = Math.round(amount * rate);
+
+      // Record the transaction
+      const { error } = await sb
+        .from('loyalty_transactions')
+        .insert({
+          member_id: memberId,
+          gym_id: gymId,
+          points: points,
+          transaction_type: 'earned',
+          source: 'canteen',
+          description: `${description} - ${amount} currency units`
+        });
+
+      if (error) {
+        msgEl.textContent = '❌ Failed to record purchase: ' + error.message;
+        msgEl.className = 'text-sm text-red-600';
+        msgEl.classList.remove('hidden');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Record Purchase';
+        return;
+      }
+
+      msgEl.textContent = `✅ Purchase recorded! ${points} points earned!`;
+      msgEl.className = 'text-sm text-green-600';
+      msgEl.classList.remove('hidden');
+      
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Record Purchase';
+      
+      // Reset form after 2 seconds
+      setTimeout(() => {
+        document.getElementById('canteen-form').reset();
+        document.getElementById('canteen-points-preview').classList.add('hidden');
+        msgEl.classList.add('hidden');
+        document.getElementById('canteen-modal').classList.add('hidden');
+      }, 2000);
+    }
+
+    async function addMember(e) {
+      e.preventDefault();
+      const msgEl = document.getElementById('add-msg');
+      const submitBtn = document.getElementById('submit-add-btn');
+      
+      msgEl.classList.add('hidden');
+      submitBtn.disabled = true;
+      submitBtn.textContent = '⏳ Creating...';
+
+      const fullName = document.getElementById('new-fullname').value;
+      const email = document.getElementById('new-email').value || null;
+      const phone = document.getElementById('new-phone').value || null;
+      const password = document.getElementById('new-password').value;
+
+      try {
+        // 1. Create auth user
+        const { data: authData, error: authError } = await sb.auth.signUp({
+          email: email || `${fullName.replace(/\s/g,'')}_${Date.now()}@temp.com`,
+          password: password,
+          options: { data: { full_name: fullName } }
+        });
+
+        if (authError) throw authError;
+
+        if (!authData?.user) {
+          throw new Error('Failed to create user');
+        }
+
+        // 2. Create user profile
+        const { error: profileError } = await sb
+          .from('users')
+          .insert({
+            id: authData.user.id,
+            full_name: fullName,
+            email: email,
+            phone: phone,
+            gym_id: gymId,
+            role: 'member'
+          });
+
+        if (profileError) throw profileError;
+
+        msgEl.textContent = '✅ Member added successfully!';
+        msgEl.className = 'text-sm text-green-600';
+        msgEl.classList.remove('hidden');
+        
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Add Member';
+        
+        document.getElementById('add-member-form').reset();
+        
+        setTimeout(() => {
+          document.getElementById('add-member-modal').classList.add('hidden');
+          msgEl.classList.add('hidden');
+          fetchMembers();
+        }, 1500);
+
+      } catch (err) {
+        msgEl.textContent = '❌ Error: ' + err.message;
+        msgEl.className = 'text-sm text-red-600';
+        msgEl.classList.remove('hidden');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Add Member';
+      }
     }
 
     async function fetchMembers() {
@@ -73,7 +355,7 @@
       document.getElementById('loading-state').classList.add('hidden');
       document.getElementById('content').classList.remove('hidden');
       renderMembers(document.getElementById('search-input').value);
-      updatePageLanguage();
+      setTimeout(updatePageLanguage, 50);
     }
 
     function renderMembers(searchTerm) {
@@ -86,25 +368,34 @@
         );
       });
 
+      const lang = localStorage.getItem('gym_lang') || 'en';
+      const noResultsText = lang === 'ar' ? 'لم يتم العثور على أعضاء' : 'No members found';
+      const unknownText = lang === 'ar' ? 'عضو غير معروف' : 'Unknown Member';
+      const noEmailText = lang === 'ar' ? 'لا يوجد بريد إلكتروني' : 'No email';
+      const activeText = lang === 'ar' ? 'نشط' : 'Active';
+      const inactiveText = lang === 'ar' ? 'غير نشط' : 'Inactive';
+      const expiresText = lang === 'ar' ? 'ينتهي في' : 'Expires';
+      const showingText = lang === 'ar' ? 'عرض {count} من {total} عضو' : 'Showing {count} of {total} members';
+
       const el = document.getElementById('members-list');
       if (filtered.length === 0) {
-        el.innerHTML = `<div class="text-center py-8 text-gray-500"><p data-i18n="members.noresults">No members found</p></div>`;
+        el.innerHTML = `<div class="text-center py-8 text-gray-500"><p>${noResultsText}</p></div>`;
       } else {
         el.innerHTML = filtered
           .map((m) => {
             const sub = Array.isArray(m.subscription) ? m.subscription[0] : m.subscription;
             const isActive = sub?.status === 'active';
-            const statusText = isActive ? t('members.active') : t('members.inactive');
+            const statusText = isActive ? activeText : inactiveText;
             const statusClass = isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
             return `
             <div class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
               <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">👤</div>
+                <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-xl">👤</div>
                 <div>
-                  <p class="font-medium text-gray-900">${m.full_name || t('members.unknown')}</p>
+                  <p class="font-medium text-gray-900">${m.full_name || unknownText}</p>
                   <div class="flex items-center gap-3 text-sm text-gray-500">
-                    <span>${m.email || t('members.noemail')}</span>
-                    ${m.phone ? `<span>${m.phone}</span>` : ''}
+                    <span>${m.email || noEmailText}</span>
+                    ${m.phone ? `<span>📱 ${m.phone}</span>` : ''}
                   </div>
                 </div>
               </div>
@@ -114,9 +405,9 @@
                     ? `
                   <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}">${statusText}</span>
                   <p class="text-xs text-gray-500 mt-1">${sub.membership?.name || ''}</p>
-                  <p class="text-xs text-gray-400">${t('members.expires', { date: formatDate(sub.end_date) })}</p>
+                  <p class="text-xs text-gray-400">${expiresText} ${formatDate(sub.end_date)}</p>
                 `
-                    : ''
+                    : `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">No Subscription</span>`
                 }
               </div>
             </div>`;
@@ -124,10 +415,15 @@
           .join('');
       }
 
-      document.getElementById('count-label').textContent = t('members.showing', { count: filtered.length, total: allMembers.length });
+      document.getElementById('count-label').textContent = showingText.replace('{count}', filtered.length).replace('{total}', allMembers.length);
     }
 
-    init();
+    // Run init when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
   </script>
 </body>
 </html>

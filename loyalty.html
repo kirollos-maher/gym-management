@@ -19,12 +19,14 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabaseClient.js"></script>
+  <script src="js/language.js"></script>
   <script>
     let gymId, userId, role;
 
     async function init() {
       const auth = await requireAuth();
       if (!auth) return;
+      
       renderNav(auth.user, 'loyalty');
       gymId = auth.profile?.gym_id;
       userId = auth.user.id;
@@ -34,11 +36,13 @@
       const content = document.getElementById('content');
       content.classList.remove('hidden');
 
+      const lang = localStorage.getItem('gym_lang') || 'en';
+      
       if (role === 'gym_owner' || role === 'super_admin') {
         content.innerHTML = `
           <div>
-            <h1 class="text-2xl font-bold text-gray-800">Loyalty Program</h1>
-            <p class="text-sm text-gray-500">Manage loyalty points settings and view member activity</p>
+            <h1 class="text-2xl font-bold text-gray-800" data-i18n="loyalty.title">Loyalty Program</h1>
+            <p class="text-sm text-gray-500" data-i18n="loyalty.desc">Manage loyalty points settings and view member activity</p>
           </div>
           <div id="settings-panel" class="bg-white rounded-lg shadow-md p-6"></div>
         `;
@@ -46,8 +50,8 @@
       } else if (role === 'member') {
         content.innerHTML = `
           <div>
-            <h1 class="text-2xl font-bold text-gray-800">My Loyalty Points</h1>
-            <p class="text-sm text-gray-500">Track your points and redeem rewards</p>
+            <h1 class="text-2xl font-bold text-gray-800" data-i18n="loyalty.my.title">My Loyalty Points</h1>
+            <p class="text-sm text-gray-500" data-i18n="loyalty.my.desc">Track your points and redeem rewards</p>
           </div>
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div class="space-y-6">
@@ -59,8 +63,10 @@
         `;
         await renderMemberView();
       } else {
-        content.innerHTML = '<div class="text-center py-12 text-gray-500">You don\'t have access to loyalty features</div>';
+        content.innerHTML = `<div class="text-center py-12 text-gray-500" data-i18n="loyalty.noaccess">You don't have access to loyalty features</div>`;
       }
+      
+      setTimeout(updatePageLanguage, 100);
     }
 
     async function getMemberBalance(memberId) {
@@ -88,20 +94,36 @@
     }
 
     function historyHtml(transactions) {
+      const lang = localStorage.getItem('gym_lang') || 'en';
+      const noHistoryText = lang === 'ar' ? 'لا توجد معاملات ولاء حتى الآن' : 'No loyalty transactions yet';
+      const historyTitle = lang === 'ar' ? 'سجل المعاملات' : 'Transaction History';
+      const historyDesc = lang === 'ar' ? 'نشاط نقاط الولاء الأخير' : 'Recent loyalty point activity';
+      const earnedText = lang === 'ar' ? 'مكتسب' : 'Earned';
+      const redeemedText = lang === 'ar' ? 'مستبدل' : 'Redeemed';
+      
       if (!transactions.length) {
         return `<div class="bg-white rounded-lg shadow-md p-6 text-center text-gray-500">
-          <p>No loyalty transactions yet</p>
+          <p>${noHistoryText}</p>
         </div>`;
       }
-      const labels = { attendance: 'Check-in', renewal: 'Renewal', canteen: 'Canteen', manual: 'Manual' };
+      
+      const labels = { 
+        attendance: lang === 'ar' ? 'حضور' : 'Attendance', 
+        renewal: lang === 'ar' ? 'تجديد' : 'Renewal', 
+        canteen: lang === 'ar' ? 'كافيتيريا' : 'Canteen', 
+        manual: lang === 'ar' ? 'يدوي' : 'Manual' 
+      };
+      
       return `
         <div class="bg-white rounded-lg shadow-md p-6">
-          <h3 class="text-lg font-semibold text-gray-900 mb-1">Transaction History</h3>
-          <p class="text-sm text-gray-500 mb-4">Recent loyalty point activity</p>
+          <h3 class="text-lg font-semibold text-gray-900 mb-1">${historyTitle}</h3>
+          <p class="text-sm text-gray-500 mb-4">${historyDesc}</p>
           <div class="space-y-3">
             ${transactions
               .map((t) => {
                 const earned = t.transaction_type === 'earned';
+                const statusText = earned ? earnedText : redeemedText;
+                const statusClass = earned ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
                 return `
               <div class="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors">
                 <div class="flex items-center gap-3">
@@ -111,9 +133,7 @@
                   <div>
                     <div class="flex items-center gap-2">
                       <span class="font-medium text-gray-900">${labels[t.source] || t.source}</span>
-                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        earned ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      }">${earned ? 'Earned' : 'Redeemed'}</span>
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}">${statusText}</span>
                     </div>
                     <div class="text-xs text-gray-500">${formatDateTime(t.created_at)}</div>
                     ${t.description ? `<p class="text-xs text-gray-400 mt-1">${t.description}</p>` : ''}
@@ -132,24 +152,31 @@
     async function renderMemberView() {
       const [balance, history] = await Promise.all([getMemberBalance(userId), getMemberHistory(userId)]);
 
+      const lang = localStorage.getItem('gym_lang') || 'en';
+      const pointsText = lang === 'ar' ? 'نقاط الولاء' : 'Loyalty Points';
+      const earnText = lang === 'ar' ? '⭐ اكسب نقاط مع تسجيل الحضور' : '⭐ Earn points with check-ins';
+      const redeemText = lang === 'ar' ? 'استبدال النقاط' : 'Redeem Points';
+      const redeemPlaceholder = lang === 'ar' ? 'النقاط المراد استبدالها' : 'Points to redeem';
+      const redeemBtnText = lang === 'ar' ? 'استبدال' : 'Redeem';
+
       document.getElementById('balance-card').innerHTML = `
         <div class="bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg shadow-md p-6">
           <div class="flex items-start justify-between">
             <div>
-              <p class="text-sm font-medium text-yellow-800">Loyalty Points</p>
+              <p class="text-sm font-medium text-yellow-800">${pointsText}</p>
               <p class="text-4xl font-bold text-yellow-900 mt-1">${balance.toLocaleString()}</p>
-              <p class="text-xs text-yellow-700 mt-3">⭐ Earn points with check-ins</p>
+              <p class="text-xs text-yellow-700 mt-3">${earnText}</p>
             </div>
             <div class="p-3 bg-yellow-200 rounded-full text-3xl">⭐</div>
           </div>
         </div>`;
 
       document.getElementById('redeem-card').innerHTML = `
-        <h3 class="text-lg font-semibold text-gray-900 mb-3">Redeem Points</h3>
+        <h3 class="text-lg font-semibold text-gray-900 mb-3">${redeemText}</h3>
         <div class="flex gap-2">
-          <input type="number" min="1" id="redeem-amount" placeholder="Points to redeem"
+          <input type="number" min="1" id="redeem-amount" placeholder="${redeemPlaceholder}"
             class="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          <button id="redeem-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2">Redeem</button>
+          <button id="redeem-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2">${redeemBtnText}</button>
         </div>
         <p id="redeem-msg" class="text-sm mt-2"></p>
       `;
@@ -159,14 +186,21 @@
       document.getElementById('redeem-btn').addEventListener('click', async () => {
         const amount = Number(document.getElementById('redeem-amount').value);
         const msgEl = document.getElementById('redeem-msg');
+        
+        const lang = localStorage.getItem('gym_lang') || 'en';
+        const enterValidText = lang === 'ar' ? 'أدخل مبلغًا صالحًا' : 'Enter a valid amount';
+        const insufficientText = lang === 'ar' ? 'نقاط غير كافية. المتاح: ' : 'Insufficient points. Available: ';
+        const failedText = lang === 'ar' ? 'فشل استبدال النقاط' : 'Failed to redeem points';
+        const successText = lang === 'ar' ? 'تم استبدال النقاط بنجاح!' : 'Points redeemed successfully!';
+        
         if (!amount || amount <= 0) {
-          msgEl.textContent = 'Enter a valid amount';
+          msgEl.textContent = enterValidText;
           msgEl.className = 'text-sm mt-2 text-red-600';
           return;
         }
         const currentBalance = await getMemberBalance(userId);
         if (currentBalance < amount) {
-          msgEl.textContent = `Insufficient points. Available: ${currentBalance}`;
+          msgEl.textContent = insufficientText + currentBalance;
           msgEl.className = 'text-sm mt-2 text-red-600';
           return;
         }
@@ -179,13 +213,14 @@
           description: `Redeemed ${amount} points`
         });
         if (error) {
-          msgEl.textContent = 'Failed to redeem points';
+          msgEl.textContent = failedText;
           msgEl.className = 'text-sm mt-2 text-red-600';
           return;
         }
-        msgEl.textContent = 'Points redeemed successfully!';
+        msgEl.textContent = successText;
         msgEl.className = 'text-sm mt-2 text-green-600';
         await renderMemberView();
+        setTimeout(updatePageLanguage, 50);
       });
     }
 
@@ -199,32 +234,41 @@
         points_redemption_rate: 0
       };
 
+      const lang = localStorage.getItem('gym_lang') || 'en';
+      const settingsTitle = lang === 'ar' ? 'إعدادات نقاط الولاء' : 'Loyalty Points Settings';
+      const settingsDesc = lang === 'ar' ? 'تكوين كيفية كسب الأعضاء واستبدال نقاط الولاء' : 'Configure how members earn and redeem loyalty points';
+      const checkinLabel = lang === 'ar' ? 'نقاط لكل تسجيل حضور' : 'Points per Check-in';
+      const renewalLabel = lang === 'ar' ? 'نقاط لكل وحدة عملة عند التجديد' : 'Points per Currency Unit on Renewal';
+      const canteenLabel = lang === 'ar' ? 'نقاط لكل وحدة عملة عند شراء من الكافتيريا' : 'Points per Currency Unit on Canteen Purchase';
+      const redemptionLabel = lang === 'ar' ? 'معدل استبدال النقاط' : 'Points Redemption Rate';
+      const saveBtnText = lang === 'ar' ? 'حفظ الإعدادات' : 'Save Settings';
+
       document.getElementById('settings-panel').innerHTML = `
-        <h3 class="text-lg font-semibold text-gray-900 mb-1">Loyalty Points Settings</h3>
-        <p class="text-sm text-gray-500 mb-4">Configure how members earn and redeem loyalty points</p>
+        <h3 class="text-lg font-semibold text-gray-900 mb-1">${settingsTitle}</h3>
+        <p class="text-sm text-gray-500 mb-4">${settingsDesc}</p>
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Points per Check-in</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">${checkinLabel}</label>
             <input type="number" min="0" id="s-checkin" value="${values.points_per_checkin}"
               class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Points per Currency Unit on Renewal</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">${renewalLabel}</label>
             <input type="number" min="0" step="0.01" id="s-renewal" value="${values.points_per_renewal_currency}"
               class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Points per Currency Unit on Canteen Purchase</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">${canteenLabel}</label>
             <input type="number" min="0" step="0.01" id="s-canteen" value="${values.points_per_canteen_purchase}"
               class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Points Redemption Rate</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">${redemptionLabel}</label>
             <input type="number" min="0" step="0.01" id="s-redemption" value="${values.points_redemption_rate}"
               class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           <div class="pt-4 border-t flex items-center gap-3">
-            <button id="save-settings-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2">Save Settings</button>
+            <button id="save-settings-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2">${saveBtnText}</button>
             <span id="save-msg" class="text-sm"></span>
           </div>
         </div>
@@ -232,6 +276,10 @@
 
       document.getElementById('save-settings-btn').addEventListener('click', async () => {
         const msgEl = document.getElementById('save-msg');
+        const lang = localStorage.getItem('gym_lang') || 'en';
+        const savedText = lang === 'ar' ? 'تم حفظ الإعدادات بنجاح!' : 'Settings saved successfully!';
+        const failedText = lang === 'ar' ? 'فشل حفظ الإعدادات' : 'Failed to save settings';
+        
         const payload = {
           gym_id: gymId,
           points_per_checkin: Number(document.getElementById('s-checkin').value) || 0,
@@ -241,12 +289,19 @@
           updated_at: new Date().toISOString()
         };
         const { error } = await sb.from('loyalty_settings').upsert(payload, { onConflict: 'gym_id' });
-        msgEl.textContent = error ? 'Failed to save settings' : 'Settings saved successfully!';
+        msgEl.textContent = error ? failedText : savedText;
         msgEl.className = `text-sm ${error ? 'text-red-600' : 'text-green-600'}`;
       });
+      
+      setTimeout(updatePageLanguage, 50);
     }
 
-    init();
+    // Run init when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
   </script>
 </body>
 </html>

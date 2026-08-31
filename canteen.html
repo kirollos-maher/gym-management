@@ -33,41 +33,6 @@
       color: #374151;
       border-bottom: 3px solid #d1d5db;
     }
-    .scan-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.8);
-      z-index: 999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .scan-box {
-      background: white;
-      border-radius: 1rem;
-      padding: 2rem;
-      max-width: 90%;
-      width: 400px;
-    }
-    .scan-frame {
-      border: 4px solid #3b82f6;
-      border-radius: 0.5rem;
-      padding: 1rem;
-      text-align: center;
-    }
-    @keyframes scan-line {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(100%); }
-    }
-    .scan-line {
-      width: 100%;
-      height: 4px;
-      background: #3b82f6;
-      animation: scan-line 2s linear infinite;
-    }
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -232,7 +197,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabaseClient.js"></script>
-  <script src="js/language.js"></script>
   <script>
     let gymId = null;
     let products = [];
@@ -290,6 +254,8 @@
       // Add Product
       document.getElementById('add-product-btn').addEventListener('click', () => {
         document.getElementById('add-product-modal').classList.remove('hidden');
+        document.getElementById('add-product-msg').classList.add('hidden');
+        document.getElementById('add-product-form').reset();
       });
       document.getElementById('close-add-product').addEventListener('click', () => {
         document.getElementById('add-product-modal').classList.add('hidden');
@@ -331,11 +297,9 @@
 
     function switchTab(tab) {
       currentTab = tab;
-      // Update tab buttons
       document.querySelectorAll('[data-tab]').forEach(t => {
         t.className = t.dataset.tab === tab ? 'tab-active px-4 py-2 font-medium' : 'tab-inactive px-4 py-2 font-medium';
       });
-      // Show/hide content
       ['products', 'inventory', 'sales', 'member-qr'].forEach(id => {
         document.getElementById(`tab-${id}`).className = id === tab ? 'space-y-6' : 'hidden';
       });
@@ -358,38 +322,17 @@
       const quantity = parseInt(document.getElementById('p-quantity').value);
 
       try {
-        // Insert product
-        const { data: product, error: productError } = await sb
-          .from('products')
-          .insert({
-            gym_id: gymId,
-            name,
-            description,
-            price,
-            category
-          })
-          .select()
-          .single();
+        // Use the database function to add product with items
+        const { data, error } = await sb.rpc('add_product_with_items', {
+          p_gym_id: gymId,
+          p_name: name,
+          p_description: description,
+          p_price: price,
+          p_category: category,
+          p_quantity: quantity
+        });
 
-        if (productError) throw productError;
-
-        // Generate QR codes for each item
-        const items = [];
-        for (let i = 0; i < quantity; i++) {
-          const qrCode = `PROD-${product.id}-${Date.now()}-${i}`;
-          items.push({
-            product_id: product.id,
-            gym_id: gymId,
-            qr_code: qrCode,
-            status: 'available'
-          });
-        }
-
-        const { error: itemsError } = await sb
-          .from('product_items')
-          .insert(items);
-
-        if (itemsError) throw itemsError;
+        if (error) throw error;
 
         msgEl.textContent = `✅ Product added with ${quantity} items!`;
         msgEl.className = 'text-sm text-green-600';
@@ -420,7 +363,6 @@
       const search = document.getElementById('product-search').value.toLowerCase();
       const category = document.getElementById('category-filter').value;
 
-      // Update category filter
       const categories = [...new Set(products.map(p => p.category).filter(Boolean))];
       const filterEl = document.getElementById('category-filter');
       const currentVal = filterEl.value;
@@ -496,15 +438,14 @@
             <div class="qr-container mx-auto mb-2" id="qr-${item.id}"></div>
             <p class="text-xs font-mono break-all">${item.qr_code}</p>
             <span class="inline-block mt-1 text-xs px-2 py-0.5 rounded-full ${statusColors[item.status] || 'bg-gray-100'}">${item.status}</span>
-            ${item.purchased_by ? `<p class="text-xs text-gray-500 mt-1">Sold to: ${item.purchased_by}</p>` : ''}
           </div>
         `;
       }).join('');
 
-      // Generate QR codes
       items.forEach(item => {
         const container = document.getElementById(`qr-${item.id}`);
         if (container && typeof QRCode !== 'undefined') {
+          container.innerHTML = '';
           new QRCode(container, {
             text: item.qr_code,
             width: 80,
@@ -535,7 +476,6 @@
       renderInventory();
     }
 
-    // Make functions globally available
     window.showProductItems = showProductItems;
     window.deleteProduct = deleteProduct;
 
@@ -586,7 +526,6 @@
                 item.status === 'sold' ? 'bg-red-100 text-red-800' :
                 'bg-yellow-100 text-yellow-800'
               }">${item.status}</span>
-              ${item.purchased_by ? `<span class="text-xs text-gray-500">Sold</span>` : ''}
             </div>
           </div>
         `;
@@ -648,14 +587,12 @@
         .single();
 
       if (item) {
-        // It's a product - process purchase
         if (item.status === 'sold') {
           resultEl.textContent = '❌ This item has already been sold!';
           resultEl.className = 'mt-4 text-sm text-red-600';
           return;
         }
 
-        // Show purchase dialog
         const memberId = await selectMemberForPurchase();
         if (!memberId) {
           resultEl.textContent = '❌ Please select a member';
@@ -677,7 +614,7 @@
           return;
         }
 
-        resultEl.textContent = `✅ ${item.product.name} sold to member! ⭐ ${Math.floor(item.product.price * 3)} points earned!`;
+        resultEl.textContent = `✅ ${item.product.name} sold! ⭐ ${Math.floor(item.product.price * 3)} points earned!`;
         resultEl.className = 'mt-4 text-sm text-green-600';
         
         await loadData();
@@ -688,7 +625,7 @@
         return;
       }
 
-      // Check if it's a member QR (for check-in)
+      // Check if it's a member QR
       const { data: memberQR, error: memberError } = await sb
         .from('member_qr_codes')
         .select('*, member:users(*)')
@@ -697,7 +634,6 @@
         .single();
 
       if (memberQR) {
-        // Process check-in
         const { error: checkinError } = await sb
           .from('attendance_logs')
           .insert({
@@ -713,24 +649,22 @@
           return;
         }
 
-        // Update last used
         await sb
           .from('member_qr_codes')
           .update({ last_used_at: new Date().toISOString() })
           .eq('id', memberQR.id);
 
-        resultEl.textContent = `✅ ${memberQR.member?.full_name || 'Member'} checked in successfully!`;
+        resultEl.textContent = `✅ ${memberQR.member?.full_name || 'Member'} checked in!`;
         resultEl.className = 'mt-4 text-sm text-green-600';
         qrInput.value = '';
         return;
       }
 
-      resultEl.textContent = '❌ Invalid QR code - not found in system';
+      resultEl.textContent = '❌ Invalid QR code';
       resultEl.className = 'mt-4 text-sm text-red-600';
     }
 
     async function selectMemberForPurchase() {
-      // Simple prompt - in production use a modal
       const membersList = members.map(m => `${m.full_name} (${m.email})`).join('\n');
       const memberName = prompt(`Select a member:\n${membersList}\n\nEnter member name or email:`);
       if (!memberName) return null;
@@ -767,7 +701,6 @@
         return;
       }
 
-      // Check if member already has QR
       const { data: existing } = await sb
         .from('member_qr_codes')
         .select('qr_code')
@@ -780,7 +713,6 @@
       if (existing) {
         qrCode = existing.qr_code;
       } else {
-        // Generate new QR
         const result = await sb.rpc('ensure_member_qr', {
           p_member_id: memberId,
           p_gym_id: gymId
@@ -800,9 +732,10 @@
         </button>
       `;
 
-      // Generate QR
       if (typeof QRCode !== 'undefined') {
-        new QRCode(document.getElementById('member-qr-display-canvas'), {
+        const container = document.getElementById('member-qr-display-canvas');
+        container.innerHTML = '';
+        new QRCode(container, {
           text: qrCode,
           width: 150,
           height: 150
@@ -820,9 +753,7 @@
       }
     }
 
-    // Make functions globally available
     window.downloadMemberQR = downloadMemberQR;
-    window.generateMemberQR = generateMemberQR;
 
     // Run init
     if (document.readyState === 'loading') {

@@ -7,6 +7,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="css/styles.css" />
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     .product-card {
       transition: all 0.3s ease;
@@ -17,7 +19,7 @@
     }
     .qr-container {
       background: white;
-      padding: 1rem;
+      padding: 0.75rem;
       border-radius: 0.75rem;
       display: inline-block;
     }
@@ -33,6 +35,41 @@
       color: #374151;
       border-bottom: 3px solid #d1d5db;
     }
+    .qr-print-item {
+      display: inline-block;
+      margin: 8px;
+      padding: 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      text-align: center;
+      background: white;
+    }
+    .qr-print-item .product-name {
+      font-size: 10px;
+      margin-top: 4px;
+      max-width: 100px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #print-area, #print-area * {
+        visibility: visible;
+      }
+      #print-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 20px;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -45,7 +82,7 @@
         <h1 class="text-2xl font-bold text-gray-800">🛒 Canteen Management</h1>
         <p class="text-sm text-gray-500">Manage products, track sales, and process QR code purchases</p>
       </div>
-      <div class="flex gap-2">
+      <div class="flex gap-2 flex-wrap">
         <button id="scan-qr-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">
           📷 Scan QR
         </button>
@@ -56,22 +93,26 @@
     </div>
 
     <!-- Tabs -->
-    <div class="flex gap-6 border-b mb-6">
-      <button class="tab-active px-4 py-2 font-medium" data-tab="products">📦 Products</button>
-      <button class="tab-inactive px-4 py-2 font-medium" data-tab="inventory">📊 Inventory</button>
-      <button class="tab-inactive px-4 py-2 font-medium" data-tab="sales">💰 Sales</button>
-      <button class="tab-inactive px-4 py-2 font-medium" data-tab="member-qr">👤 Member QR</button>
+    <div class="flex gap-6 border-b mb-6 overflow-x-auto">
+      <button class="tab-active px-4 py-2 font-medium whitespace-nowrap" data-tab="products">📦 Products</button>
+      <button class="tab-inactive px-4 py-2 font-medium whitespace-nowrap" data-tab="inventory">📊 Inventory</button>
+      <button class="tab-inactive px-4 py-2 font-medium whitespace-nowrap" data-tab="sales">💰 Sales</button>
+      <button class="tab-inactive px-4 py-2 font-medium whitespace-nowrap" data-tab="member-qr">👤 Member QR</button>
+      <button class="tab-inactive px-4 py-2 font-medium whitespace-nowrap" data-tab="print-qr">🖨️ Print QR</button>
     </div>
 
     <!-- Content -->
     <div id="tab-content">
       <!-- Products Tab -->
       <div id="tab-products" class="space-y-6">
-        <div class="flex gap-4 mb-4">
-          <input type="text" id="product-search" placeholder="Search products..." class="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <div class="flex gap-4 mb-4 flex-wrap">
+          <input type="text" id="product-search" placeholder="Search products..." class="flex-1 min-w-[200px] rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           <select id="category-filter" class="rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option value="">All Categories</option>
           </select>
+          <button id="print-all-qr-btn" class="bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">
+            🖨️ Print All QR
+          </button>
         </div>
         <div id="products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
       </div>
@@ -111,13 +152,41 @@
             <p class="text-sm text-gray-500">Generate and manage member QR codes for check-in</p>
           </div>
           <div class="p-4">
-            <div class="flex gap-4 mb-6">
-              <select id="member-select" class="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <div class="flex gap-4 mb-6 flex-wrap">
+              <select id="member-select" class="flex-1 min-w-[200px] rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="">Select a member</option>
               </select>
               <button id="generate-qr-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2">Generate QR</button>
+              <button id="print-member-qr-btn" class="bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">
+                🖨️ Print
+              </button>
             </div>
             <div id="member-qr-display" class="flex flex-col items-center p-6 bg-gray-50 rounded-lg"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Print QR Tab -->
+      <div id="tab-print-qr" class="hidden">
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+          <div class="p-4 border-b flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <h3 class="font-semibold text-gray-800">🖨️ Print QR Codes</h3>
+              <p class="text-sm text-gray-500">Select products to print their QR codes</p>
+            </div>
+            <div class="flex gap-2">
+              <button id="select-all-products" class="bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium px-4 py-2 text-sm">Select All</button>
+              <button id="deselect-all-products" class="bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium px-4 py-2 text-sm">Deselect All</button>
+              <button id="print-selected-qr-btn" class="bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">
+                🖨️ Print Selected
+              </button>
+              <button id="download-selected-qr-btn" class="bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">
+                📥 Download PDF
+              </button>
+            </div>
+          </div>
+          <div class="p-4">
+            <div id="print-products-list" class="space-y-3 max-h-[500px] overflow-y-auto"></div>
           </div>
         </div>
       </div>
@@ -170,12 +239,8 @@
         <button id="close-scan" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
       </div>
       <div class="text-center">
-        <div class="scan-frame mb-4">
-          <div class="relative h-48 flex items-center justify-center">
-            <div class="absolute inset-0 border-4 border-blue-500 rounded-lg"></div>
-            <div class="scan-line absolute bottom-0 left-0 right-0"></div>
-            <input type="text" id="qr-input" placeholder="Paste QR code or scan..." class="relative z-10 w-full rounded-lg border-2 border-dashed border-blue-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/90" />
-          </div>
+        <div class="border-4 border-blue-500 rounded-lg p-4 mb-4">
+          <input type="text" id="qr-input" placeholder="Paste QR code or scan..." class="w-full rounded-lg border-2 border-dashed border-blue-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
         <p class="text-sm text-gray-500 mb-4">Enter QR code manually or use a scanner device</p>
         <button id="process-qr-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2">Process QR Code</button>
@@ -189,11 +254,19 @@
     <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-bold text-gray-800" id="items-modal-title">Product Items</h2>
-        <button id="close-items-modal" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+        <div class="flex gap-2">
+          <button id="print-items-qr-btn" class="bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium px-4 py-2 text-sm flex items-center gap-2">
+            🖨️ Print All
+          </button>
+          <button id="close-items-modal" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+        </div>
       </div>
       <div id="items-grid" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
     </div>
   </div>
+
+  <!-- Hidden Print Area -->
+  <div id="print-area" style="display: none; position: fixed; left: -9999px; top: 0; background: white; padding: 20px; z-index: 9999;"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabaseClient.js"></script>
@@ -203,6 +276,7 @@
     let productItems = [];
     let members = [];
     let currentTab = 'products';
+    let selectedProducts = new Set();
 
     async function init() {
       const auth = await requireAuth();
@@ -216,12 +290,12 @@
       renderInventory();
       renderSales();
       populateMembers();
+      renderPrintProducts();
       
       setTimeout(updatePageLanguage, 100);
     }
 
     async function loadData() {
-      // Load products
       const { data: productsData } = await sb
         .from('products')
         .select('*')
@@ -229,14 +303,12 @@
         .order('created_at', { ascending: false });
       products = productsData || [];
 
-      // Load product items with QR codes
       const { data: itemsData } = await sb
         .from('product_items')
         .select('*, product:products(name, price)')
         .eq('gym_id', gymId);
       productItems = itemsData || [];
 
-      // Load members for dropdown
       const { data: membersData } = await sb
         .from('users')
         .select('id, full_name, email')
@@ -246,12 +318,10 @@
     }
 
     function setupEventListeners() {
-      // Tabs
       document.querySelectorAll('[data-tab]').forEach(tab => {
         tab.addEventListener('click', () => switchTab(tab.dataset.tab));
       });
 
-      // Add Product
       document.getElementById('add-product-btn').addEventListener('click', () => {
         document.getElementById('add-product-modal').classList.remove('hidden');
         document.getElementById('add-product-msg').classList.add('hidden');
@@ -265,7 +335,6 @@
       });
       document.getElementById('add-product-form').addEventListener('submit', addProduct);
 
-      // Scan QR
       document.getElementById('scan-qr-btn').addEventListener('click', () => {
         document.getElementById('scan-modal').classList.remove('hidden');
         document.getElementById('qr-input').value = '';
@@ -277,35 +346,55 @@
       });
       document.getElementById('process-qr-btn').addEventListener('click', processQR);
 
-      // Member QR
       document.getElementById('generate-qr-btn').addEventListener('click', generateMemberQR);
+      document.getElementById('print-member-qr-btn').addEventListener('click', printMemberQR);
 
-      // Search
       document.getElementById('product-search').addEventListener('input', renderProducts);
       document.getElementById('category-filter').addEventListener('change', renderProducts);
 
-      // Close items modal
       document.getElementById('close-items-modal').addEventListener('click', () => {
         document.getElementById('product-items-modal').classList.add('hidden');
       });
+      document.getElementById('print-items-qr-btn').addEventListener('click', printItemsQR);
 
-      // QR input enter key
       document.getElementById('qr-input').addEventListener('keydown', (e) => {
         if (e.key === 'Enter') processQR();
       });
+
+      // Print QR Tab
+      document.getElementById('print-all-qr-btn').addEventListener('click', () => {
+        switchTab('print-qr');
+        renderPrintProducts();
+      });
+
+      document.getElementById('select-all-products').addEventListener('click', () => {
+        products.forEach(p => selectedProducts.add(p.id));
+        renderPrintProducts();
+      });
+
+      document.getElementById('deselect-all-products').addEventListener('click', () => {
+        selectedProducts.clear();
+        renderPrintProducts();
+      });
+
+      document.getElementById('print-selected-qr-btn').addEventListener('click', printSelectedQR);
+      document.getElementById('download-selected-qr-btn').addEventListener('click', downloadSelectedQR);
     }
 
     function switchTab(tab) {
       currentTab = tab;
       document.querySelectorAll('[data-tab]').forEach(t => {
-        t.className = t.dataset.tab === tab ? 'tab-active px-4 py-2 font-medium' : 'tab-inactive px-4 py-2 font-medium';
+        t.className = t.dataset.tab === tab ? 'tab-active px-4 py-2 font-medium whitespace-nowrap' : 'tab-inactive px-4 py-2 font-medium whitespace-nowrap';
       });
-      ['products', 'inventory', 'sales', 'member-qr'].forEach(id => {
+      ['products', 'inventory', 'sales', 'member-qr', 'print-qr'].forEach(id => {
         document.getElementById(`tab-${id}`).className = id === tab ? 'space-y-6' : 'hidden';
       });
+      if (tab === 'print-qr') renderPrintProducts();
     }
 
-    // ---------- Products ----------
+    // ============================================================
+    // PRODUCTS
+    // ============================================================
     async function addProduct(e) {
       e.preventDefault();
       const msgEl = document.getElementById('add-product-msg');
@@ -322,7 +411,6 @@
       const quantity = parseInt(document.getElementById('p-quantity').value);
 
       try {
-        // Use the database function to add product with items
         const { data, error } = await sb.rpc('add_product_with_items', {
           p_gym_id: gymId,
           p_name: name,
@@ -342,6 +430,7 @@
         await loadData();
         renderProducts();
         renderInventory();
+        renderPrintProducts();
         
         setTimeout(() => {
           document.getElementById('add-product-modal').classList.add('hidden');
@@ -387,6 +476,7 @@
         const items = productItems.filter(item => item.product_id === p.id);
         const available = items.filter(item => item.status === 'available').length;
         const sold = items.filter(item => item.status === 'sold').length;
+        const hasQR = items.length > 0;
         
         return `
           <div class="product-card bg-white rounded-lg shadow-md overflow-hidden border border-gray-100">
@@ -404,12 +494,15 @@
                 <span class="text-red-600">📦 ${sold} sold</span>
                 <span class="text-gray-500">📋 ${items.length} total</span>
               </div>
-              <div class="flex gap-2 mt-3">
+              <div class="flex gap-2 mt-3 flex-wrap">
                 <button onclick="showProductItems('${p.id}')" class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full hover:bg-blue-200 transition-colors">
-                  View QR Codes
+                  📱 QR Codes
+                </button>
+                <button onclick="printProductQR('${p.id}')" class="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full hover:bg-purple-200 transition-colors">
+                  🖨️ Print QR
                 </button>
                 <button onclick="deleteProduct('${p.id}')" class="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full hover:bg-red-200 transition-colors">
-                  Delete
+                  🗑️ Delete
                 </button>
               </div>
             </div>
@@ -418,68 +511,369 @@
       }).join('');
     }
 
-    async function showProductItems(productId) {
-      const product = products.find(p => p.id === productId);
-      const items = productItems.filter(item => item.product_id === productId);
-      
-      document.getElementById('items-modal-title').textContent = `${product?.name || 'Product'} - Items`;
-      
-      const grid = document.getElementById('items-grid');
-      grid.innerHTML = items.map(item => {
-        const statusColors = {
-          available: 'bg-green-100 text-green-800',
-          sold: 'bg-red-100 text-red-800',
-          reserved: 'bg-yellow-100 text-yellow-800',
-          damaged: 'bg-gray-100 text-gray-800'
-        };
+    // ============================================================
+    // PRINT QR FUNCTIONS
+    // ============================================================
+
+    function renderPrintProducts() {
+      const container = document.getElementById('print-products-list');
+      if (products.length === 0) {
+        container.innerHTML = '<div class="text-center py-8 text-gray-500">No products available</div>';
+        return;
+      }
+
+      container.innerHTML = products.map(p => {
+        const items = productItems.filter(item => item.product_id === p.id);
+        const available = items.filter(item => item.status === 'available').length;
+        const isSelected = selectedProducts.has(p.id);
         
         return `
-          <div class="border rounded-lg p-3 text-center">
-            <div class="qr-container mx-auto mb-2" id="qr-${item.id}"></div>
-            <p class="text-xs font-mono break-all">${item.qr_code}</p>
-            <span class="inline-block mt-1 text-xs px-2 py-0.5 rounded-full ${statusColors[item.status] || 'bg-gray-100'}">${item.status}</span>
+          <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+            <div class="flex items-center gap-3">
+              <input type="checkbox" class="product-select w-5 h-5 text-blue-600 rounded" 
+                     data-product-id="${p.id}" ${isSelected ? 'checked' : ''}
+                     onchange="toggleProductSelect('${p.id}')" />
+              <div>
+                <p class="font-medium text-gray-800">${p.name}</p>
+                <p class="text-xs text-gray-500">${available} available QR codes</p>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button onclick="printProductQR('${p.id}')" class="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full hover:bg-purple-200 transition-colors">
+                🖨️ Print All
+              </button>
+            </div>
           </div>
         `;
       }).join('');
+    }
 
-      items.forEach(item => {
-        const container = document.getElementById(`qr-${item.id}`);
+    function toggleProductSelect(productId) {
+      if (selectedProducts.has(productId)) {
+        selectedProducts.delete(productId);
+      } else {
+        selectedProducts.add(productId);
+      }
+      renderPrintProducts();
+    }
+    window.toggleProductSelect = toggleProductSelect;
+
+    async function printProductQR(productId) {
+      const product = products.find(p => p.id === productId);
+      const items = productItems.filter(item => item.product_id === productId && item.status === 'available');
+      
+      if (items.length === 0) {
+        alert('No available QR codes for this product');
+        return;
+      }
+
+      // Create print content
+      const printArea = document.getElementById('print-area');
+      printArea.style.display = 'block';
+      printArea.style.position = 'fixed';
+      printArea.style.left = '0';
+      printArea.style.top = '0';
+      printArea.style.width = '100%';
+      printArea.style.background = 'white';
+      printArea.style.padding = '20px';
+      printArea.style.zIndex = '9999';
+
+      let html = `<div style="text-align: center; margin-bottom: 20px;">
+        <h1 style="font-size: 24px; font-weight: bold;">${product.name} - QR Codes</h1>
+        <p style="color: #666;">${items.length} QR codes available</p>
+        <hr style="margin: 10px 0;" />
+      </div>
+      <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 16px;">`;
+
+      for (const item of items) {
+        html += `
+          <div style="display: inline-block; padding: 12px; border: 1px solid #ddd; border-radius: 8px; text-align: center; background: white; width: 120px;">
+            <div id="qr-print-${item.id}" style="width: 100px; height: 100px; margin: 0 auto;"></div>
+            <div style="font-size: 8px; margin-top: 4px; word-break: break-all; color: #666;">${item.qr_code}</div>
+            <div style="font-size: 10px; font-weight: bold; margin-top: 2px;">${product.name}</div>
+          </div>
+        `;
+      }
+
+      html += `</div>`;
+      printArea.innerHTML = html;
+
+      // Generate QR codes in print area
+      for (const item of items) {
+        const container = document.getElementById(`qr-print-${item.id}`);
         if (container && typeof QRCode !== 'undefined') {
           container.innerHTML = '';
           new QRCode(container, {
             text: item.qr_code,
-            width: 80,
-            height: 80
+            width: 100,
+            height: 100
           });
         }
-      });
+      }
 
-      document.getElementById('product-items-modal').classList.remove('hidden');
+      // Wait for QR codes to render then print
+      setTimeout(() => {
+        window.print();
+        setTimeout(() => {
+          printArea.style.display = 'none';
+          printArea.innerHTML = '';
+        }, 500);
+      }, 500);
     }
+    window.printProductQR = printProductQR;
 
-    async function deleteProduct(productId) {
-      if (!confirm('Are you sure you want to delete this product and all its items?')) return;
-      
-      const { error } = await sb
-        .from('products')
-        .delete()
-        .eq('id', productId)
-        .eq('gym_id', gymId);
-      
-      if (error) {
-        alert('Error deleting product: ' + error.message);
+    async function printSelectedQR() {
+      if (selectedProducts.size === 0) {
+        alert('Please select at least one product');
         return;
       }
-      
-      await loadData();
-      renderProducts();
-      renderInventory();
+
+      const printArea = document.getElementById('print-area');
+      printArea.style.display = 'block';
+      printArea.style.position = 'fixed';
+      printArea.style.left = '0';
+      printArea.style.top = '0';
+      printArea.style.width = '100%';
+      printArea.style.background = 'white';
+      printArea.style.padding = '20px';
+      printArea.style.zIndex = '9999';
+
+      let html = `<div style="text-align: center; margin-bottom: 20px;">
+        <h1 style="font-size: 24px; font-weight: bold;">Selected Products - QR Codes</h1>
+        <p style="color: #666;">${selectedProducts.size} products selected</p>
+        <hr style="margin: 10px 0;" />
+      </div>
+      <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 16px;">`;
+
+      let allItems = [];
+      for (const productId of selectedProducts) {
+        const product = products.find(p => p.id === productId);
+        if (!product) continue;
+        const items = productItems.filter(item => item.product_id === productId && item.status === 'available');
+        allItems.push({ product, items });
+      }
+
+      if (allItems.length === 0) {
+        alert('No available QR codes for selected products');
+        printArea.style.display = 'none';
+        return;
+      }
+
+      for (const { product, items } of allItems) {
+        html += `<div style="width: 100%; margin: 10px 0;"><h2 style="font-size: 16px; font-weight: bold; text-align: center;">${product.name}</h2></div>`;
+        for (const item of items) {
+          html += `
+            <div style="display: inline-block; padding: 12px; border: 1px solid #ddd; border-radius: 8px; text-align: center; background: white; width: 120px;">
+              <div id="qr-print-${item.id}" style="width: 100px; height: 100px; margin: 0 auto;"></div>
+              <div style="font-size: 8px; margin-top: 4px; word-break: break-all; color: #666;">${item.qr_code}</div>
+              <div style="font-size: 10px; font-weight: bold; margin-top: 2px;">${product.name}</div>
+            </div>
+          `;
+        }
+      }
+
+      html += `</div>`;
+      printArea.innerHTML = html;
+
+      // Generate QR codes
+      for (const { product, items } of allItems) {
+        for (const item of items) {
+          const container = document.getElementById(`qr-print-${item.id}`);
+          if (container && typeof QRCode !== 'undefined') {
+            container.innerHTML = '';
+            new QRCode(container, {
+              text: item.qr_code,
+              width: 100,
+              height: 100
+            });
+          }
+        }
+      }
+
+      setTimeout(() => {
+        window.print();
+        setTimeout(() => {
+          printArea.style.display = 'none';
+          printArea.innerHTML = '';
+        }, 500);
+      }, 800);
     }
 
-    window.showProductItems = showProductItems;
-    window.deleteProduct = deleteProduct;
+    async function downloadSelectedQR() {
+      if (selectedProducts.size === 0) {
+        alert('Please select at least one product');
+        return;
+      }
 
-    // ---------- Inventory ----------
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF('p', 'mm', 'a4');
+      let yPos = 15;
+      const pageWidth = 210;
+      const qrSize = 40;
+      const spacing = 5;
+      const perRow = 4;
+      let count = 0;
+
+      const allItems = [];
+      for (const productId of selectedProducts) {
+        const product = products.find(p => p.id === productId);
+        if (!product) continue;
+        const items = productItems.filter(item => item.product_id === productId && item.status === 'available');
+        allItems.push({ product, items });
+      }
+
+      if (allItems.length === 0) {
+        alert('No available QR codes for selected products');
+        return;
+      }
+
+      doc.setFontSize(16);
+      doc.setTextColor(0, 0, 0);
+      doc.text('Selected Products - QR Codes', pageWidth / 2, yPos, { align: 'center' });
+      yPos += 8;
+
+      for (const { product, items } of allItems) {
+        // Product title
+        if (yPos > 270) {
+          doc.addPage();
+          yPos = 15;
+        }
+        doc.setFontSize(12);
+        doc.setTextColor(44, 62, 80);
+        doc.text(product.name, pageWidth / 2, yPos, { align: 'center' });
+        yPos += 6;
+
+        let rowCount = 0;
+        for (const item of items) {
+          if (yPos > 270) {
+            doc.addPage();
+            yPos = 15;
+            rowCount = 0;
+          }
+
+          const xPos = 15 + (rowCount % perRow) * (qrSize + spacing);
+          const yPosQr = yPos;
+
+          // Create QR code as image
+          const canvas = document.createElement('canvas');
+          canvas.width = 200;
+          canvas.height = 200;
+          const ctx = canvas.getContext('2d');
+          
+          // Draw QR code on canvas
+          const qr = new QRCode(canvas, {
+            text: item.qr_code,
+            width: 200,
+            height: 200,
+            colorDark: '#000000',
+            colorLight: '#ffffff'
+          });
+          
+          // Wait for QR to render
+          await new Promise(resolve => setTimeout(resolve, 100));
+          
+          const imgData = canvas.toDataURL('image/png');
+          doc.addImage(imgData, 'PNG', xPos, yPosQr, qrSize, qrSize);
+
+          // Add small text under QR
+          doc.setFontSize(5);
+          doc.setTextColor(100, 100, 100);
+          const label = item.qr_code.length > 20 ? item.qr_code.substring(0, 18) + '...' : item.qr_code;
+          doc.text(label, xPos + qrSize / 2, yPosQr + qrSize + 3, { align: 'center' });
+
+          rowCount++;
+          if (rowCount % perRow === 0) {
+            yPos += qrSize + 10;
+          }
+          count++;
+        }
+        yPos += qrSize + 10;
+      }
+
+      doc.save('qr-codes.pdf');
+    }
+
+    async function printItemsQR() {
+      const productId = document.getElementById('items-modal-title').dataset.productId;
+      if (productId) {
+        await printProductQR(productId);
+      }
+    }
+
+    async function printMemberQR() {
+      const memberId = document.getElementById('member-select').value;
+      if (!memberId) {
+        alert('Please select a member first');
+        return;
+      }
+
+      const member = members.find(m => m.id === memberId);
+      if (!member) return;
+
+      const { data: existing } = await sb
+        .from('member_qr_codes')
+        .select('qr_code')
+        .eq('member_id', memberId)
+        .eq('gym_id', gymId)
+        .eq('is_active', true)
+        .single();
+
+      let qrCode;
+      if (existing) {
+        qrCode = existing.qr_code;
+      } else {
+        const result = await sb.rpc('ensure_member_qr', {
+          p_member_id: memberId,
+          p_gym_id: gymId
+        });
+        qrCode = result.data;
+      }
+
+      const printArea = document.getElementById('print-area');
+      printArea.style.display = 'block';
+      printArea.style.position = 'fixed';
+      printArea.style.left = '0';
+      printArea.style.top = '0';
+      printArea.style.width = '100%';
+      printArea.style.background = 'white';
+      printArea.style.padding = '40px';
+      printArea.style.zIndex = '9999';
+      printArea.style.textAlign = 'center';
+
+      printArea.innerHTML = `
+        <div style="display: inline-block; padding: 30px; border: 2px solid #ddd; border-radius: 16px; background: white;">
+          <h1 style="font-size: 20px; font-weight: bold; margin-bottom: 10px;">${member.full_name || 'Member'}</h1>
+          <p style="color: #666; margin-bottom: 20px;">${member.email || ''}</p>
+          <div id="member-qr-print" style="width: 150px; height: 150px; margin: 0 auto;"></div>
+          <p style="font-size: 10px; color: #999; margin-top: 10px; word-break: break-all;">${qrCode}</p>
+          <div style="margin-top: 10px; font-size: 12px; color: #666;">Scan to check-in</div>
+        </div>
+      `;
+
+      if (typeof QRCode !== 'undefined') {
+        const container = document.getElementById('member-qr-print');
+        if (container) {
+          container.innerHTML = '';
+          new QRCode(container, {
+            text: qrCode,
+            width: 150,
+            height: 150
+          });
+        }
+      }
+
+      setTimeout(() => {
+        window.print();
+        setTimeout(() => {
+          printArea.style.display = 'none';
+          printArea.innerHTML = '';
+        }, 500);
+      }, 500);
+    }
+
+    // ============================================================
+    // INVENTORY
+    // ============================================================
     function renderInventory() {
       const stats = document.getElementById('inventory-stats');
       const total = productItems.length;
@@ -532,7 +926,9 @@
       }).join('');
     }
 
-    // ---------- Sales ----------
+    // ============================================================
+    // SALES
+    // ============================================================
     async function renderSales() {
       const { data: sales } = await sb
         .from('customer_purchases')
@@ -563,7 +959,9 @@
       `).join('');
     }
 
-    // ---------- Scan QR ----------
+    // ============================================================
+    // SCAN QR
+    // ============================================================
     async function processQR() {
       const qrInput = document.getElementById('qr-input');
       const resultEl = document.getElementById('scan-result');
@@ -578,7 +976,6 @@
       resultEl.textContent = '⏳ Processing...';
       resultEl.className = 'mt-4 text-sm text-blue-600';
 
-      // Check if it's a product QR
       const { data: item, error: itemError } = await sb
         .from('product_items')
         .select('*, product:products(*)')
@@ -621,11 +1018,11 @@
         renderProducts();
         renderInventory();
         renderSales();
+        renderPrintProducts();
         qrInput.value = '';
         return;
       }
 
-      // Check if it's a member QR
       const { data: memberQR, error: memberError } = await sb
         .from('member_qr_codes')
         .select('*, member:users(*)')
@@ -677,7 +1074,9 @@
       return member?.id || null;
     }
 
-    // ---------- Member QR ----------
+    // ============================================================
+    // MEMBER QR
+    // ============================================================
     function populateMembers() {
       const select = document.getElementById('member-select');
       select.innerHTML = '<option value="">Select a member</option>';
@@ -727,9 +1126,14 @@
         <p class="font-medium text-gray-800 mt-4">${member.full_name || 'Member'}</p>
         <p class="text-sm text-gray-500">${member.email || ''}</p>
         <p class="text-xs font-mono text-gray-400 mt-2">${qrCode}</p>
-        <button onclick="downloadMemberQR()" class="mt-4 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-4 py-2">
-          📥 Download QR
-        </button>
+        <div class="flex gap-2 mt-4">
+          <button onclick="printMemberQR()" class="bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">
+            🖨️ Print
+          </button>
+          <button onclick="downloadMemberQR()" class="bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">
+            📥 Download
+          </button>
+        </div>
       `;
 
       if (typeof QRCode !== 'undefined') {
@@ -753,7 +1157,94 @@
       }
     }
 
+    function printMemberQR() {
+      // This function is already defined above with the print functionality
+      // but we call it from the button
+      const memberId = document.getElementById('member-select').value;
+      if (!memberId) {
+        alert('Please select a member first');
+        return;
+      }
+      // Call the existing printMemberQR function
+      window.printMemberQR();
+    }
+
+    // ============================================================
+    // SHOW PRODUCT ITEMS
+    // ============================================================
+    async function showProductItems(productId) {
+      const product = products.find(p => p.id === productId);
+      const items = productItems.filter(item => item.product_id === productId);
+      
+      const titleEl = document.getElementById('items-modal-title');
+      titleEl.textContent = `${product?.name || 'Product'} - Items`;
+      titleEl.dataset.productId = productId;
+      
+      const grid = document.getElementById('items-grid');
+      grid.innerHTML = items.map(item => {
+        const statusColors = {
+          available: 'bg-green-100 text-green-800',
+          sold: 'bg-red-100 text-red-800',
+          reserved: 'bg-yellow-100 text-yellow-800',
+          damaged: 'bg-gray-100 text-gray-800'
+        };
+        
+        return `
+          <div class="border rounded-lg p-3 text-center">
+            <div class="qr-container mx-auto mb-2" id="qr-${item.id}"></div>
+            <p class="text-xs font-mono break-all">${item.qr_code}</p>
+            <span class="inline-block mt-1 text-xs px-2 py-0.5 rounded-full ${statusColors[item.status] || 'bg-gray-100'}">${item.status}</span>
+          </div>
+        `;
+      }).join('');
+
+      items.forEach(item => {
+        const container = document.getElementById(`qr-${item.id}`);
+        if (container && typeof QRCode !== 'undefined') {
+          container.innerHTML = '';
+          new QRCode(container, {
+            text: item.qr_code,
+            width: 80,
+            height: 80
+          });
+        }
+      });
+
+      document.getElementById('product-items-modal').classList.remove('hidden');
+    }
+    window.showProductItems = showProductItems;
+
+    // ============================================================
+    // DELETE PRODUCT
+    // ============================================================
+    async function deleteProduct(productId) {
+      if (!confirm('Are you sure you want to delete this product and all its items?')) return;
+      
+      const { error } = await sb
+        .from('products')
+        .delete()
+        .eq('id', productId)
+        .eq('gym_id', gymId);
+      
+      if (error) {
+        alert('Error deleting product: ' + error.message);
+        return;
+      }
+      
+      await loadData();
+      renderProducts();
+      renderInventory();
+      renderPrintProducts();
+    }
+    window.deleteProduct = deleteProduct;
+
+    // Make functions globally available
+    window.printProductQR = printProductQR;
+    window.printMemberQR = printMemberQR;
     window.downloadMemberQR = downloadMemberQR;
+    window.showProductItems = showProductItems;
+    window.deleteProduct = deleteProduct;
+    window.toggleProductSelect = toggleProductSelect;
 
     // Run init
     if (document.readyState === 'loading') {

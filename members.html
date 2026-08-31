@@ -35,9 +35,9 @@
       </div>
 
       <div class="bg-white rounded-lg shadow-md p-6">
-        <div class="flex items-center gap-4 mb-6">
+        <div class="flex items-center gap-4 mb-6 flex-wrap">
           <input type="text" id="search-input" placeholder="Search by name, email, or phone..."
-            class="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            class="flex-1 min-w-[200px] rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           <select id="status-filter" class="rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option value="all">All Members</option>
             <option value="active">Active</option>
@@ -329,7 +329,7 @@
         }
 
         try {
-          // Create custom membership using the function
+          // Create custom membership
           const { data: newMembership, error: createError } = await sb
             .from('memberships')
             .insert({
@@ -360,13 +360,11 @@
       }
 
       try {
-        // 0. Save the admin's current session so we can restore it —
-        // auth.signUp() below silently switches the client to the
-        // new member's session otherwise.
+        // Save admin session
         const { data: sessionData } = await sb.auth.getSession();
         const adminSession = sessionData?.session;
 
-        // 1. Create auth user
+        // Create auth user
         const tempEmail = email || `${fullName.replace(/\s/g,'')}_${Date.now()}@temp.com`;
         const { data: authData, error: authError } = await sb.auth.signUp({
           email: tempEmail,
@@ -380,7 +378,7 @@
           throw new Error('Failed to create user');
         }
 
-        // 2. Restore the admin's session immediately
+        // Restore admin session
         if (adminSession) {
           await sb.auth.setSession({
             access_token: adminSession.access_token,
@@ -388,9 +386,7 @@
           });
         }
 
-        // 3. Finish setup (link gym/role + optional subscription) via
-        // a safe RPC — avoids re-inserting into users (the sign-up
-        // trigger already created that row) and runs as the admin.
+        // Finish member setup using the RPC function
         const { error: setupError } = await sb.rpc('finish_member_setup', {
           p_member_id: authData.user.id,
           p_gym_id: gymId,
@@ -399,16 +395,9 @@
           p_membership_id: membershipId
         });
 
-        if (setupError) throw setupError;
-
-        // 4. Generate member QR code
-        try {
-          await sb.rpc('ensure_member_qr', {
-            p_member_id: authData.user.id,
-            p_gym_id: gymId
-          });
-        } catch (qrError) {
-          console.error('QR generation error:', qrError);
+        if (setupError) {
+          console.error('Setup error:', setupError);
+          throw new Error(setupError.message || 'Failed to complete member setup');
         }
 
         msgEl.textContent = '✅ Member added successfully!';
@@ -429,6 +418,7 @@
         }, 1500);
 
       } catch (err) {
+        console.error('Add member error:', err);
         msgEl.textContent = '❌ Error: ' + err.message;
         msgEl.className = 'text-sm text-red-600';
         msgEl.classList.remove('hidden');
@@ -487,14 +477,15 @@
         return matchSearch && matchStatus;
       });
 
-      const noResultsText = 'No members found';
-      const unknownText = 'Unknown Member';
-      const noEmailText = 'No email';
-      const activeText = 'Active';
-      const inactiveText = 'Inactive';
-      const expiredText = 'Expired';
-      const expiresText = 'Expires';
-      const showingText = 'Showing {count} of {total} members';
+      const lang = localStorage.getItem('gym_lang') || 'en';
+      const noResultsText = lang === 'ar' ? 'لم يتم العثور على أعضاء' : 'No members found';
+      const unknownText = lang === 'ar' ? 'عضو غير معروف' : 'Unknown Member';
+      const noEmailText = lang === 'ar' ? 'لا يوجد بريد إلكتروني' : 'No email';
+      const activeText = lang === 'ar' ? 'نشط' : 'Active';
+      const inactiveText = lang === 'ar' ? 'غير نشط' : 'Inactive';
+      const expiredText = lang === 'ar' ? 'منتهي' : 'Expired';
+      const expiresText = lang === 'ar' ? 'ينتهي' : 'Expires';
+      const showingText = lang === 'ar' ? 'عرض {count} من {total} عضو' : 'Showing {count} of {total} members';
 
       const el = document.getElementById('members-list');
       if (filtered.length === 0) {
@@ -537,7 +528,7 @@
                 </div>
                 <div>
                   <p class="font-medium text-gray-900">${m.full_name || unknownText}</p>
-                  <div class="flex items-center gap-3 text-sm text-gray-500">
+                  <div class="flex items-center gap-3 text-sm text-gray-500 flex-wrap">
                     <span>${m.email || noEmailText}</span>
                     ${m.phone ? `<span>📱 ${m.phone}</span>` : ''}
                   </div>
@@ -583,6 +574,17 @@
         p_gym_id: gymId
       });
 
+      const lang = localStorage.getItem('gym_lang') || 'en';
+      const unknownText = lang === 'ar' ? 'عضو غير معروف' : 'Unknown Member';
+      const noEmailText = lang === 'ar' ? 'لا يوجد بريد إلكتروني' : 'No email';
+      const planText = lang === 'ar' ? 'الخطة' : 'Plan';
+      const statusText = lang === 'ar' ? 'الحالة' : 'Status';
+      const pointsText = lang === 'ar' ? 'نقاط الولاء' : 'Points';
+      const qrText = lang === 'ar' ? 'رمز QR' : 'QR Code';
+      const subscriptionText = lang === 'ar' ? 'تفاصيل الاشتراك' : 'Subscription Details';
+      const recentCheckinsText = lang === 'ar' ? 'آخر تسجيلات الحضور' : 'Recent Check-ins';
+      const noCheckinsText = lang === 'ar' ? 'لا توجد تسجيلات حضور' : 'No check-ins yet';
+
       let durationText = '';
       if (sub?.membership) {
         const months = sub.membership.duration_months;
@@ -602,8 +604,8 @@
               ${getInitials(member.full_name)}
             </div>
             <div>
-              <h3 class="text-lg font-semibold text-gray-800">${member.full_name || 'Unknown'}</h3>
-              <p class="text-sm text-gray-500">${member.email || 'No email'}</p>
+              <h3 class="text-lg font-semibold text-gray-800">${member.full_name || unknownText}</h3>
+              <p class="text-sm text-gray-500">${member.email || noEmailText}</p>
               ${member.phone ? `<p class="text-sm text-gray-500">📱 ${member.phone}</p>` : ''}
             </div>
           </div>
@@ -611,25 +613,25 @@
           <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div class="bg-blue-50 p-3 rounded-lg text-center">
               <p class="text-lg font-bold text-blue-600">${sub?.membership?.name || 'None'}</p>
-              <p class="text-xs text-gray-500">Plan</p>
+              <p class="text-xs text-gray-500">${planText}</p>
             </div>
             <div class="bg-green-50 p-3 rounded-lg text-center">
               <p class="text-lg font-bold text-green-600">${sub?.status || 'None'}</p>
-              <p class="text-xs text-gray-500">Status</p>
+              <p class="text-xs text-gray-500">${statusText}</p>
             </div>
             <div class="bg-yellow-50 p-3 rounded-lg text-center">
               <p class="text-lg font-bold text-yellow-600">${balance || 0}</p>
-              <p class="text-xs text-gray-500">Points</p>
+              <p class="text-xs text-gray-500">${pointsText}</p>
             </div>
             <div class="bg-purple-50 p-3 rounded-lg text-center">
               <p class="text-lg font-bold text-purple-600">${qr ? '✅' : '❌'}</p>
-              <p class="text-xs text-gray-500">QR Code</p>
+              <p class="text-xs text-gray-500">${qrText}</p>
             </div>
           </div>
 
           ${sub ? `
             <div class="border-t pt-4">
-              <h4 class="font-semibold text-gray-700 mb-2">Subscription Details</h4>
+              <h4 class="font-semibold text-gray-700 mb-2">${subscriptionText}</h4>
               <div class="grid grid-cols-2 gap-2 text-sm">
                 <p><span class="text-gray-500">Plan:</span> ${sub.membership?.name || 'N/A'}</p>
                 <p><span class="text-gray-500">Duration:</span> ${durationText}</p>
@@ -645,7 +647,7 @@
 
           ${attendance && attendance.length > 0 ? `
             <div class="border-t pt-4">
-              <h4 class="font-semibold text-gray-700 mb-2">Recent Check-ins</h4>
+              <h4 class="font-semibold text-gray-700 mb-2">${recentCheckinsText}</h4>
               <div class="space-y-1">
                 ${attendance.slice(0, 5).map(a => `
                   <div class="flex items-center justify-between text-sm p-2 bg-gray-50 rounded">
@@ -655,7 +657,11 @@
                 `).join('')}
               </div>
             </div>
-          ` : ''}
+          ` : `
+            <div class="border-t pt-4">
+              <p class="text-sm text-gray-500 text-center">${noCheckinsText}</p>
+            </div>
+          `}
 
           ${qr ? `
             <div class="border-t pt-4">
@@ -748,7 +754,12 @@
     // ---------- Delete Member ----------
     async function deleteMember(memberId) {
       const member = allMembers.find(m => m.id === memberId);
-      if (!confirm(`Are you sure you want to delete ${member?.full_name || 'this member'}? This action cannot be undone.`)) return;
+      const lang = localStorage.getItem('gym_lang') || 'en';
+      const confirmText = lang === 'ar' 
+        ? `هل أنت متأكد من حذف ${member?.full_name || 'هذا العضو'}؟ لا يمكن التراجع عن هذا الإجراء.`
+        : `Are you sure you want to delete ${member?.full_name || 'this member'}? This action cannot be undone.`;
+      
+      if (!confirm(confirmText)) return;
       
       const { error } = await sb
         .from('users')

@@ -10,42 +10,39 @@
 <body>
   <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
     <div class="w-full max-w-md bg-white rounded-lg shadow-md overflow-hidden">
-      <div class="px-6 py-4 border-b flex items-center justify-between">
-        <h2 class="text-2xl font-semibold text-gray-900 text-center flex-1" data-i18n="auth.signup">Create Your Gym Account</h2>
-        <button id="lang-toggle" class="px-3 py-1 text-sm font-medium text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
-          عربي
-        </button>
+      <div class="px-6 py-4 border-b">
+        <h2 class="text-2xl font-semibold text-gray-900 text-center">Create Your Gym Account</h2>
       </div>
       <div class="px-6 py-4">
         <form id="signup-form" class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="auth.gymname">Gym Name</label>
-            <input type="text" id="gym-name" required data-i18n-placeholder="auth.enter.gymname"
+            <label class="block text-sm font-medium text-gray-700 mb-1">Gym Name</label>
+            <input type="text" id="gym-name" required placeholder="Enter your gym's name"
               class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="auth.fullname">Your Full Name</label>
-            <input type="text" id="full-name" required data-i18n-placeholder="auth.enter.fullname"
+            <label class="block text-sm font-medium text-gray-700 mb-1">Your Full Name</label>
+            <input type="text" id="full-name" required placeholder="Enter your full name"
               class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="auth.email">Email</label>
-            <input type="email" id="email" required data-i18n-placeholder="auth.enter.email"
+            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input type="email" id="email" required placeholder="Enter your email"
               class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="auth.password">Password</label>
-            <input type="password" id="password" required minlength="6" data-i18n-placeholder="auth.password.min"
+            <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <input type="password" id="password" required minlength="6" placeholder="At least 6 characters"
               class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           <div id="error-box" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm"></div>
           <button type="submit" id="submit-btn"
             class="w-full rounded-lg font-medium bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 flex items-center justify-center">
-            <span data-i18n="auth.signup">Create Account</span>
+            Create Account
           </button>
           <p class="text-center text-sm text-gray-500">
-            <span data-i18n="auth.haveaccount">Already have an account?</span>
-            <a href="login.html" class="text-blue-600 hover:underline" data-i18n="auth.signin.link">Sign in</a>
+            Already have an account?
+            <a href="login.html" class="text-blue-600 hover:underline">Sign in</a>
           </p>
         </form>
       </div>
@@ -54,7 +51,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabaseClient.js"></script>
-  <script src="js/language.js"></script>
   <script>
     document.getElementById('signup-form').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -73,34 +69,46 @@
         errorBox.textContent = msg;
         errorBox.classList.remove('hidden');
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '<span data-i18n="auth.signup">Create Account</span>';
-        updatePageLanguage();
+        submitBtn.textContent = 'Create Account';
       };
 
       try {
+        // 1. إنشاء حساب auth
         const { data: signUpData, error: signUpError } = await sb.auth.signUp({
           email,
           password,
           options: { data: { full_name: fullName } }
         });
 
-        if (signUpError) return showError(signUpError.message);
+        if (signUpError) {
+          console.error('SignUp error:', signUpError);
+          return showError(signUpError.message);
+        }
 
         if (!signUpData?.session) {
           return showError(
-            'Account created, but no session was returned. If email confirmation is enabled in Supabase, please confirm your email before signing in, then contact support to finish gym setup.'
+            'Account created, but no session was returned. If email confirmation is enabled, please confirm your email before signing in.'
           );
         }
 
-        const { error: rpcError } = await sb.rpc('create_gym_owner_account', {
+        // 2. استخدام الدالة create_gym_owner_account
+        const { data: gymData, error: rpcError } = await sb.rpc('create_gym_owner_account', {
           p_gym_name: gymName,
           p_full_name: fullName
         });
 
-        if (rpcError) return showError(rpcError.message);
+        if (rpcError) {
+          console.error('RPC error:', rpcError);
+          return showError('Error creating gym: ' + rpcError.message);
+        }
 
+        console.log('✅ Gym created with ID:', gymData);
+
+        // 3. الانتقال إلى لوحة التحكم
         window.location.href = 'dashboard.html';
+
       } catch (err) {
+        console.error('Unexpected error:', err);
         showError(err instanceof Error ? err.message : 'An unexpected error occurred');
       }
     });

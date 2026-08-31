@@ -59,5 +59,40 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabaseClient.js"></script>
   <script src="js/language.js"></script>
+  
+  <script>
+    // ============================================
+    // زر تغيير اللغة - يعمل في كل الصفحات
+    // ============================================
+    document.addEventListener('DOMContentLoaded', function() {
+      const langToggle = document.getElementById('lang-toggle');
+      
+      if (langToggle) {
+        langToggle.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          // جلب اللغة الحالية
+          const currentLang = localStorage.getItem('gym_lang') || 'en';
+          const newLang = currentLang === 'ar' ? 'en' : 'ar';
+          
+          // حفظ اللغة الجديدة
+          localStorage.setItem('gym_lang', newLang);
+          
+          // تغيير اتجاه الصفحة
+          document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr';
+          document.documentElement.lang = newLang;
+          
+          // تحديث النصوص
+          updatePageLanguage();
+          
+          // تحديث الزر
+          updateLanguageToggle();
+        });
+      }
+      
+      // تحديث اللغة عند تحميل الصفحة
+      updatePageLanguage();
+    });
+  </script>
 </body>
 </html>

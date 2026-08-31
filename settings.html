@@ -894,8 +894,8 @@
       </div>
 
       <div class="setting-group">
-        <h3>📥 Import Data <span class="badge">Bring data from an old system</span></h3>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+        <h3>📥 <span data-i18n="settings.import.title">Import Data</span> <span class="badge" data-i18n="settings.import.badge">Bring data from an old system</span></h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4" data-i18n="settings.import.desc">
           Selling this system to a gym that already has member data somewhere else? Export their members
           as a CSV file from the old system, then upload it here — this creates a real account, QR code,
           and subscription for each member automatically.
@@ -904,20 +904,18 @@
         <div class="flex flex-wrap gap-3 items-center mb-4">
           <button id="download-import-template-btn" type="button"
             class="bg-gray-200 dark:bg-gray-700 dark:text-white text-gray-800 rounded-lg font-medium px-4 py-2 text-sm">
-            ⬇️ Download CSV Template
+            ⬇️ <span data-i18n="settings.import.download.template">Download CSV Template</span>
           </button>
           <label for="import-csv-input"
             class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2 text-sm cursor-pointer">
-            📄 Choose CSV File
+            📄 <span data-i18n="settings.import.choose.file">Choose CSV File</span>
           </label>
           <input type="file" id="import-csv-input" accept=".csv" class="hidden" />
           <span id="import-file-name" class="text-sm text-gray-500 dark:text-gray-400"></span>
         </div>
 
         <div id="import-preview-wrap" class="hidden">
-          <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
-            Found <span id="import-row-count" class="font-semibold">0</span> members. Preview of the first rows:
-          </p>
+          <p id="import-found-text" class="text-sm text-gray-600 dark:text-gray-400 mb-2"></p>
           <div class="overflow-x-auto mb-4">
             <table class="min-w-full text-xs border border-gray-200 dark:border-gray-700">
               <thead class="bg-gray-50 dark:bg-gray-700">
@@ -928,7 +926,7 @@
           </div>
           <button id="start-import-btn" type="button"
             class="bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-4 py-2 text-sm">
-            🚀 Start Import
+            🚀 <span id="start-import-btn-label" data-i18n="settings.import.start">Start Import</span>
           </button>
           <div id="import-progress" class="text-sm mt-3 hidden">
             <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-2">
@@ -939,7 +937,7 @@
           <div id="import-results" class="mt-3 text-xs max-h-48 overflow-y-auto space-y-1"></div>
         </div>
 
-        <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">
+        <p class="text-xs text-gray-400 dark:text-gray-500 mt-2" data-i18n="settings.import.hint">
           Not sure yet how your old system exports data? Most systems have an "Export" or "Reports" button
           that gives you CSV or Excel — check there first. Once you see it, we can also add attendance
           history, loyalty points, and canteen sales import to match its exact columns.
@@ -1169,7 +1167,7 @@
       const wrap = document.getElementById('import-preview-wrap');
       const head = document.getElementById('import-preview-head');
       const body = document.getElementById('import-preview-body');
-      const countEl = document.getElementById('import-row-count');
+      const foundText = document.getElementById('import-found-text');
 
       if (importedRows.length === 0) {
         wrap.classList.add('hidden');
@@ -1182,7 +1180,8 @@
         <tr>${cols.map(c => `<td class="px-2 py-1 border-b border-gray-100 dark:border-gray-700">${r[c] || ''}</td>`).join('')}</tr>
       `).join('');
 
-      countEl.textContent = importedRows.length;
+      foundText.textContent = t('settings.import.found.count', { count: importedRows.length });
+
       wrap.classList.remove('hidden');
       document.getElementById('import-results').innerHTML = '';
       document.getElementById('import-progress').classList.add('hidden');
@@ -1272,13 +1271,14 @@
 
     async function startImport() {
       const btn = document.getElementById('start-import-btn');
+      const label = document.getElementById('start-import-btn-label');
       const progressWrap = document.getElementById('import-progress');
       const bar = document.getElementById('import-progress-bar');
       const text = document.getElementById('import-progress-text');
       document.getElementById('import-results').innerHTML = '';
 
       btn.disabled = true;
-      btn.textContent = '⏳ Importing...';
+      label.textContent = t('settings.import.importing');
       progressWrap.classList.remove('hidden');
 
       let successCount = 0;
@@ -1289,23 +1289,31 @@
         try {
           await importOneMember(row);
           successCount++;
-          logImportResult(`${row.full_name} imported`, true);
+          logImportResult(t('settings.import.row.success', { name: row.full_name }), true);
         } catch (err) {
           failCount++;
-          logImportResult(err.message || `${row.full_name} failed`, false);
+          logImportResult(err.message || t('settings.import.row.failed.generic', { name: row.full_name }), false);
         }
 
         const pct = Math.round(((i + 1) / importedRows.length) * 100);
         bar.style.width = pct + '%';
-        text.textContent = `${i + 1} / ${importedRows.length} — ✅ ${successCount} imported, ❌ ${failCount} failed`;
+        text.textContent = t('settings.import.progress', {
+          done: i + 1,
+          total: importedRows.length,
+          success: successCount,
+          failed: failCount
+        });
 
         // small delay to avoid hitting Supabase auth signup rate limits
         await new Promise(r => setTimeout(r, 400));
       }
 
       btn.disabled = false;
-      btn.textContent = '🚀 Start Import';
-      showToast(`Import finished: ${successCount} imported, ${failCount} failed`, failCount > 0 ? 'info' : 'success');
+      label.textContent = t('settings.import.start');
+      showToast(
+        t('settings.import.finished', { success: successCount, failed: failCount }),
+        failCount > 0 ? 'info' : 'success'
+      );
     }
 
     document.addEventListener('DOMContentLoaded', () => {

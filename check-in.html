@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Check-In - Gym Management</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Make Tailwind's dark: utilities follow OUR light/dark toggle
+    // (the dark-mode class on <body>), not the OS/browser color scheme.
+    tailwind.config = { darkMode: 'class' };
+  </script>
   <link rel="stylesheet" href="css/styles.css" />
   <style>
     /* Dark Mode Styles for Check-In */

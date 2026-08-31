@@ -888,6 +888,59 @@
         </div>
       </div>
 
+      <div class="setting-group">
+        <h3>📥 Import Data <span class="badge">Bring data from an old system</span></h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+          Selling this system to a gym that already has member data somewhere else? Export their members
+          as a CSV file from the old system, then upload it here — this creates a real account, QR code,
+          and subscription for each member automatically.
+        </p>
+
+        <div class="flex flex-wrap gap-3 items-center mb-4">
+          <button id="download-import-template-btn" type="button"
+            class="bg-gray-200 dark:bg-gray-700 dark:text-white text-gray-800 rounded-lg font-medium px-4 py-2 text-sm">
+            ⬇️ Download CSV Template
+          </button>
+          <label for="import-csv-input"
+            class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2 text-sm cursor-pointer">
+            📄 Choose CSV File
+          </label>
+          <input type="file" id="import-csv-input" accept=".csv" class="hidden" />
+          <span id="import-file-name" class="text-sm text-gray-500 dark:text-gray-400"></span>
+        </div>
+
+        <div id="import-preview-wrap" class="hidden">
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+            Found <span id="import-row-count" class="font-semibold">0</span> members. Preview of the first rows:
+          </p>
+          <div class="overflow-x-auto mb-4">
+            <table class="min-w-full text-xs border border-gray-200 dark:border-gray-700">
+              <thead class="bg-gray-50 dark:bg-gray-700">
+                <tr id="import-preview-head"></tr>
+              </thead>
+              <tbody id="import-preview-body"></tbody>
+            </table>
+          </div>
+          <button id="start-import-btn" type="button"
+            class="bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-4 py-2 text-sm">
+            🚀 Start Import
+          </button>
+          <div id="import-progress" class="text-sm mt-3 hidden">
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-2">
+              <div id="import-progress-bar" class="bg-blue-600 h-2 rounded-full" style="width:0%"></div>
+            </div>
+            <p id="import-progress-text" class="text-gray-600 dark:text-gray-400"></p>
+          </div>
+          <div id="import-results" class="mt-3 text-xs max-h-48 overflow-y-auto space-y-1"></div>
+        </div>
+
+        <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">
+          Not sure yet how your old system exports data? Most systems have an "Export" or "Reports" button
+          that gives you CSV or Excel — check there first. Once you see it, we can also add attendance
+          history, loyalty points, and canteen sales import to match its exact columns.
+        </p>
+      </div>
+
       <!-- Save Button -->
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
         <div class="flex items-center gap-3">
@@ -1052,6 +1105,212 @@
         });
       }
     }
+
+    // ============================================
+    // IMPORT MEMBERS FROM OLD SYSTEM (CSV)
+    // ============================================
+    let importedRows = [];
+
+    function downloadImportTemplate() {
+      const headers = ['full_name', 'email', 'phone', 'membership_plan_name', 'join_date'];
+      const sample = ['John Doe', 'john@example.com', '01000000000', plans[0]?.name || 'شهري', '2026-01-01'];
+      const csv = headers.join(',') + '\n' + sample.join(',') + '\n';
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'members_import_template.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+    window.downloadImportTemplate = downloadImportTemplate;
+
+    // Simple CSV parser that handles quoted fields containing commas
+    function parseCSV(text) {
+      const lines = text.replace(/\r\n/g, '\n').split('\n').filter(l => l.trim().length > 0);
+      if (lines.length === 0) return { headers: [], rows: [] };
+
+      function parseLine(line) {
+        const result = [];
+        let current = '';
+        let inQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+          const char = line[i];
+          if (char === '"') {
+            inQuotes = !inQuotes;
+          } else if (char === ',' && !inQuotes) {
+            result.push(current.trim());
+            current = '';
+          } else {
+            current += char;
+          }
+        }
+        result.push(current.trim());
+        return result;
+      }
+
+      const headers = parseLine(lines[0]).map(h => h.toLowerCase().replace(/\s+/g, '_'));
+      const rows = lines.slice(1).map(line => {
+        const values = parseLine(line);
+        const row = {};
+        headers.forEach((h, i) => { row[h] = values[i] || ''; });
+        return row;
+      });
+
+      return { headers, rows };
+    }
+
+    function renderImportPreview() {
+      const wrap = document.getElementById('import-preview-wrap');
+      const head = document.getElementById('import-preview-head');
+      const body = document.getElementById('import-preview-body');
+      const countEl = document.getElementById('import-row-count');
+
+      if (importedRows.length === 0) {
+        wrap.classList.add('hidden');
+        return;
+      }
+
+      const cols = ['full_name', 'email', 'phone', 'membership_plan_name', 'join_date'];
+      head.innerHTML = cols.map(c => `<th class="px-2 py-1 text-left border-b border-gray-200 dark:border-gray-700">${c}</th>`).join('');
+      body.innerHTML = importedRows.slice(0, 5).map(r => `
+        <tr>${cols.map(c => `<td class="px-2 py-1 border-b border-gray-100 dark:border-gray-700">${r[c] || ''}</td>`).join('')}</tr>
+      `).join('');
+
+      countEl.textContent = importedRows.length;
+      wrap.classList.remove('hidden');
+      document.getElementById('import-results').innerHTML = '';
+      document.getElementById('import-progress').classList.add('hidden');
+    }
+
+    function handleImportFileSelect(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      document.getElementById('import-file-name').textContent = file.name;
+
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const { rows } = parseCSV(ev.target.result);
+        importedRows = rows.filter(r => (r.full_name || '').trim().length > 0);
+        renderImportPreview();
+      };
+      reader.readAsText(file);
+    }
+
+    function logImportResult(message, ok) {
+      const el = document.getElementById('import-results');
+      const line = document.createElement('div');
+      line.className = ok ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
+      line.textContent = (ok ? '✅ ' : '❌ ') + message;
+      el.appendChild(line);
+      el.scrollTop = el.scrollHeight;
+    }
+
+    async function importOneMember(row) {
+      const fullName = row.full_name.trim();
+      const email = (row.email || '').trim() || null;
+      const phone = (row.phone || '').trim() || null;
+      const planName = (row.membership_plan_name || '').trim();
+      const joinDate = (row.join_date || '').trim();
+
+      const { data: sessionData } = await sb.auth.getSession();
+      const adminSession = sessionData?.session;
+
+      const tempEmail = email || `${fullName.replace(/\s/g, '')}_${Date.now()}_${Math.floor(Math.random() * 10000)}@temp.com`;
+      const tempPassword = 'Import' + Math.random().toString(36).slice(2, 10) + '!1';
+
+      const { data: authData, error: authError } = await sb.auth.signUp({
+        email: tempEmail,
+        password: tempPassword,
+        options: { data: { full_name: fullName } }
+      });
+      if (authError) throw new Error(`${fullName}: ${authError.message}`);
+      if (!authData?.user) throw new Error(`${fullName}: failed to create account`);
+
+      if (adminSession) {
+        await sb.auth.setSession({
+          access_token: adminSession.access_token,
+          refresh_token: adminSession.refresh_token
+        });
+      }
+
+      const { error: updateError } = await sb
+        .from('users')
+        .update({ gym_id: gymId, full_name: fullName, phone: phone, role: 'member' })
+        .eq('id', authData.user.id);
+      if (updateError) throw new Error(`${fullName}: ${updateError.message}`);
+
+      try {
+        await sb.rpc('ensure_member_qr', { p_member_id: authData.user.id, p_gym_id: gymId });
+      } catch (qrError) {
+        console.error('QR error:', qrError);
+      }
+
+      const plan = plans.find(m => m.name === planName);
+      if (plan) {
+        const start = joinDate && !isNaN(new Date(joinDate)) ? new Date(joinDate) : new Date();
+        const endDate = new Date(start);
+        endDate.setDate(endDate.getDate() + (plan.duration_months * 30));
+
+        const { error: subError } = await sb.from('subscriptions').insert({
+          member_id: authData.user.id,
+          membership_id: plan.id,
+          gym_id: gymId,
+          start_date: start.toISOString().split('T')[0],
+          end_date: endDate.toISOString().split('T')[0],
+          status: 'active',
+          auto_renew: false
+        });
+        if (subError) console.error('Subscription error:', subError);
+      }
+    }
+
+    async function startImport() {
+      const btn = document.getElementById('start-import-btn');
+      const progressWrap = document.getElementById('import-progress');
+      const bar = document.getElementById('import-progress-bar');
+      const text = document.getElementById('import-progress-text');
+      document.getElementById('import-results').innerHTML = '';
+
+      btn.disabled = true;
+      btn.textContent = '⏳ Importing...';
+      progressWrap.classList.remove('hidden');
+
+      let successCount = 0;
+      let failCount = 0;
+
+      for (let i = 0; i < importedRows.length; i++) {
+        const row = importedRows[i];
+        try {
+          await importOneMember(row);
+          successCount++;
+          logImportResult(`${row.full_name} imported`, true);
+        } catch (err) {
+          failCount++;
+          logImportResult(err.message || `${row.full_name} failed`, false);
+        }
+
+        const pct = Math.round(((i + 1) / importedRows.length) * 100);
+        bar.style.width = pct + '%';
+        text.textContent = `${i + 1} / ${importedRows.length} — ✅ ${successCount} imported, ❌ ${failCount} failed`;
+
+        // small delay to avoid hitting Supabase auth signup rate limits
+        await new Promise(r => setTimeout(r, 400));
+      }
+
+      btn.disabled = false;
+      btn.textContent = '🚀 Start Import';
+      showToast(`Import finished: ${successCount} imported, ${failCount} failed`, failCount > 0 ? 'info' : 'success');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const dlBtn = document.getElementById('download-import-template-btn');
+      const fileInput = document.getElementById('import-csv-input');
+      const startBtn = document.getElementById('start-import-btn');
+      if (dlBtn) dlBtn.addEventListener('click', downloadImportTemplate);
+      if (fileInput) fileInput.addEventListener('change', handleImportFileSelect);
+      if (startBtn) startBtn.addEventListener('click', startImport);
+    });
 
     async function init() {
       const auth = await requireAuth();

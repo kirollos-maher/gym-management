@@ -2154,10 +2154,15 @@
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF({ unit: 'mm', format: [85.6, 54] });
         doc.addImage(imgData, 'PNG', 0, 0, 85.6, 54);
-        doc.autoPrint();
 
-        const blobUrl = doc.output('bloburl');
-        window.open(blobUrl, '_blank');
+        // Download rather than open-and-auto-print: browsers' own print
+        // pipeline (including "Save as PDF") does not reliably honor a
+        // custom page size like this card's — but a standalone PDF reader
+        // (Adobe Acrobat, Preview, etc.) does, if you print with
+        // "Actual Size" instead of "Fit to page".
+        const safeName = (member.full_name || 'member').trim().replace(/\s+/g, '-');
+        doc.save(`${safeName}-card.pdf`);
+        showToast('✅ PDF downloaded — open it in Adobe Acrobat (not the browser) and print with "Actual Size"', 'success');
       } catch (err) {
         console.error('Print error:', err);
         showToast('Error preparing card for print: ' + err.message, 'error');

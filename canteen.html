@@ -37,6 +37,18 @@
     .member-select-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 10000; backdrop-filter: blur(4px); }
     .member-select-content { background: white; border-radius: 16px; padding: 24px; max-width: 400px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
     @media print { body * { visibility: hidden; } #print-area, #print-area * { visibility: visible; } #print-area { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; } .no-print { display: none !important; } }
+    /* Standard ID/membership card size (CR80: 85.6mm x 54mm) — used
+       when printing a single member card so the output is exactly
+       card-sized, ready to cut or feed into a PVC card printer. */
+    @media print {
+      #print-area.card-print {
+        padding: 0 !important;
+      }
+      @page {
+        size: 85.6mm 54mm;
+        margin: 0;
+      }
+    }
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -218,6 +230,7 @@
   <script src="js/language.js"></script>
   <script>
     let gymId = null;
+    let gymName = 'GYM';
     let products = [];
     let productItems = [];
     let members = [];
@@ -235,6 +248,7 @@
       if (!auth) return;
       renderNav(auth.user, 'canteen');
       gymId = auth.profile?.gym_id;
+      gymName = auth.profile?.gym?.name || 'GYM';
 
       // لو مفيش gym_id، حاول تعمله
       if (!gymId) {
@@ -1404,23 +1418,23 @@
       }
 
       const printArea = document.getElementById('print-area');
+      printArea.className = 'card-print';
       printArea.style.display = 'block';
       printArea.style.position = 'fixed';
       printArea.style.left = '0';
       printArea.style.top = '0';
-      printArea.style.width = '100%';
+      printArea.style.width = '85.6mm';
+      printArea.style.height = '54mm';
       printArea.style.background = 'white';
-      printArea.style.padding = '40px';
+      printArea.style.padding = '0';
       printArea.style.zIndex = '9999';
-      printArea.style.textAlign = 'center';
 
       printArea.innerHTML = `
-        <div style="display: inline-block; padding: 30px; border: 2px solid #ddd; border-radius: 16px; background: white;">
-          <h1 style="font-size: 20px; font-weight: bold; margin-bottom: 10px;">${member.full_name || 'Member'}</h1>
-          <p style="color: #666; margin-bottom: 20px;">${member.email || ''}</p>
-          <div id="member-qr-print" style="width: 150px; height: 150px; margin: 0 auto;"></div>
-          <p style="font-size: 10px; color: #999; margin-top: 10px; word-break: break-all;">${qrCode}</p>
-          <div style="margin-top: 10px; font-size: 12px; color: #666;">Scan to check-in</div>
+        <div style="width: 85.6mm; height: 54mm; box-sizing: border-box; padding: 4mm; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: sans-serif; border: 0.3mm solid #ddd;">
+          <div style="font-size: 3mm; font-weight: bold; color: #1e3a8a; margin-bottom: 1mm;">${gymName}</div>
+          <div id="member-qr-print" style="width: 24mm; height: 24mm;"></div>
+          <div style="font-size: 2.6mm; font-weight: bold; margin-top: 1.5mm; text-align: center;">${member.full_name || 'Member'}</div>
+          <div style="font-size: 1.8mm; color: #999; margin-top: 0.5mm;">${qrCode}</div>
         </div>
       `;
 
@@ -1430,8 +1444,8 @@
           container.innerHTML = '';
           new QRCode(container, {
             text: qrCode,
-            width: 150,
-            height: 150
+            width: 90,
+            height: 90
           });
         }
       }

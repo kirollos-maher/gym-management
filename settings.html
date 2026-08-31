@@ -110,7 +110,6 @@
     .toast-info { background: #3b82f6; }
     @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     
-    /* Card template preview styles */
     .template-preview-card {
       width: 100%;
       max-width: 280px;
@@ -170,12 +169,96 @@
       margin-top: 2px;
       letter-spacing: 0.2px;
     }
+
+    /* Plan management styles */
+    .plan-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s;
+      background: white;
+      margin-bottom: 8px;
+    }
+    .plan-card:hover {
+      border-color: #3b82f6;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .plan-card .plan-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .plan-card .plan-info .plan-name {
+      font-weight: 600;
+      color: #1f2937;
+      min-width: 80px;
+    }
+    .plan-card .plan-info .plan-detail {
+      font-size: 13px;
+      color: #6b7280;
+    }
+    .plan-card .plan-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .plan-edit-input {
+      padding: 4px 8px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      font-size: 13px;
+      width: 80px;
+    }
+    .plan-edit-input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      ring: 2px solid #93c5fd;
+    }
+    .btn-sm {
+      padding: 4px 12px;
+      font-size: 12px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-sm-primary {
+      background: #3b82f6;
+      color: white;
+    }
+    .btn-sm-primary:hover {
+      background: #2563eb;
+    }
+    .btn-sm-success {
+      background: #10b981;
+      color: white;
+    }
+    .btn-sm-success:hover {
+      background: #059669;
+    }
+    .btn-sm-danger {
+      background: #ef4444;
+      color: white;
+    }
+    .btn-sm-danger:hover {
+      background: #dc2626;
+    }
+    .btn-sm-warning {
+      background: #f59e0b;
+      color: white;
+    }
+    .btn-sm-warning:hover {
+      background: #d97706;
+    }
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
   <div id="app-nav"></div>
 
-  <main class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div id="loading-state" class="flex items-center justify-center h-96">
       <div class="spinner h-12 w-12"></div>
     </div>
@@ -183,7 +266,7 @@
     <div id="content" class="hidden space-y-6">
       <div>
         <h1 class="text-2xl font-bold text-gray-800">⚙️ Settings</h1>
-        <p class="text-sm text-gray-500">Manage your gym profile, logo, and card templates</p>
+        <p class="text-sm text-gray-500">Manage your gym profile, logo, card templates, and membership plans</p>
       </div>
 
       <!-- ============================================ -->
@@ -268,6 +351,45 @@
       </div>
 
       <!-- ============================================ -->
+      <!-- MEMBERSHIP PLANS SECTION (جديد) -->
+      <!-- ============================================ -->
+      <div class="setting-group">
+        <h3>📋 Membership Plans <span class="badge">Manage subscription plans</span></h3>
+        <p class="text-sm text-gray-500 mb-4">Add, edit, or remove membership plans. These will appear when adding new members.</p>
+        
+        <div id="plans-list" class="space-y-2 mb-4">
+          <!-- Plans will be rendered here -->
+        </div>
+        
+        <!-- Add new plan form -->
+        <div class="border-t pt-4 mt-4">
+          <h4 class="font-medium text-gray-700 mb-3">➕ Add New Plan</h4>
+          <div class="flex flex-wrap gap-3 items-end">
+            <div class="flex-1 min-w-[120px]">
+              <label class="block text-xs font-medium text-gray-600 mb-1">Plan Name</label>
+              <input type="text" id="new-plan-name" placeholder="e.g., شهري" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div class="w-[80px]">
+              <label class="block text-xs font-medium text-gray-600 mb-1">Months</label>
+              <input type="number" id="new-plan-duration" placeholder="1" min="0.5" step="0.5" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div class="w-[100px]">
+              <label class="block text-xs font-medium text-gray-600 mb-1">Price</label>
+              <input type="number" id="new-plan-price" placeholder="50" min="0" step="0.01" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div class="flex-1 min-w-[150px]">
+              <label class="block text-xs font-medium text-gray-600 mb-1">Perks (comma separated)</label>
+              <input type="text" id="new-plan-perks" placeholder="دخول غير محدود, خزانة" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <button id="add-plan-btn" class="bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-4 py-2 text-sm whitespace-nowrap">
+              ➕ Add Plan
+            </button>
+          </div>
+          <div id="plan-add-msg" class="text-sm mt-2 hidden"></div>
+        </div>
+      </div>
+
+      <!-- ============================================ -->
       <!-- SAVE BUTTON -->
       <!-- ============================================ -->
       <div class="bg-white rounded-lg shadow-md p-6">
@@ -291,6 +413,7 @@
     let gymId = null;
     let selectedTemplate = 'dark';
     let gymLogoUrl = null;
+    let plans = [];
 
     // ============================================================
     // CARD TEMPLATES
@@ -428,18 +551,20 @@
       await loadGymData();
       await loadTemplatePreference();
       await loadLogo();
+      await loadPlans();
 
       document.getElementById('loading-state').classList.add('hidden');
       document.getElementById('content').classList.remove('hidden');
 
       setupEventListeners();
       renderTemplates();
+      renderPlans();
       
       setTimeout(updatePageLanguage, 100);
     }
 
     // ============================================================
-    // LOAD GYM DATA
+    // LOAD DATA
     // ============================================================
     async function loadGymData() {
       const { data: gym } = await sb
@@ -458,9 +583,6 @@
       }
     }
 
-    // ============================================================
-    // LOAD TEMPLATE PREFERENCE
-    // ============================================================
     async function loadTemplatePreference() {
       const { data } = await sb
         .from('gym_settings')
@@ -473,9 +595,6 @@
       }
     }
 
-    // ============================================================
-    // LOAD LOGO
-    // ============================================================
     async function loadLogo() {
       const { data: gym } = await sb
         .from('gym_profiles')
@@ -492,10 +611,27 @@
       }
     }
 
+    async function loadPlans() {
+      const { data, error } = await sb
+        .from('memberships')
+        .select('*')
+        .eq('gym_id', gymId)
+        .order('duration_months', { ascending: true });
+
+      if (error) {
+        console.error('Error loading plans:', error);
+        plans = [];
+      } else {
+        plans = data || [];
+      }
+      renderPlans();
+    }
+
+    // ============================================================
+    // RENDER FUNCTIONS
+    // ============================================================
     function updateLogoPreview(url) {
       const preview = document.getElementById('logo-preview');
-      const placeholder = document.getElementById('logo-placeholder');
-      
       if (url) {
         preview.innerHTML = `<img src="${url}" alt="Gym Logo" />`;
       } else {
@@ -503,9 +639,6 @@
       }
     }
 
-    // ============================================================
-    // RENDER TEMPLATES
-    // ============================================================
     function renderTemplates() {
       const grid = document.getElementById('card-templates-grid');
       
@@ -542,6 +675,181 @@
     }
     window.selectTemplate = selectTemplate;
 
+    function renderPlans() {
+      const container = document.getElementById('plans-list');
+      
+      if (plans.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-8 text-gray-500 bg-gray-50 rounded-lg border border-dashed">
+            <p>No membership plans yet. Add one below!</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = plans.map((plan, index) => {
+        const durationText = plan.duration_months === 1 ? 'شهر' : 
+                            plan.duration_months === 2 ? 'شهرين' :
+                            plan.duration_months === 3 ? 'ربع سنوي' :
+                            plan.duration_months === 6 ? 'نصف سنوي' :
+                            plan.duration_months === 12 ? 'سنوي' :
+                            `${plan.duration_months} شهور`;
+        
+        const perksText = plan.perks && plan.perks.length > 0 ? plan.perks.join(', ') : 'لا يوجد';
+        
+        return `
+          <div class="plan-card" data-plan-id="${plan.id}">
+            <div class="plan-info flex-1 flex flex-wrap items-center gap-3">
+              <span class="plan-name">${plan.name}</span>
+              <span class="plan-detail">💰 $${plan.price}</span>
+              <span class="plan-detail">⏱ ${durationText}</span>
+              <span class="plan-detail text-xs text-gray-400">🎁 ${perksText}</span>
+            </div>
+            <div class="plan-actions">
+              <button onclick="editPlan('${plan.id}')" class="btn-sm btn-sm-warning">✏️ Edit</button>
+              <button onclick="deletePlan('${plan.id}')" class="btn-sm btn-sm-danger">🗑️</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ============================================================
+    // PLAN CRUD OPERATIONS
+    // ============================================================
+    window.editPlan = function(planId) {
+      const plan = plans.find(p => p.id === planId);
+      if (!plan) return;
+
+      // Create edit form
+      const container = document.getElementById('plans-list');
+      const planCard = container.querySelector(`[data-plan-id="${planId}"]`);
+      if (!planCard) return;
+
+      planCard.innerHTML = `
+        <div class="flex flex-wrap items-center gap-2 w-full">
+          <input type="text" id="edit-name-${planId}" value="${plan.name}" class="plan-edit-input w-[100px]" placeholder="Name" />
+          <input type="number" id="edit-price-${planId}" value="${plan.price}" class="plan-edit-input w-[80px]" step="0.01" placeholder="Price" />
+          <input type="number" id="edit-duration-${planId}" value="${plan.duration_months}" class="plan-edit-input w-[60px]" step="0.5" placeholder="Months" />
+          <input type="text" id="edit-perks-${planId}" value="${plan.perks ? plan.perks.join(', ') : ''}" class="plan-edit-input flex-1 min-w-[120px]" placeholder="Perks" />
+          <button onclick="savePlan('${planId}')" class="btn-sm btn-sm-success">💾 Save</button>
+          <button onclick="cancelEditPlan('${planId}')" class="btn-sm btn-sm-danger">✖️</button>
+        </div>
+      `;
+    };
+
+    window.savePlan = async function(planId) {
+      const name = document.getElementById(`edit-name-${planId}`).value.trim();
+      const price = parseFloat(document.getElementById(`edit-price-${planId}`).value);
+      const duration = parseFloat(document.getElementById(`edit-duration-${planId}`).value);
+      const perksRaw = document.getElementById(`edit-perks-${planId}`).value;
+      const perks = perksRaw.split(',').map(p => p.trim()).filter(Boolean);
+
+      if (!name || !price || !duration || duration <= 0) {
+        showToast('Please fill all fields correctly', 'error');
+        return;
+      }
+
+      const { error } = await sb
+        .from('memberships')
+        .update({
+          name: name,
+          price: price,
+          duration_months: duration,
+          perks: perks
+        })
+        .eq('id', planId)
+        .eq('gym_id', gymId);
+
+      if (error) {
+        showToast('Error updating plan: ' + error.message, 'error');
+        return;
+      }
+
+      showToast('✅ Plan updated successfully!', 'success');
+      await loadPlans();
+    };
+
+    window.cancelEditPlan = function(planId) {
+      renderPlans();
+    };
+
+    window.deletePlan = async function(planId) {
+      const plan = plans.find(p => p.id === planId);
+      if (!confirm(`Are you sure you want to delete "${plan?.name}"?`)) return;
+
+      const { error } = await sb
+        .from('memberships')
+        .delete()
+        .eq('id', planId)
+        .eq('gym_id', gymId);
+
+      if (error) {
+        showToast('Error deleting plan: ' + error.message, 'error');
+        return;
+      }
+
+      showToast('✅ Plan deleted successfully!', 'success');
+      await loadPlans();
+    };
+
+    // ============================================================
+    // ADD NEW PLAN
+    // ============================================================
+    async function addNewPlan() {
+      const name = document.getElementById('new-plan-name').value.trim();
+      const duration = parseFloat(document.getElementById('new-plan-duration').value);
+      const price = parseFloat(document.getElementById('new-plan-price').value);
+      const perksRaw = document.getElementById('new-plan-perks').value;
+      const perks = perksRaw.split(',').map(p => p.trim()).filter(Boolean);
+      const msgEl = document.getElementById('plan-add-msg');
+
+      if (!name || !duration || duration <= 0 || !price || price < 0) {
+        msgEl.textContent = '⚠️ Please fill all fields correctly';
+        msgEl.className = 'text-sm text-red-600 mt-2';
+        msgEl.classList.remove('hidden');
+        return;
+      }
+
+      msgEl.classList.add('hidden');
+
+      const { data, error } = await sb
+        .from('memberships')
+        .insert({
+          gym_id: gymId,
+          name: name,
+          description: `اشتراك ${name}`,
+          price: price,
+          duration_months: duration,
+          perks: perks,
+          is_default: false
+        })
+        .select()
+        .single();
+
+      if (error) {
+        msgEl.textContent = '❌ Error: ' + error.message;
+        msgEl.className = 'text-sm text-red-600 mt-2';
+        msgEl.classList.remove('hidden');
+        showToast('Error adding plan: ' + error.message, 'error');
+        return;
+      }
+
+      msgEl.textContent = '✅ Plan added successfully!';
+      msgEl.className = 'text-sm text-green-600 mt-2';
+      msgEl.classList.remove('hidden');
+      
+      document.getElementById('new-plan-name').value = '';
+      document.getElementById('new-plan-duration').value = '';
+      document.getElementById('new-plan-price').value = '';
+      document.getElementById('new-plan-perks').value = '';
+      
+      await loadPlans();
+      showToast('✅ Plan added successfully!', 'success');
+      
+      setTimeout(() => msgEl.classList.add('hidden'), 3000);
+    }
+
     // ============================================================
     // SETUP EVENT LISTENERS
     // ============================================================
@@ -558,10 +866,26 @@
       });
       
       document.getElementById('logo-upload').addEventListener('change', uploadLogo);
-      
       document.getElementById('remove-logo-btn').addEventListener('click', removeLogo);
       
-      // Update preview when gym name changes
+      // Add plan
+      document.getElementById('add-plan-btn').addEventListener('click', addNewPlan);
+      
+      // Enter key for add plan
+      document.getElementById('new-plan-name').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') addNewPlan();
+      });
+      document.getElementById('new-plan-duration').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') addNewPlan();
+      });
+      document.getElementById('new-plan-price').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') addNewPlan();
+      });
+      document.getElementById('new-plan-perks').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') addNewPlan();
+      });
+      
+      // Update template preview when gym name changes
       document.getElementById('f-name').addEventListener('input', () => {
         renderTemplates();
       });
@@ -600,7 +924,6 @@
       msgEl.className = 'text-sm text-green-600';
       showToast('Settings saved successfully!', 'success');
       
-      // Also save template
       await saveTemplatePreference(true);
     }
 
@@ -640,19 +963,17 @@
     }
 
     // ============================================================
-    // UPLOAD LOGO
+    // LOGO UPLOAD / REMOVE
     // ============================================================
     async function uploadLogo(e) {
       const file = e.target.files[0];
       if (!file) return;
 
-      // Validate file type
       if (!file.type.startsWith('image/')) {
         showToast('Please upload an image file', 'error');
         return;
       }
 
-      // Validate file size (max 2MB)
       if (file.size > 2 * 1024 * 1024) {
         showToast('Image must be less than 2MB', 'error');
         return;
@@ -663,7 +984,6 @@
       statusEl.className = 'text-sm text-blue-600';
 
       try {
-        // Upload to Supabase Storage
         const fileExt = file.name.split('.').pop();
         const fileName = `logo-${gymId}-${Date.now()}.${fileExt}`;
         const filePath = `gym-logos/${fileName}`;
@@ -677,14 +997,12 @@
 
         if (uploadError) throw uploadError;
 
-        // Get public URL
         const { data: urlData } = sb.storage
           .from('gym-assets')
           .getPublicUrl(filePath);
 
         const publicUrl = urlData.publicUrl;
 
-        // Update gym profile with logo URL
         const { error: updateError } = await sb
           .from('gym_profiles')
           .update({ logo_url: publicUrl })
@@ -699,7 +1017,6 @@
         statusEl.className = 'text-sm text-green-600';
         showToast('Logo uploaded successfully!', 'success');
 
-        // Update template previews (they show gym name, not logo, but we keep consistency)
         renderTemplates();
 
       } catch (err) {
@@ -709,13 +1026,9 @@
         showToast('Failed to upload logo', 'error');
       }
 
-      // Reset file input
       e.target.value = '';
     }
 
-    // ============================================================
-    // REMOVE LOGO
-    // ============================================================
     async function removeLogo() {
       if (!confirm('Are you sure you want to remove the gym logo?')) return;
 
@@ -748,8 +1061,6 @@
     // ============================================================
     // EXPORT FUNCTIONS FOR CANTEEN PAGE
     // ============================================================
-    // These functions will be used by canteen.html to get the
-    // selected template and logo
     window.getGymSettings = async function() {
       const [gymResult, settingsResult] = await Promise.all([
         sb.from('gym_profiles').select('logo_url, name').eq('id', gymId).single(),

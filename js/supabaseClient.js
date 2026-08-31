@@ -6,6 +6,31 @@ const SUPABASE_ANON_KEY = 'sb_publishable_D8O0L6by1Lm1Qkxbe-xvxA_kuopuuae';
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// ============================================================
+// Keep <html class="dark"> in sync with <body class="dark-mode">.
+// Tailwind's own `dark:` utility classes only respond to a "dark"
+// class on an ancestor element (per tailwind.config darkMode:'class'
+// set on every page) — they know nothing about our custom
+// "dark-mode" class. This observer mirrors one onto the other,
+// no matter which code path toggles body's class (shared toggle
+// function, or a page's own local dark-mode script), so every
+// dark: utility in the app follows OUR light/dark switch instead
+// of the visitor's OS/browser color scheme.
+// ============================================================
+(function syncTailwindDarkClass() {
+  function sync() {
+    document.documentElement.classList.toggle(
+      'dark',
+      document.body.classList.contains('dark-mode')
+    );
+  }
+  sync();
+  new MutationObserver(sync).observe(document.body, {
+    attributes: true,
+    attributeFilter: ['class']
+  });
+})();
+
 // ============================================
 // DARK MODE
 // ============================================

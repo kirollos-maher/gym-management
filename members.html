@@ -454,10 +454,31 @@
         <p id="qr-member-name" class="font-semibold text-gray-800 dark:text-white mt-4"></p>
         <p id="qr-member-email" class="text-sm text-gray-500 dark:text-gray-400"></p>
         <p id="qr-code-text" class="text-xs font-mono text-gray-400 dark:text-gray-500 mt-2 break-all"></p>
-        <button id="download-qr-btn" class="mt-4 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-4 py-2">
-          📥 Download QR
-        </button>
+        <div class="flex items-center gap-2 mt-4">
+          <button id="download-qr-btn" class="bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-4 py-2">
+            📥 <span data-i18n="members.qr.download">Download QR</span>
+          </button>
+          <button id="view-full-card-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium px-4 py-2">
+            🪪 <span data-i18n="members.card.view">Full Card</span>
+          </button>
+        </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal: Member Card -->
+  <div id="member-card-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl p-6 text-center">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-800 dark:text-white">🪪 <span data-i18n="members.card.title">Membership Card</span></h2>
+        <button id="close-card-modal" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 text-2xl">&times;</button>
+      </div>
+      <div class="flex justify-center">
+        <canvas id="member-card-canvas" class="w-full max-w-md rounded-xl shadow-lg"></canvas>
+      </div>
+      <button id="download-card-btn" class="mt-4 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-4 py-2">
+        📥 <span data-i18n="members.card.download">Download Card</span>
+      </button>
     </div>
   </div>
 
@@ -467,9 +488,11 @@
   <script src="js/language.js"></script>
   <script>
     let gymId = null;
+    let gymName = '';
     let allMembers = [];
     let memberships = [];
     let currentQrMemberId = null;
+    let currentCardMemberId = null;
     let currencySymbol = '$';
 
     async function init() {
@@ -477,6 +500,7 @@
       if (!auth) return;
       renderNav(auth.user, 'members');
       gymId = auth.profile?.gym_id;
+      gymName = auth.profile?.gym?.name || '';
       
       const currency = await getGymCurrency();
       currencySymbol = getCurrencySymbol(currency);
@@ -517,6 +541,15 @@
         document.getElementById('member-qr-modal').classList.add('hidden');
       });
       document.getElementById('download-qr-btn').addEventListener('click', downloadMemberQR);
+      document.getElementById('view-full-card-btn').addEventListener('click', () => {
+        document.getElementById('member-qr-modal').classList.add('hidden');
+        showMemberCard(currentQrMemberId);
+      });
+
+      document.getElementById('close-card-modal').addEventListener('click', () => {
+        document.getElementById('member-card-modal').classList.add('hidden');
+      });
+      document.getElementById('download-card-btn').addEventListener('click', downloadMemberCard);
       
       setTimeout(updatePageLanguage, 100);
     }
@@ -810,6 +843,7 @@
               </div>
               <div class="flex items-center gap-2">
                 ${qr ? `<button onclick="showMemberQR('${m.id}')" class="text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 px-3 py-1 rounded-full hover:bg-purple-200 dark:hover:bg-purple-900/50 transition-colors" title="QR Code">📱</button>` : ''}
+                ${qr ? `<button onclick="showMemberCard('${m.id}')" class="text-xs bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 px-3 py-1 rounded-full hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition-colors" title="Membership Card">🪪</button>` : ''}
                 <button onclick="showMemberDetails('${m.id}')" class="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-3 py-1 rounded-full hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors">👁️</button>
                 <button onclick="deleteMember('${m.id}')" class="text-xs bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-3 py-1 rounded-full hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors">🗑️</button>
               </div>
@@ -937,9 +971,14 @@
                 <div id="detail-qr-canvas" class="bg-white dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-700"></div>
                 <div>
                   <p class="text-xs font-mono text-gray-500 dark:text-gray-400 break-all">${qr.qr_code}</p>
-                  <button onclick="showMemberQR('${member.id}')" class="mt-2 text-sm bg-purple-600 hover:bg-purple-700 text-white px-4 py-1 rounded-lg">
-                    View Full QR
-                  </button>
+                  <div class="flex items-center gap-2 mt-2">
+                    <button onclick="showMemberQR('${member.id}')" class="text-sm bg-purple-600 hover:bg-purple-700 text-white px-4 py-1 rounded-lg">
+                      View Full QR
+                    </button>
+                    <button onclick="showMemberCard('${member.id}')" class="text-sm bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-1 rounded-lg">
+                      🪪 Full Card
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1017,6 +1056,183 @@
       }
     }
 
+    // ============================================================
+    // MEMBERSHIP CARD (full printable card: photo/initials, name,
+    // plan, status, dates, and QR — rendered on a canvas so it can
+    // be downloaded as one PNG for printing).
+    // ============================================================
+    function drawRoundedRect(ctx, x, y, width, height, radius) {
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.arcTo(x + width, y, x + width, y + height, radius);
+      ctx.arcTo(x + width, y + height, x, y + height, radius);
+      ctx.arcTo(x, y + height, x, y, radius);
+      ctx.arcTo(x, y, x + width, y, radius);
+      ctx.closePath();
+    }
+
+    async function showMemberCard(memberId) {
+      const member = allMembers.find(m => m.id === memberId);
+      if (!member) return;
+
+      let qr = Array.isArray(member.member_qr_codes) ? member.member_qr_codes[0] : member.member_qr_codes;
+      if (!qr) {
+        try {
+          await sb.rpc('ensure_member_qr', {
+            p_member_id: memberId,
+            p_gym_id: gymId
+          });
+          await fetchMembers();
+          const updatedMember = allMembers.find(m => m.id === memberId);
+          qr = Array.isArray(updatedMember?.member_qr_codes) ? updatedMember.member_qr_codes[0] : null;
+          if (!qr) return;
+        } catch (err) {
+          alert('Error generating QR: ' + err.message);
+          return;
+        }
+      }
+
+      currentCardMemberId = memberId;
+      document.getElementById('member-card-modal').classList.remove('hidden');
+      await renderMemberCard(member, qr.qr_code);
+    }
+
+    async function renderMemberCard(member, qrCode) {
+      const lang = localStorage.getItem('gym_lang') || 'en';
+      const isRTL = lang === 'ar';
+      const sub = Array.isArray(member.subscription) ? member.subscription[0] : member.subscription;
+
+      const canvas = document.getElementById('member-card-canvas');
+      const W = 1000, H = 620;
+      canvas.width = W;
+      canvas.height = H;
+      const ctx = canvas.getContext('2d');
+
+      // Background
+      const grad = ctx.createLinearGradient(0, 0, W, H);
+      grad.addColorStop(0, '#1d4ed8');
+      grad.addColorStop(1, '#4338ca');
+      drawRoundedRect(ctx, 0, 0, W, H, 28);
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      ctx.save();
+      ctx.globalAlpha = 0.08;
+      ctx.beginPath();
+      ctx.arc(W - 70, H - 70, 220, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+      ctx.restore();
+
+      // Header
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = isRTL ? 'right' : 'left';
+      ctx.textBaseline = 'top';
+      ctx.font = 'bold 34px Tahoma, Arial, sans-serif';
+      ctx.fillText(gymName || (isRTL ? 'إدارة الجيم' : 'Gym Management'), isRTL ? W - 48 : 48, 40);
+
+      ctx.globalAlpha = 0.85;
+      ctx.font = '20px Tahoma, Arial, sans-serif';
+      ctx.fillText(isRTL ? 'بطاقة عضوية' : 'MEMBERSHIP CARD', isRTL ? W - 48 : 48, 84);
+      ctx.globalAlpha = 1;
+
+      // Avatar
+      const avatarX = isRTL ? W - 130 : 130;
+      const avatarY = 230;
+      ctx.beginPath();
+      ctx.arc(avatarX, avatarY, 70, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,255,255,0.15)';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 46px Tahoma, Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(getInitials(member.full_name), avatarX, avatarY + 4);
+
+      // Name & plan
+      const textX = isRTL ? avatarX - 100 : avatarX + 100;
+      ctx.textAlign = isRTL ? 'right' : 'left';
+      ctx.textBaseline = 'top';
+      ctx.font = 'bold 32px Tahoma, Arial, sans-serif';
+      ctx.fillText(member.full_name || (isRTL ? 'عضو' : 'Member'), textX, avatarY - 60);
+
+      ctx.globalAlpha = 0.9;
+      ctx.font = '22px Tahoma, Arial, sans-serif';
+      const planName = sub?.membership?.name || (isRTL ? 'بدون خطة' : 'No Plan');
+      ctx.fillText(planName, textX, avatarY - 18);
+      ctx.globalAlpha = 1;
+
+      // Status badge
+      const statusMap = {
+        active: { text: isRTL ? 'نشط' : 'ACTIVE', color: '#22c55e' },
+        expired: { text: isRTL ? 'منتهي' : 'EXPIRED', color: '#ef4444' }
+      };
+      const status = statusMap[sub?.status] || { text: isRTL ? 'غير نشط' : 'INACTIVE', color: '#9ca3af' };
+      ctx.font = 'bold 18px Tahoma, Arial, sans-serif';
+      const badgeW = ctx.measureText(status.text).width + 32;
+      const badgeX = isRTL ? textX - badgeW : textX;
+      drawRoundedRect(ctx, badgeX, avatarY + 22, badgeW, 34, 17);
+      ctx.fillStyle = status.color;
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(status.text, badgeX + badgeW / 2, avatarY + 40);
+
+      // Dates footer
+      ctx.textAlign = isRTL ? 'right' : 'left';
+      ctx.textBaseline = 'top';
+      ctx.font = '18px Tahoma, Arial, sans-serif';
+      ctx.globalAlpha = 0.85;
+      const startLabel = isRTL ? 'تاريخ الاشتراك' : 'Member Since';
+      const endLabel = isRTL ? 'صالحة حتى' : 'Valid Until';
+      const startVal = sub ? formatDate(sub.start_date) : '-';
+      const endVal = sub ? formatDate(sub.end_date) : '-';
+      const footerX = isRTL ? W - 48 : 48;
+      ctx.fillText(`${startLabel}: ${startVal}`, footerX, H - 96);
+      ctx.fillText(`${endLabel}: ${endVal}`, footerX, H - 64);
+      ctx.globalAlpha = 1;
+
+      // QR code (rendered off-screen with qrcodejs, then drawn onto the card)
+      const qrTemp = document.createElement('div');
+      qrTemp.style.position = 'fixed';
+      qrTemp.style.left = '-9999px';
+      document.body.appendChild(qrTemp);
+      new QRCode(qrTemp, {
+        text: qrCode,
+        width: 220,
+        height: 220,
+        correctLevel: (typeof QRCode !== 'undefined' && QRCode.CorrectLevel) ? QRCode.CorrectLevel.M : undefined
+      });
+      await new Promise((resolve) => setTimeout(resolve, 60));
+      const qrCanvas = qrTemp.querySelector('canvas');
+      const qrSize = 220;
+      const qrX = isRTL ? 48 : W - qrSize - 48;
+      const qrY = H - qrSize - 48;
+
+      drawRoundedRect(ctx, qrX - 16, qrY - 16, qrSize + 32, qrSize + 32, 12);
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+      if (qrCanvas) {
+        ctx.drawImage(qrCanvas, qrX, qrY, qrSize, qrSize);
+      }
+      document.body.removeChild(qrTemp);
+    }
+
+    function downloadMemberCard() {
+      const canvas = document.getElementById('member-card-canvas');
+      if (canvas) {
+        const link = document.createElement('a');
+        link.download = `member-${currentCardMemberId}-card.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      }
+    }
+
     async function deleteMember(memberId) {
       const member = allMembers.find(m => m.id === memberId);
       const lang = localStorage.getItem('gym_lang') || 'en';
@@ -1076,8 +1292,10 @@
 
     window.showMemberDetails = showMemberDetails;
     window.showMemberQR = showMemberQR;
+    window.showMemberCard = showMemberCard;
     window.deleteMember = deleteMember;
     window.downloadMemberQR = downloadMemberQR;
+    window.downloadMemberCard = downloadMemberCard;
 
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', init);

@@ -256,8 +256,43 @@
       renderSales();
       populateMembers();
       renderPrintProducts();
-      
+      subscribeToRealtimeUpdates();
+
       setTimeout(updatePageLanguage, 100);
+    }
+
+    // ============================================================
+    // REALTIME: auto-refresh this page when another device
+    // (e.g. a phone scanning a product) changes the data
+    // ============================================================
+    let realtimeRefreshTimeout = null;
+
+    function subscribeToRealtimeUpdates() {
+      // Debounced refresh so several rapid changes only trigger one reload
+      const scheduleRefresh = () => {
+        clearTimeout(realtimeRefreshTimeout);
+        realtimeRefreshTimeout = setTimeout(async () => {
+          await loadData();
+          renderProducts();
+          renderInventory();
+          renderSales();
+          renderPrintProducts();
+          showToast('🔄 Updated automatically', 'info');
+        }, 400);
+      };
+
+      sb.channel('canteen-live-' + gymId)
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'product_items', filter: `gym_id=eq.${gymId}` },
+          scheduleRefresh
+        )
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'customer_purchases', filter: `gym_id=eq.${gymId}` },
+          scheduleRefresh
+        )
+        .subscribe();
     }
 
     // ============================================================

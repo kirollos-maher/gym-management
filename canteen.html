@@ -81,11 +81,157 @@
       }
       * { box-sizing: border-box !important; page-break-inside: avoid !important; page-break-after: avoid !important; }
     }
+
+    /* Dark Mode Styles for Canteen */
+    body.dark-mode .product-card {
+      background-color: #1e293b !important;
+      border-color: #334155 !important;
+    }
+    body.dark-mode .product-card .text-gray-800 {
+      color: #e2e8f0 !important;
+    }
+    body.dark-mode .product-card .text-gray-500 {
+      color: #94a3b8 !important;
+    }
+    body.dark-mode .product-card .border-gray-100 {
+      border-color: #334155 !important;
+    }
+    body.dark-mode .bg-white {
+      background-color: #1e293b !important;
+      color: #e2e8f0 !important;
+    }
+    body.dark-mode .bg-gray-50 {
+      background-color: #0f172a !important;
+    }
+    body.dark-mode .text-gray-800 {
+      color: #e2e8f0 !important;
+    }
+    body.dark-mode .text-gray-700 {
+      color: #cbd5e1 !important;
+    }
+    body.dark-mode .text-gray-600 {
+      color: #94a3b8 !important;
+    }
+    body.dark-mode .text-gray-500 {
+      color: #64748b !important;
+    }
+    body.dark-mode .border-gray-300 {
+      border-color: #334155 !important;
+    }
+    body.dark-mode .border-gray-200 {
+      border-color: #334155 !important;
+    }
+    body.dark-mode .border-gray-100 {
+      border-color: #1e293b !important;
+    }
+    body.dark-mode input,
+    body.dark-mode select,
+    body.dark-mode textarea {
+      background-color: #0f172a !important;
+      color: #e2e8f0 !important;
+      border-color: #334155 !important;
+    }
+    body.dark-mode input::placeholder {
+      color: #64748b !important;
+    }
+    body.dark-mode .bg-blue-50 {
+      background-color: #1e3a5f !important;
+    }
+    body.dark-mode .bg-green-50 {
+      background-color: #064e3b !important;
+    }
+    body.dark-mode .bg-red-50 {
+      background-color: #4c0519 !important;
+    }
+    body.dark-mode .bg-yellow-50 {
+      background-color: #4d2e00 !important;
+    }
+    body.dark-mode .bg-purple-50 {
+      background-color: #2e1065 !important;
+    }
+    body.dark-mode .text-blue-600 {
+      color: #60a5fa !important;
+    }
+    body.dark-mode .text-green-600 {
+      color: #34d399 !important;
+    }
+    body.dark-mode .text-red-600 {
+      color: #f87171 !important;
+    }
+    body.dark-mode .text-yellow-600 {
+      color: #fbbf24 !important;
+    }
+    body.dark-mode .text-purple-600 {
+      color: #a78bfa !important;
+    }
+    body.dark-mode .bg-blue-600 {
+      background-color: #2563eb !important;
+    }
+    body.dark-mode .bg-blue-600:hover {
+      background-color: #1d4ed8 !important;
+    }
+    body.dark-mode .bg-green-600 {
+      background-color: #059669 !important;
+    }
+    body.dark-mode .bg-green-600:hover {
+      background-color: #047857 !important;
+    }
+    body.dark-mode .bg-purple-600 {
+      background-color: #7c3aed !important;
+    }
+    body.dark-mode .bg-purple-600:hover {
+      background-color: #6d28d9 !important;
+    }
+    body.dark-mode .bg-gray-200 {
+      background-color: #334155 !important;
+    }
+    body.dark-mode .bg-gray-200:hover {
+      background-color: #475569 !important;
+    }
+    body.dark-mode .bg-red-100 {
+      background-color: #4c0519 !important;
+    }
+    body.dark-mode .bg-red-100:hover {
+      background-color: #4c0519 !important;
+    }
+    body.dark-mode .text-red-700 {
+      color: #f87171 !important;
+    }
+    body.dark-mode .bg-white.rounded-lg.shadow-md {
+      background-color: #1e293b !important;
+    }
+    body.dark-mode .shadow-md {
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5) !important;
+    }
+    body.dark-mode .shadow-lg {
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.6) !important;
+    }
+    body.dark-mode .member-select-content {
+      background-color: #1e293b !important;
+      color: #e2e8f0 !important;
+    }
+    body.dark-mode .member-select-modal {
+      background: rgba(0, 0, 0, 0.7) !important;
+    }
+    body.dark-mode .qr-container {
+      background-color: #1e293b !important;
+    }
+    body.dark-mode .tab-active {
+      color: #60a5fa !important;
+      border-bottom-color: #60a5fa !important;
+    }
+    body.dark-mode .tab-inactive {
+      color: #94a3b8 !important;
+    }
+    body.dark-mode .tab-inactive:hover {
+      color: #e2e8f0 !important;
+      border-bottom-color: #475569 !important;
+    }
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
   <script>
-  // أضف ده تحت <body> في كل صفحة
+    // تطبيق Dark Mode فوراً عند تحميل الصفحة
     (function() {
       const isDark = localStorage.getItem('gym_theme') === 'dark';
       if (isDark) {
@@ -93,23 +239,28 @@
       }
     })();
   </script>
+
   <div id="app-nav"></div>
 
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Header -->
     <div class="flex items-center justify-between flex-wrap gap-3 mb-6">
       <div>
-        <h1 class="text-2xl font-bold text-gray-800">🛒 Canteen Management</h1>
-        <p class="text-sm text-gray-500">Manage products, track sales, and process QR code purchases</p>
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">🛒 Canteen Management</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Manage products, track sales, and process QR code purchases</p>
       </div>
       <div class="flex gap-2 flex-wrap">
-        <button id="scan-qr-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">📷 Scan QR</button>
-        <button id="add-product-btn" class="bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">➕ Add Product</button>
+        <button id="scan-qr-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">
+          📷 Scan QR
+        </button>
+        <button id="add-product-btn" class="bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">
+          ➕ Add Product
+        </button>
       </div>
     </div>
 
     <!-- Tabs -->
-    <div class="flex gap-6 border-b mb-6 overflow-x-auto">
+    <div class="flex gap-6 border-b border-gray-200 dark:border-gray-700 mb-6 overflow-x-auto">
       <button class="tab-active px-4 py-2 font-medium whitespace-nowrap" data-tab="products">📦 Products</button>
       <button class="tab-inactive px-4 py-2 font-medium whitespace-nowrap" data-tab="inventory">📊 Inventory</button>
       <button class="tab-inactive px-4 py-2 font-medium whitespace-nowrap" data-tab="sales">💰 Sales</button>
@@ -119,18 +270,27 @@
 
     <!-- Content -->
     <div id="tab-content">
+      <!-- Products Tab -->
       <div id="tab-products" class="space-y-6">
         <div class="flex gap-4 mb-4 flex-wrap">
-          <input type="text" id="product-search" placeholder="Search products..." class="flex-1 min-w-[200px] rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          <select id="category-filter" class="rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"><option value="">All Categories</option></select>
-          <button id="print-all-qr-btn" class="bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">🖨️ Print All QR</button>
+          <input type="text" id="product-search" placeholder="Search products..." class="flex-1 min-w-[200px] rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <select id="category-filter" class="rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">All Categories</option>
+          </select>
+          <button id="print-all-qr-btn" class="bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">
+            🖨️ Print All QR
+          </button>
         </div>
         <div id="products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
       </div>
 
+      <!-- Inventory Tab -->
       <div id="tab-inventory" class="hidden">
-        <div class="bg-white rounded-lg shadow-md overflow-hidden">
-          <div class="p-4 border-b"><h3 class="font-semibold text-gray-800">Inventory Status</h3><p class="text-sm text-gray-500">Track available, sold, and reserved items</p></div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+          <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="font-semibold text-gray-800 dark:text-white">Inventory Status</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Track available, sold, and reserved items</p>
+          </div>
           <div class="p-4">
             <div id="inventory-stats" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6"></div>
             <div id="inventory-list" class="space-y-2"></div>
@@ -138,39 +298,57 @@
         </div>
       </div>
 
+      <!-- Sales Tab -->
       <div id="tab-sales" class="hidden">
-        <div class="bg-white rounded-lg shadow-md overflow-hidden">
-          <div class="p-4 border-b"><h3 class="font-semibold text-gray-800">Recent Sales</h3><p class="text-sm text-gray-500">Track all customer purchases</p></div>
-          <div class="p-4"><div id="sales-list" class="space-y-3"></div></div>
-        </div>
-      </div>
-
-      <div id="tab-member-qr" class="hidden">
-        <div class="bg-white rounded-lg shadow-md overflow-hidden">
-          <div class="p-4 border-b"><h3 class="font-semibold text-gray-800">Member QR Codes</h3><p class="text-sm text-gray-500">Generate and manage member QR codes for check-in</p></div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+          <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="font-semibold text-gray-800 dark:text-white">Recent Sales</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Track all customer purchases</p>
+          </div>
           <div class="p-4">
-            <div class="flex gap-4 mb-6 flex-wrap">
-              <select id="member-select" class="flex-1 min-w-[200px] rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"><option value="">Select a member</option></select>
-              <button id="generate-qr-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2">Generate QR</button>
-              <button id="print-member-qr-btn" class="bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">🖨️ Print</button>
-            </div>
-            <div id="member-qr-display" class="flex flex-col items-center p-6 bg-gray-50 rounded-lg"></div>
+            <div id="sales-list" class="space-y-3"></div>
           </div>
         </div>
       </div>
 
+      <!-- Member QR Tab -->
+      <div id="tab-member-qr" class="hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+          <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="font-semibold text-gray-800 dark:text-white">Member QR Codes</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Generate and manage member QR codes for check-in</p>
+          </div>
+          <div class="p-4">
+            <div class="flex gap-4 mb-6 flex-wrap">
+              <select id="member-select" class="flex-1 min-w-[200px] rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Select a member</option>
+              </select>
+              <button id="generate-qr-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2">Generate QR</button>
+              <button id="print-member-qr-btn" class="bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">🖨️ Print</button>
+            </div>
+            <div id="member-qr-display" class="flex flex-col items-center p-6 bg-gray-50 dark:bg-gray-700/50 rounded-lg"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Print QR Tab -->
       <div id="tab-print-qr" class="hidden">
-        <div class="bg-white rounded-lg shadow-md overflow-hidden">
-          <div class="p-4 border-b flex items-center justify-between flex-wrap gap-3">
-            <div><h3 class="font-semibold text-gray-800">🖨️ Print QR Codes</h3><p class="text-sm text-gray-500">Select products to print their QR codes</p></div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+          <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <h3 class="font-semibold text-gray-800 dark:text-white">🖨️ Print QR Codes</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Select products to print their QR codes</p>
+            </div>
             <div class="flex gap-2 flex-wrap">
-              <button id="select-all-products" class="bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium px-4 py-2 text-sm">Select All</button>
-              <button id="deselect-all-products" class="bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium px-4 py-2 text-sm">Deselect All</button>
+              <button id="select-all-products" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium px-4 py-2 text-sm">Select All</button>
+              <button id="deselect-all-products" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium px-4 py-2 text-sm">Deselect All</button>
               <button id="print-selected-qr-btn" class="bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2 text-sm">🖨️ Print Selected</button>
               <button id="download-selected-qr-btn" class="bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2 text-sm">📥 Download PDF</button>
             </div>
           </div>
-          <div class="p-4"><div id="print-products-list" class="space-y-3 max-h-[500px] overflow-y-auto"></div></div>
+          <div class="p-4">
+            <div id="print-products-list" class="space-y-3 max-h-[500px] overflow-y-auto"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -178,19 +356,35 @@
 
   <!-- Modal: Add Product -->
   <div id="add-product-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold text-gray-800">➕ Add New Product</h2>
-        <button id="close-add-product" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+        <h2 class="text-xl font-bold text-gray-800 dark:text-white">➕ Add New Product</h2>
+        <button id="close-add-product" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 text-2xl">&times;</button>
       </div>
       <form id="add-product-form" class="space-y-4">
-        <div><label class="block text-sm font-medium text-gray-700 mb-1">Product Name *</label><input type="text" id="p-name" required class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" /></div>
-        <div><label class="block text-sm font-medium text-gray-700 mb-1">Description</label><textarea id="p-desc" rows="2" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea></div>
-        <div><label class="block text-sm font-medium text-gray-700 mb-1">Price *</label><input type="number" id="p-price" required min="0.01" step="0.01" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" /></div>
-        <div><label class="block text-sm font-medium text-gray-700 mb-1">Category</label><input type="text" id="p-category" placeholder="e.g., Supplements, Drinks, Snacks" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" /></div>
-        <div><label class="block text-sm font-medium text-gray-700 mb-1">Quantity (Number of items) *</label><input type="number" id="p-quantity" required min="1" value="1" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" /><p class="text-xs text-gray-500 mt-1">Each item will get a unique QR code</p></div>
-        <div class="border-t pt-4 flex gap-3">
-          <button type="button" id="cancel-add-product" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-medium px-4 py-2">Cancel</button>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Product Name *</label>
+          <input type="text" id="p-name" required class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+          <textarea id="p-desc" rows="2" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Price *</label>
+          <input type="number" id="p-price" required min="0.01" step="0.01" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
+          <input type="text" id="p-category" placeholder="e.g., Supplements, Drinks, Snacks" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantity (Number of items) *</label>
+          <input type="number" id="p-quantity" required min="1" value="1" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Each item will get a unique QR code</p>
+        </div>
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-4 flex gap-3">
+          <button type="button" id="cancel-add-product" class="flex-1 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-lg font-medium px-4 py-2">Cancel</button>
           <button type="submit" class="flex-1 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-4 py-2">Add Product</button>
         </div>
         <div id="add-product-msg" class="text-sm hidden"></div>
@@ -200,14 +394,15 @@
 
   <!-- Modal: Scan QR with Camera -->
   <div id="scan-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-4 max-h-[95vh] overflow-y-auto">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-lg p-4 max-h-[95vh] overflow-y-auto">
       <div class="flex justify-between items-center mb-3">
-        <h2 class="text-xl font-bold text-gray-800">📷 Scan QR Code</h2>
+        <h2 class="text-xl font-bold text-gray-800 dark:text-white">📷 Scan QR Code</h2>
         <div class="flex gap-2">
-          <button id="toggle-flash-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg px-3 py-1 text-sm">💡 Flash</button>
-          <button id="close-scan" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+          <button id="toggle-flash-btn" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg px-3 py-1 text-sm">💡 Flash</button>
+          <button id="close-scan" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 text-2xl">&times;</button>
         </div>
       </div>
+      
       <div id="scanner-container">
         <div id="scanner"></div>
         <div class="scanner-overlay">
@@ -219,11 +414,12 @@
         </div>
         <div class="flash-overlay" id="flash-overlay"></div>
       </div>
+      
       <div class="mt-3 text-center">
-        <p class="text-sm text-gray-500">Align the QR code within the frame to scan</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Align the QR code within the frame to scan</p>
         <div id="scan-result" class="mt-2 text-sm font-medium"></div>
         <div class="flex gap-2 mt-3">
-          <input type="text" id="qr-input" placeholder="Or enter QR code manually..." class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <input type="text" id="qr-input" placeholder="Or enter QR code manually..." class="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
           <button id="process-manual-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2 text-sm">Process</button>
         </div>
       </div>
@@ -232,13 +428,13 @@
 
   <!-- Modal: Product Items QR -->
   <div id="product-items-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold text-gray-800" id="items-modal-title">Product Items</h2>
+        <h2 class="text-xl font-bold text-gray-800 dark:text-white" id="items-modal-title">Product Items</h2>
         <div class="flex gap-2">
           <button id="print-items-qr-btn" class="bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium px-4 py-2 text-sm flex items-center gap-2">🖨️ Print All</button>
           <button id="download-items-qr-btn" class="bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-4 py-2 text-sm flex items-center gap-2">📥 Download PDF</button>
-          <button id="close-items-modal" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+          <button id="close-items-modal" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 text-2xl">&times;</button>
         </div>
       </div>
       <div id="items-grid" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
@@ -257,7 +453,7 @@
   <script>
     let gymId = null;
     let gymName = 'GYM';
-    let currencySymbol = 'ج.م';
+    let currencySymbol = '$';
     let products = [];
     let productItems = [];
     let members = [];
@@ -269,6 +465,15 @@
     let realtimeRefreshTimeout = null;
 
     // ============================================================
+    // دالة تحديث العملة
+    // ============================================================
+    async function updateCurrency() {
+      const currency = await getGymCurrency();
+      currencySymbol = getCurrencySymbol(currency);
+      console.log('💰 Currency set to:', currencySymbol);
+    }
+
+    // ============================================================
     // INIT
     // ============================================================
     async function init() {
@@ -277,10 +482,8 @@
       renderNav(auth.user, 'canteen');
       gymId = auth.profile?.gym_id;
       gymName = auth.profile?.gym?.name || 'GYM';
-
-      // تحديث العملة (من بيانات الجيم اللي أصلاً راجعة مع البروفايل)
-      currencySymbol = getCurrencySymbol(auth.profile?.gym?.currency || 'EGP');
-      console.log('💰 Currency set to:', currencySymbol);
+      
+      await updateCurrency();
 
       if (!gymId) {
         showToast('⚠️ No gym linked. Please create a gym first.', 'error');
@@ -688,14 +891,14 @@
         modal.className = 'member-select-modal';
         modal.innerHTML = `
           <div class="member-select-content">
-            <h3 class="text-lg font-bold text-gray-800 mb-4">👤 Select Member</h3>
-            <p class="text-sm text-gray-500 mb-4">Choose the member who is purchasing this item</p>
-            <select id="purchase-member-select" class="w-full rounded-lg border border-gray-300 px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 text-base">
+            <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-4">👤 Select Member</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Choose the member who is purchasing this item</p>
+            <select id="purchase-member-select" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 text-base">
               <option value="">-- Select a member --</option>
               ${members.map(m => `<option value="${m.id}">${m.full_name || 'Unknown'} - ${m.email || ''}</option>`).join('')}
             </select>
             <div class="flex gap-3">
-              <button id="purchase-cancel-btn" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-medium px-4 py-2">Cancel</button>
+              <button id="purchase-cancel-btn" class="flex-1 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-lg font-medium px-4 py-2">Cancel</button>
               <button id="purchase-confirm-btn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2">Confirm Purchase</button>
             </div>
           </div>
@@ -806,7 +1009,7 @@
 
       } catch (err) {
         msgEl.textContent = '❌ Error: ' + err.message;
-        msgEl.className = 'text-sm text-red-600';
+        msgEl.className = 'text-sm text-red-600 dark:text-red-400';
         msgEl.classList.remove('hidden');
       }
 
@@ -815,7 +1018,7 @@
     }
 
     // ============================================================
-    // RENDER PRODUCTS - مع العملة
+    // RENDER PRODUCTS
     // ============================================================
     function renderProducts() {
       const grid = document.getElementById('products-grid');
@@ -838,7 +1041,7 @@
       });
 
       if (filtered.length === 0) {
-        grid.innerHTML = '<div class="col-span-full text-center py-12 text-gray-500">No products found</div>';
+        grid.innerHTML = '<div class="col-span-full text-center py-12 text-gray-500 dark:text-gray-400">No products found</div>';
         return;
       }
 
@@ -848,25 +1051,25 @@
         const sold = items.filter(item => item.status === 'sold').length;
         
         return `
-          <div class="product-card bg-white rounded-lg shadow-md overflow-hidden border border-gray-100">
+          <div class="product-card bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden border border-gray-100 dark:border-gray-700">
             <div class="p-4">
               <div class="flex items-start justify-between">
                 <div class="flex-1">
-                  <h4 class="font-semibold text-gray-800">${p.name}</h4>
-                  ${p.category ? `<span class="text-xs text-gray-500">${p.category}</span>` : ''}
+                  <h4 class="font-semibold text-gray-800 dark:text-white">${p.name}</h4>
+                  ${p.category ? `<span class="text-xs text-gray-500 dark:text-gray-400">${p.category}</span>` : ''}
                 </div>
-                <span class="text-lg font-bold text-blue-600">${currencySymbol}${p.price.toFixed(2)}</span>
+                <span class="text-lg font-bold text-blue-600 dark:text-blue-400">${currencySymbol}${p.price.toFixed(2)}</span>
               </div>
-              ${p.description ? `<p class="text-sm text-gray-500 mt-1">${p.description}</p>` : ''}
+              ${p.description ? `<p class="text-sm text-gray-500 dark:text-gray-400 mt-1">${p.description}</p>` : ''}
               <div class="flex items-center gap-4 mt-3 text-sm">
-                <span class="text-green-600">✅ ${available} available</span>
-                <span class="text-red-600">📦 ${sold} sold</span>
-                <span class="text-gray-500">📋 ${items.length} total</span>
+                <span class="text-green-600 dark:text-green-400">✅ ${available} available</span>
+                <span class="text-red-600 dark:text-red-400">📦 ${sold} sold</span>
+                <span class="text-gray-500 dark:text-gray-400">📋 ${items.length} total</span>
               </div>
               <div class="flex gap-2 mt-3 flex-wrap">
-                <button onclick="showProductItems('${p.id}')" class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full hover:bg-blue-200 transition-colors">📱 QR Codes</button>
-                <button onclick="printProductQR('${p.id}')" class="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full hover:bg-purple-200 transition-colors">🖨️ Print QR</button>
-                <button onclick="deleteProduct('${p.id}')" class="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full hover:bg-red-200 transition-colors">🗑️ Delete</button>
+                <button onclick="showProductItems('${p.id}')" class="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-3 py-1 rounded-full hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors">📱 QR Codes</button>
+                <button onclick="printProductQR('${p.id}')" class="text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 px-3 py-1 rounded-full hover:bg-purple-200 dark:hover:bg-purple-900/50 transition-colors">🖨️ Print QR</button>
+                <button onclick="deleteProduct('${p.id}')" class="text-xs bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-3 py-1 rounded-full hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors">🗑️ Delete</button>
               </div>
             </div>
           </div>
@@ -888,16 +1091,16 @@
       const grid = document.getElementById('items-grid');
       grid.innerHTML = items.map(item => {
         const statusColors = {
-          available: 'bg-green-100 text-green-800',
-          sold: 'bg-red-100 text-red-800',
-          reserved: 'bg-yellow-100 text-yellow-800',
-          damaged: 'bg-gray-100 text-gray-800'
+          available: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400',
+          sold: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400',
+          reserved: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400',
+          damaged: 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300'
         };
         return `
-          <div class="border rounded-lg p-3 text-center">
+          <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-3 text-center bg-white dark:bg-gray-800">
             <div class="qr-container mx-auto mb-2" id="qr-${item.id}"></div>
-            <p class="text-xs font-mono break-all">${item.qr_code}</p>
-            <span class="inline-block mt-1 text-xs px-2 py-0.5 rounded-full ${statusColors[item.status] || 'bg-gray-100'}">${item.status}</span>
+            <p class="text-xs font-mono break-all text-gray-600 dark:text-gray-400">${item.qr_code}</p>
+            <span class="inline-block mt-1 text-xs px-2 py-0.5 rounded-full ${statusColors[item.status] || 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300'}">${item.status}</span>
           </div>
         `;
       }).join('');
@@ -1060,7 +1263,7 @@
     function renderPrintProducts() {
       const container = document.getElementById('print-products-list');
       if (products.length === 0) {
-        container.innerHTML = '<div class="text-center py-8 text-gray-500">No products available</div>';
+        container.innerHTML = '<div class="text-center py-8 text-gray-500 dark:text-gray-400">No products available</div>';
         return;
       }
 
@@ -1069,18 +1272,18 @@
         const available = items.filter(item => item.status === 'available').length;
         const isSelected = selectedProducts.has(p.id);
         return `
-          <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+          <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
             <div class="flex items-center gap-3">
-              <input type="checkbox" class="product-select w-5 h-5 text-blue-600 rounded" 
+              <input type="checkbox" class="product-select w-5 h-5 text-blue-600 dark:text-blue-400 rounded" 
                      data-product-id="${p.id}" ${isSelected ? 'checked' : ''}
                      onchange="toggleProductSelect('${p.id}')" />
               <div>
-                <p class="font-medium text-gray-800">${p.name}</p>
-                <p class="text-xs text-gray-500">${available} available QR codes</p>
+                <p class="font-medium text-gray-800 dark:text-white">${p.name}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">${available} available QR codes</p>
               </div>
             </div>
             <div class="flex gap-2">
-              <button onclick="printProductQR('${p.id}')" class="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full hover:bg-purple-200 transition-colors">🖨️ Print All</button>
+              <button onclick="printProductQR('${p.id}')" class="text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 px-3 py-1 rounded-full hover:bg-purple-200 dark:hover:bg-purple-900/50 transition-colors">🖨️ Print All</button>
             </div>
           </div>
         `;
@@ -1270,32 +1473,52 @@
       const reserved = productItems.filter(i => i.status === 'reserved').length;
 
       stats.innerHTML = `
-        <div class="bg-blue-50 p-4 rounded-lg text-center"><p class="text-2xl font-bold text-blue-600">${total}</p><p class="text-sm text-gray-500">Total Items</p></div>
-        <div class="bg-green-50 p-4 rounded-lg text-center"><p class="text-2xl font-bold text-green-600">${available}</p><p class="text-sm text-gray-500">Available</p></div>
-        <div class="bg-red-50 p-4 rounded-lg text-center"><p class="text-2xl font-bold text-red-600">${sold}</p><p class="text-sm text-gray-500">Sold</p></div>
-        <div class="bg-yellow-50 p-4 rounded-lg text-center"><p class="text-2xl font-bold text-yellow-600">${reserved}</p><p class="text-sm text-gray-500">Reserved</p></div>
+        <div class="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg text-center">
+          <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">${total}</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Total Items</p>
+        </div>
+        <div class="bg-green-50 dark:bg-green-900/30 p-4 rounded-lg text-center">
+          <p class="text-2xl font-bold text-green-600 dark:text-green-400">${available}</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Available</p>
+        </div>
+        <div class="bg-red-50 dark:bg-red-900/30 p-4 rounded-lg text-center">
+          <p class="text-2xl font-bold text-red-600 dark:text-red-400">${sold}</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Sold</p>
+        </div>
+        <div class="bg-yellow-50 dark:bg-yellow-900/30 p-4 rounded-lg text-center">
+          <p class="text-2xl font-bold text-yellow-600 dark:text-yellow-400">${reserved}</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Reserved</p>
+        </div>
       `;
 
       const list = document.getElementById('inventory-list');
       if (productItems.length === 0) {
-        list.innerHTML = '<div class="text-center py-8 text-gray-500">No items in inventory</div>';
+        list.innerHTML = '<div class="text-center py-8 text-gray-500 dark:text-gray-400">No items in inventory</div>';
         return;
       }
 
       list.innerHTML = productItems.slice(0, 20).map(item => {
         const product = products.find(p => p.id === item.product_id);
-        const statusColors = { available: 'bg-green-100 text-green-800', sold: 'bg-red-100 text-red-800', reserved: 'bg-yellow-100 text-yellow-800', damaged: 'bg-gray-100 text-gray-800' };
+        const statusColors = { 
+          available: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400', 
+          sold: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400', 
+          reserved: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400', 
+          damaged: 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300' 
+        };
         return `
-          <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-            <div><p class="font-medium text-gray-800">${product?.name || 'Unknown'}</p><p class="text-xs font-mono text-gray-500">${item.qr_code}</p></div>
-            <span class="text-xs px-2 py-0.5 rounded-full ${statusColors[item.status] || 'bg-gray-100 text-gray-800'}">${item.status}</span>
+          <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+            <div>
+              <p class="font-medium text-gray-800 dark:text-white">${product?.name || 'Unknown'}</p>
+              <p class="text-xs font-mono text-gray-500 dark:text-gray-400">${item.qr_code}</p>
+            </div>
+            <span class="text-xs px-2 py-0.5 rounded-full ${statusColors[item.status] || 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300'}">${item.status}</span>
           </div>
         `;
       }).join('');
     }
 
     // ============================================================
-    // SALES - مع العملة
+    // SALES
     // ============================================================
     async function renderSales() {
       const { data: sales } = await sb
@@ -1307,14 +1530,22 @@
 
       const list = document.getElementById('sales-list');
       if (!sales || sales.length === 0) {
-        list.innerHTML = '<div class="text-center py-8 text-gray-500">No sales yet</div>';
+        list.innerHTML = '<div class="text-center py-8 text-gray-500 dark:text-gray-400">No sales yet</div>';
         return;
       }
 
       list.innerHTML = sales.map(s => `
-        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-          <div><p class="font-medium text-gray-800">${s.customer?.full_name || 'Unknown'}</p><p class="text-xs text-gray-500">${s.product_item?.product?.name || 'Product'}</p><p class="text-xs font-mono text-gray-400">${s.product_item?.qr_code || ''}</p></div>
-          <div class="text-right"><p class="font-bold text-blue-600">${currencySymbol}${s.price_paid.toFixed(2)}</p><p class="text-xs text-gray-500">${new Date(s.purchase_date).toLocaleDateString()}</p>${s.loyalty_points_earned > 0 ? `<p class="text-xs text-green-600">⭐ ${s.loyalty_points_earned} pts</p>` : ''}</div>
+        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+          <div>
+            <p class="font-medium text-gray-800 dark:text-white">${s.customer?.full_name || 'Unknown'}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">${s.product_item?.product?.name || 'Product'}</p>
+            <p class="text-xs font-mono text-gray-400 dark:text-gray-500">${s.product_item?.qr_code || ''}</p>
+          </div>
+          <div class="text-right">
+            <p class="font-bold text-blue-600 dark:text-blue-400">${currencySymbol}${s.price_paid.toFixed(2)}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">${new Date(s.purchase_date).toLocaleDateString()}</p>
+            ${s.loyalty_points_earned > 0 ? `<p class="text-xs text-green-600 dark:text-green-400">⭐ ${s.loyalty_points_earned} pts</p>` : ''}
+          </div>
         </div>
       `).join('');
     }
@@ -1335,13 +1566,13 @@
       const display = document.getElementById('member-qr-display');
 
       if (!memberId) {
-        display.innerHTML = '<p class="text-red-500">Please select a member first</p>';
+        display.innerHTML = '<p class="text-red-500 dark:text-red-400">Please select a member first</p>';
         return;
       }
 
       const member = members.find(m => m.id === memberId);
       if (!member) {
-        display.innerHTML = '<p class="text-red-500">Member not found</p>';
+        display.innerHTML = '<p class="text-red-500 dark:text-red-400">Member not found</p>';
         return;
       }
 
@@ -1366,9 +1597,9 @@
 
       display.innerHTML = `
         <div class="qr-container"><div id="member-qr-display-canvas"></div></div>
-        <p class="font-medium text-gray-800 mt-4">${member.full_name || 'Member'}</p>
-        <p class="text-sm text-gray-500">${member.email || ''}</p>
-        <p class="text-xs font-mono text-gray-400 mt-2">${qrCode}</p>
+        <p class="font-medium text-gray-800 dark:text-white mt-4">${member.full_name || 'Member'}</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">${member.email || ''}</p>
+        <p class="text-xs font-mono text-gray-400 dark:text-gray-500 mt-2">${qrCode}</p>
         <div class="flex gap-2 mt-4 flex-wrap">
           <button onclick="printMemberQR()" class="bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">🖨️ Print</button>
           <button onclick="downloadMemberQR()" class="bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">📥 Download</button>

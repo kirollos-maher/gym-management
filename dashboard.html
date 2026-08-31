@@ -8,6 +8,16 @@
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body class="bg-gray-50 min-h-screen">
+  <script>
+    // تطبيق Dark Mode فوراً عند تحميل الصفحة
+    (function() {
+      const isDark = localStorage.getItem('gym_theme') === 'dark';
+      if (isDark) {
+        document.body.classList.add('dark-mode');
+      }
+    })();
+  </script>
+
   <div id="app-nav"></div>
 
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -18,10 +28,10 @@
     <div id="dashboard-content" class="hidden space-y-6">
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-2xl font-bold text-gray-800" data-i18n="dashboard.title">Dashboard</h1>
-          <p class="text-sm text-gray-500" data-i18n="dashboard.welcome">Welcome back! Here's what's happening with your gym today.</p>
+          <h1 class="text-2xl font-bold text-gray-800 dark:text-white" data-i18n="dashboard.title">Dashboard</h1>
+          <p class="text-sm text-gray-500 dark:text-gray-400" data-i18n="dashboard.welcome">Welcome back! Here's what's happening with your gym today.</p>
         </div>
-        <button id="refresh-btn" class="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
+        <button id="refresh-btn" class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center gap-1">
           <span>🔄</span> <span data-i18n="dashboard.refresh">Refresh</span>
         </button>
       </div>
@@ -29,35 +39,35 @@
       <div id="stats-cards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"></div>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="bg-white rounded-lg shadow-md overflow-hidden col-span-1">
-          <div class="px-6 py-4 border-b"><h3 class="text-lg font-semibold text-gray-900" data-i18n="dashboard.revenue.overview">Revenue Overview</h3></div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden col-span-1">
+          <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700"><h3 class="text-lg font-semibold text-gray-900 dark:text-white" data-i18n="dashboard.revenue.overview">Revenue Overview</h3></div>
           <div class="px-6 py-4"><div class="w-full h-[300px]"><canvas id="revenue-chart"></canvas></div></div>
         </div>
-        <div class="bg-white rounded-lg shadow-md overflow-hidden col-span-1">
-          <div class="px-6 py-4 border-b"><h3 class="text-lg font-semibold text-gray-900" data-i18n="dashboard.attendance.activity">Check-in Activity</h3></div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden col-span-1">
+          <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700"><h3 class="text-lg font-semibold text-gray-900 dark:text-white" data-i18n="dashboard.attendance.activity">Check-in Activity</h3></div>
           <div class="px-6 py-4"><div class="w-full h-[300px]"><canvas id="attendance-chart"></canvas></div></div>
         </div>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-1 bg-white rounded-lg shadow-md overflow-hidden">
-          <div class="px-6 py-4 border-b"><h3 class="text-lg font-semibold text-gray-900" data-i18n="dashboard.member.distribution">Member Distribution</h3></div>
+        <div class="lg:col-span-1 bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700"><h3 class="text-lg font-semibold text-gray-900 dark:text-white" data-i18n="dashboard.member.distribution">Member Distribution</h3></div>
           <div class="px-6 py-4">
             <div class="w-full h-[300px]"><canvas id="distribution-chart"></canvas></div>
             <div id="distribution-legend" class="flex flex-wrap gap-3 mt-4 justify-center"></div>
           </div>
         </div>
-        <div class="lg:col-span-2 bg-white rounded-lg shadow-md overflow-hidden">
-          <div class="px-6 py-4 border-b">
-            <h3 class="text-lg font-semibold text-gray-900" data-i18n="dashboard.upcoming.renewals">Upcoming Renewals</h3>
-            <p class="text-sm text-gray-500" data-i18n="dashboard.renewals.desc">Members expiring in the next 7 days</p>
+        <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white" data-i18n="dashboard.upcoming.renewals">Upcoming Renewals</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400" data-i18n="dashboard.renewals.desc">Members expiring in the next 7 days</p>
           </div>
           <div class="px-6 py-4"><div id="renewals-list" class="space-y-3"></div></div>
         </div>
       </div>
 
-      <div class="bg-white rounded-lg shadow-md overflow-hidden">
-        <div class="px-6 py-4 border-b"><h3 class="text-lg font-semibold text-gray-900" data-i18n="dashboard.recent.activity">Recent Activity</h3></div>
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700"><h3 class="text-lg font-semibold text-gray-900 dark:text-white" data-i18n="dashboard.recent.activity">Recent Activity</h3></div>
         <div class="px-6 py-4"><div id="activity-list" class="space-y-4"></div></div>
       </div>
     </div>
@@ -77,12 +87,11 @@
       renderNav(auth.user, 'dashboard');
       gymId = auth.profile?.gym_id;
       
-      // جلب العملة (من بيانات الجيم اللي أصلاً راجعة مع البروفايل)
-      currencySymbol = getCurrencySymbol(auth.profile?.gym?.currency || 'EGP');
+      currencySymbol = getCurrencySymbol(await getGymCurrency());
       
       if (!gymId) {
         document.getElementById('loading-state').innerHTML =
-          `<p class="text-gray-500" data-i18n="dashboard.nogym">No gym linked to this account yet.</p>`;
+          `<p class="text-gray-500 dark:text-gray-400" data-i18n="dashboard.nogym">No gym linked to this account yet.</p>`;
         setTimeout(updatePageLanguage, 50);
         return;
       }
@@ -275,29 +284,29 @@
       };
 
       const cards = [
-        { title: titles['total.members'], value: stats.totalMembers, icon: '👥', color: 'text-blue-600' },
-        { title: titles['active.members'], value: stats.activeMembers, icon: '✅', color: 'text-green-600' },
+        { title: titles['total.members'], value: stats.totalMembers, icon: '👥', color: 'text-blue-600 dark:text-blue-400' },
+        { title: titles['active.members'], value: stats.activeMembers, icon: '✅', color: 'text-green-600 dark:text-green-400' },
         {
           title: titles['today.checkins'],
           value: stats.todayCheckIns,
           icon: '📅',
-          color: 'text-purple-600',
+          color: 'text-purple-600 dark:text-purple-400',
           subtitle: `${stats.checkInRate}% ${titles['of.total']}`
         },
-        { title: titles['monthly.revenue'], value: `${currencySymbol}${stats.monthlyRevenue.toLocaleString()}`, icon: '💰', color: 'text-yellow-600' }
+        { title: titles['monthly.revenue'], value: `${currencySymbol}${stats.monthlyRevenue.toLocaleString()}`, icon: '💰', color: 'text-yellow-600 dark:text-yellow-400' }
       ];
 
       document.getElementById('stats-cards').innerHTML = cards
         .map(
           (c) => `
-        <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
           <div class="p-6 flex items-start justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-500">${c.title}</p>
-              <p class="text-2xl font-bold text-gray-900 mt-2">${c.value}</p>
-              ${c.subtitle ? `<p class="text-xs text-gray-500 mt-1">${c.subtitle}</p>` : ''}
+              <p class="text-sm font-medium text-gray-500 dark:text-gray-400">${c.title}</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">${c.value}</p>
+              ${c.subtitle ? `<p class="text-xs text-gray-500 dark:text-gray-400 mt-1">${c.subtitle}</p>` : ''}
             </div>
-            <div class="p-3 rounded-full bg-gray-50 text-2xl ${c.color}">${c.icon}</div>
+            <div class="p-3 rounded-full bg-gray-50 dark:bg-gray-700 text-2xl ${c.color}">${c.icon}</div>
           </div>
         </div>
       `
@@ -315,7 +324,7 @@
       const noEmailText = lang === 'ar' ? 'لا يوجد بريد إلكتروني' : 'No email';
 
       if (!subs.length) {
-        el.innerHTML = `<div class="text-center py-8 text-gray-500"><p>${noRenewals}</p></div>`;
+        el.innerHTML = `<div class="text-center py-8 text-gray-500 dark:text-gray-400"><p>${noRenewals}</p></div>`;
         return;
       }
       el.innerHTML = subs
@@ -323,21 +332,21 @@
           const daysRemaining = daysBetween(new Date(), sub.end_date);
           const isUrgent = daysRemaining <= 2;
           return `
-          <div class="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors">
+          <div class="flex items-center justify-between p-3 rounded-lg border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
             <div class="flex items-center space-x-3 space-x-reverse">
-              <div class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center">👤</div>
+              <div class="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">👤</div>
               <div>
-                <p class="font-medium text-gray-900">${sub.user?.full_name || unknownText}</p>
-                <p class="text-xs text-gray-500">${sub.user?.email || noEmailText}</p>
+                <p class="font-medium text-gray-900 dark:text-white">${sub.user?.full_name || unknownText}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">${sub.user?.email || noEmailText}</p>
               </div>
             </div>
             <div class="text-left">
-              <div class="text-sm text-gray-600">${formatDate(sub.end_date)}</div>
+              <div class="text-sm text-gray-600 dark:text-gray-300">${formatDate(sub.end_date)}</div>
               <div class="flex items-center justify-end gap-2 mt-1">
-                <span class="text-xs text-gray-500">${daysRemaining} ${daysRemainingText}</span>
+                <span class="text-xs text-gray-500 dark:text-gray-400">${daysRemaining} ${daysRemainingText}</span>
                 ${
                   isUrgent
-                    ? `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 animate-pulse">${urgentText}</span>`
+                    ? `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400 animate-pulse">${urgentText}</span>`
                     : ''
                 }
               </div>
@@ -356,23 +365,23 @@
       const checkedInText = lang === 'ar' ? 'تم تسجيل الحضور' : 'Checked In';
 
       if (!activities.length) {
-        el.innerHTML = `<div class="text-center py-8 text-gray-500"><p>${noActivity}</p></div>`;
+        el.innerHTML = `<div class="text-center py-8 text-gray-500 dark:text-gray-400"><p>${noActivity}</p></div>`;
         return;
       }
       el.innerHTML = activities
         .map(
           (a) => `
-        <div class="flex items-start space-x-3 space-x-reverse p-3 rounded-lg hover:bg-gray-50 transition-colors">
-          <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">👤</div>
+        <div class="flex items-start space-x-3 space-x-reverse p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+          <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">👤</div>
           <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium text-gray-900">${a.user?.full_name || unknownText}</p>
-            <p class="text-xs text-gray-500">${a.user?.email || noEmailText}</p>
+            <p class="text-sm font-medium text-gray-900 dark:text-white">${a.user?.full_name || unknownText}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">${a.user?.email || noEmailText}</p>
             <div class="flex items-center gap-3 mt-1">
-              <span class="text-xs text-gray-500">${formatDateTime(a.check_in_time)}</span>
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">${checkedInText}</span>
+              <span class="text-xs text-gray-500 dark:text-gray-400">${formatDateTime(a.check_in_time)}</span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">${checkedInText}</span>
             </div>
           </div>
-          <div class="text-xs text-gray-400">${a.method === 'qr_code' ? '📱 QR' : '✏️ Manual'}</div>
+          <div class="text-xs text-gray-400 dark:text-gray-500">${a.method === 'qr_code' ? '📱 QR' : '✏️ Manual'}</div>
         </div>`
         )
         .join('');
@@ -552,7 +561,7 @@
           return `
           <div class="flex items-center gap-2">
             <div class="w-3 h-3 rounded-full" style="background-color:${colors[i % colors.length]}"></div>
-            <span class="text-xs text-gray-600">${item.name} (${pct}%)</span>
+            <span class="text-xs text-gray-600 dark:text-gray-400">${item.name} (${pct}%)</span>
           </div>`;
         })
         .join('');

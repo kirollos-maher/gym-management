@@ -110,10 +110,6 @@
     .toast-info { background: #3b82f6; }
     @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     
-    /* ============================================
-       TEMPLATE PREVIEW CARD - FIXED STYLES
-       لا تتغير في الـ Dark Mode
-       ============================================ */
     .template-preview-card {
       width: 100%;
       max-width: 280px;
@@ -127,7 +123,6 @@
       font-family: Arial, sans-serif;
       position: relative;
       margin: 0 auto;
-      transition: none !important;
     }
     .template-preview-card .preview-gym {
       font-size: 11px;
@@ -175,9 +170,6 @@
       letter-spacing: 0.2px;
     }
 
-    /* ============================================
-       PLAN CARDS
-       ============================================ */
     .plan-card {
       border: 1px solid #e5e7eb;
       border-radius: 8px;
@@ -327,7 +319,7 @@
     }
 
     /* ============================================
-       DARK MODE - ONLY FOR BACKGROUND, NOT CARDS
+       DARK MODE STYLES - FIXED FOR CARDS
        ============================================ */
     body.dark-mode {
       background-color: #0f172a !important;
@@ -341,6 +333,10 @@
 
     body.dark-mode .bg-gray-50 {
       background-color: #0f172a !important;
+    }
+
+    body.dark-mode .bg-gray-100 {
+      background-color: #1e293b !important;
     }
 
     body.dark-mode .text-gray-800 {
@@ -458,6 +454,11 @@
       color: #60a5fa !important;
     }
 
+    /* Card design must always show its own real colors (as picked by the gym owner),
+       regardless of whether the app is in dark or light mode. Each template already
+       sets its own background via inline style in renderTemplates(), so we no longer
+       force it to navy here. */
+
     body.dark-mode .plan-edit-input {
       background-color: #0f172a !important;
       color: #e2e8f0 !important;
@@ -540,47 +541,143 @@
       background-color: #1e293b !important;
     }
 
-    /* IMPORTANT: Template preview cards DO NOT change in dark mode */
-    body.dark-mode .template-preview-card {
-      background: inherit !important;
-      border: inherit !important;
+    body.dark-mode .bg-blue-100 {
+      background-color: #1e3a5f !important;
     }
 
-    body.dark-mode .template-preview-card .preview-gym {
-      color: inherit !important;
+    body.dark-mode .bg-blue-100:hover {
+      background-color: #1e3a5f !important;
     }
 
-    body.dark-mode .template-preview-card .preview-name {
-      color: inherit !important;
+    body.dark-mode .bg-purple-100 {
+      background-color: #2e1065 !important;
     }
 
-    body.dark-mode .template-preview-card .preview-id {
-      color: inherit !important;
+    body.dark-mode .bg-purple-100:hover {
+      background-color: #2e1065 !important;
     }
 
-    body.dark-mode .template-preview-card .preview-date {
-      color: inherit !important;
+    body.dark-mode .bg-green-100 {
+      background-color: #064e3b !important;
     }
 
-    body.dark-mode .template-preview-card .preview-avatar {
-      color: inherit !important;
+    body.dark-mode .bg-green-100:hover {
+      background-color: #064e3b !important;
     }
 
-    body.dark-mode .template-preview-card .preview-qr {
-      background: inherit !important;
-      border-color: inherit !important;
+    body.dark-mode .bg-red-100 {
+      background-color: #4c0519 !important;
     }
 
-    body.dark-mode .template-preview-card .preview-qr span {
-      color: inherit !important;
+    body.dark-mode .bg-red-100:hover {
+      background-color: #4c0519 !important;
     }
 
-    /* Fix border colors in dark mode for card containers */
-    body.dark-mode .border {
-      border-color: #334155 !important;
+    body.dark-mode .text-blue-700 {
+      color: #60a5fa !important;
     }
 
-    body.dark-mode .bg-white.rounded-lg.shadow-xl {
+    body.dark-mode .text-purple-700 {
+      color: #a78bfa !important;
+    }
+
+    body.dark-mode .text-green-700 {
+      color: #34d399 !important;
+    }
+
+    body.dark-mode .text-red-700 {
+      color: #f87171 !important;
+    }
+
+    body.dark-mode .text-yellow-700 {
+      color: #fbbf24 !important;
+    }
+
+    body.dark-mode .bg-blue-900\/30 {
+      background-color: #1e3a5f !important;
+    }
+
+    body.dark-mode .bg-purple-900\/30 {
+      background-color: #2e1065 !important;
+    }
+
+    body.dark-mode .bg-green-900\/30 {
+      background-color: #064e3b !important;
+    }
+
+    body.dark-mode .bg-red-900\/30 {
+      background-color: #4c0519 !important;
+    }
+
+    body.dark-mode .bg-yellow-900\/30 {
+      background-color: #4d2e00 !important;
+    }
+
+    body.dark-mode .bg-blue-900\/50 {
+      background-color: #1e3a5f !important;
+    }
+
+    body.dark-mode .bg-purple-900\/50 {
+      background-color: #2e1065 !important;
+    }
+
+    body.dark-mode .bg-green-900\/50 {
+      background-color: #064e3b !important;
+    }
+
+    body.dark-mode .bg-red-900\/50 {
+      background-color: #4c0519 !important;
+    }
+
+    body.dark-mode .bg-yellow-900\/50 {
+      background-color: #4d2e00 !important;
+    }
+
+    body.dark-mode .text-blue-400 {
+      color: #60a5fa !important;
+    }
+
+    body.dark-mode .text-purple-400 {
+      color: #a78bfa !important;
+    }
+
+    body.dark-mode .text-green-400 {
+      color: #34d399 !important;
+    }
+
+    body.dark-mode .text-red-400 {
+      color: #f87171 !important;
+    }
+
+    body.dark-mode .text-yellow-400 {
+      color: #fbbf24 !important;
+    }
+
+    body.dark-mode .bg-gray-50 {
+      background-color: #0f172a !important;
+    }
+
+    body.dark-mode .bg-gray-100 {
+      background-color: #1e293b !important;
+    }
+
+    body.dark-mode .bg-gray-700 {
+      background-color: #334155 !important;
+    }
+
+    body.dark-mode .bg-gray-700\/50 {
+      background-color: #334155 !important;
+    }
+
+    body.dark-mode .hover\:bg-gray-50:hover {
+      background-color: #1e293b !important;
+    }
+
+    body.dark-mode .hover\:bg-gray-100:hover {
+      background-color: #1e293b !important;
+    }
+
+    body.dark-mode .bg-gray-800 {
       background-color: #1e293b !important;
     }
 
@@ -588,8 +685,68 @@
       color: #cbd5e1 !important;
     }
 
-    body.dark-mode .bg-gray-800 {
-      background-color: #1e293b !important;
+    body.dark-mode .text-green-800 {
+      color: #6ee7b7 !important;
+    }
+
+    body.dark-mode .text-red-800 {
+      color: #fca5a5 !important;
+    }
+
+    body.dark-mode .text-yellow-800 {
+      color: #fcd34d !important;
+    }
+
+    body.dark-mode .bg-yellow-100 {
+      background-color: #4d2e00 !important;
+    }
+
+    body.dark-mode .bg-yellow-100:hover {
+      background-color: #4d2e00 !important;
+    }
+
+    body.dark-mode .bg-purple-100 {
+      background-color: #2e1065 !important;
+    }
+
+    body.dark-mode .bg-purple-100:hover {
+      background-color: #2e1065 !important;
+    }
+
+    body.dark-mode .bg-green-100 {
+      background-color: #064e3b !important;
+    }
+
+    body.dark-mode .bg-green-100:hover {
+      background-color: #064e3b !important;
+    }
+
+    body.dark-mode .bg-red-100 {
+      background-color: #4c0519 !important;
+    }
+
+    body.dark-mode .bg-red-100:hover {
+      background-color: #4c0519 !important;
+    }
+
+    body.dark-mode .text-blue-700 {
+      color: #60a5fa !important;
+    }
+
+    body.dark-mode .text-purple-700 {
+      color: #a78bfa !important;
+    }
+
+    body.dark-mode .text-green-700 {
+      color: #34d399 !important;
+    }
+
+    body.dark-mode .text-red-700 {
+      color: #f87171 !important;
+    }
+
+    body.dark-mode .text-yellow-700 {
+      color: #fbbf24 !important;
     }
   </style>
 </head>
@@ -1005,8 +1162,6 @@
       
       grid.innerHTML = Object.entries(cardTemplates).map(([key, template]) => {
         const isActive = key === selectedTemplate;
-        
-        // استخدام الألوان الثابتة للـ preview بغض النظر عن الـ dark mode
         const previewHtml = `
           <div class="template-preview-card" style="background:${template.gradient}; border:${template.border || 'none'};">
             <div class="preview-gym" style="color:${template.gymColor};">${document.getElementById('f-name').value || 'GYM'}</div>

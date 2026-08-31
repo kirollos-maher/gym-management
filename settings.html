@@ -895,11 +895,21 @@
 
       <div class="setting-group">
         <h3>📥 <span data-i18n="settings.import.title">Import Data</span> <span class="badge" data-i18n="settings.import.badge">Bring data from an old system</span></h3>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4" data-i18n="settings.import.desc">
-          Selling this system to a gym that already has member data somewhere else? Export their members
-          as a CSV file from the old system, then upload it here — this creates a real account, QR code,
-          and subscription for each member automatically.
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-3" data-i18n="settings.import.desc">
+          Have a gym's old member list somewhere else (Excel, another app, paper records typed up)?
+          Follow the steps below to bring it into this system.
         </p>
+
+        <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mb-4">
+          <p class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2" data-i18n="settings.import.steps.title">How to use it:</p>
+          <ol class="text-sm text-gray-600 dark:text-gray-400 list-decimal list-inside space-y-1.5">
+            <li data-i18n="settings.import.step1">Click "Download CSV Template" to get an empty file with the right columns.</li>
+            <li data-i18n="settings.import.step2">Open that file in Excel (or Google Sheets) and fill in one row per member: name, email, phone, membership plan, join date.</li>
+            <li data-i18n="settings.import.step3">Save the file, then click "Choose CSV File" and select the file you just filled in.</li>
+            <li data-i18n="settings.import.step4">Check the preview that appears — it shows the first few members read from your file, so you can make sure everything looks right.</li>
+            <li data-i18n="settings.import.step5">Click "Start Import" and leave it running. It will create a real account, QR code, and subscription for every member on its own, and show you which ones succeeded and which had a problem.</li>
+          </ol>
+        </div>
 
         <div class="flex flex-wrap gap-3 items-center mb-4">
           <button id="download-import-template-btn" type="button"

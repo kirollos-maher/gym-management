@@ -36,17 +36,104 @@
     .flash-overlay.active { opacity: 0.8; }
     .member-select-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 10000; backdrop-filter: blur(4px); }
     .member-select-content { background: white; border-radius: 16px; padding: 24px; max-width: 400px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
-    @media print { body * { visibility: hidden; } #print-area, #print-area * { visibility: visible; } #print-area { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; } .no-print { display: none !important; } }
-    /* Standard ID/membership card size (CR80: 85.6mm x 54mm) — used
-       when printing a single member card so the output is exactly
-       card-sized, ready to cut or feed into a PVC card printer. */
+
+    /* ============================================================
+       PRINT STYLES - CARD PRINTING (85.6mm x 54mm)
+       ============================================================ */
     @media print {
-      #print-area.card-print {
-        padding: 0 !important;
+      /* إخفاء كل العناصر في الصفحة */
+      body * {
+        visibility: hidden;
       }
+      
+      /* إظهار منطقة الطباعة فقط */
+      #print-area, #print-area * {
+        visibility: visible;
+      }
+      
+      /* منطقة الطباعة - بحجم الكارت البلاستيكي */
+      #print-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 85.6mm;
+        height: 54mm;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: white;
+        z-index: 9999;
+        overflow: hidden;
+        page-break-after: avoid;
+        page-break-inside: avoid;
+        box-shadow: none !important;
+      }
+      
+      /* محتوى الكارت */
+      #print-area .card-content {
+        width: 85.6mm;
+        height: 54mm;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3mm;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+        background: white;
+        position: relative;
+        border-radius: 2mm;
+        border: 0.3mm solid #e5e7eb;
+      }
+      
+      /* إعدادات صفحة الطباعة - بحجم الكارت */
       @page {
         size: 85.6mm 54mm;
         margin: 0;
+      }
+      
+      /* منع أي عناصر إضافية من الظهور */
+      html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        height: 54mm !important;
+        width: 85.6mm !important;
+        overflow: hidden !important;
+        background: white !important;
+      }
+      
+      /* منع الفواصل داخل الكارت */
+      * {
+        box-sizing: border-box !important;
+        page-break-inside: avoid !important;
+        page-break-after: avoid !important;
+      }
+    }
+
+    /* ============================================================
+       A4 PRINT STYLE - لو عايز تطبع على ورق A4 وتقص
+       ============================================================ */
+    @media print and (min-width: 300mm) {
+      /* دي هتشتغل لو الورقة أكبر من الكارت، يعني A4 */
+      @page {
+        size: A4;
+        margin: 10mm;
+      }
+      #print-area {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 5mm !important;
+        width: 100% !important;
+        height: auto !important;
+        padding: 5mm !important;
+        position: relative !important;
+      }
+      #print-area .card-content {
+        width: 85.6mm !important;
+        height: 54mm !important;
+        flex-shrink: 0 !important;
+        page-break-inside: avoid !important;
+        page-break-after: avoid !important;
       }
     }
   </style>
@@ -250,7 +337,6 @@
       gymId = auth.profile?.gym_id;
       gymName = auth.profile?.gym?.name || 'GYM';
 
-      // لو مفيش gym_id، حاول تعمله
       if (!gymId) {
         showToast('⚠️ No gym linked. Please create a gym first.', 'error');
         document.getElementById('loading-state').innerHTML = `
@@ -282,7 +368,6 @@
     let realtimeRefreshTimeout = null;
 
     function subscribeToRealtimeUpdates() {
-      // Debounced refresh so several rapid changes only trigger one reload
       const scheduleRefresh = () => {
         clearTimeout(realtimeRefreshTimeout);
         realtimeRefreshTimeout = setTimeout(async () => {
@@ -533,7 +618,6 @@
         const cleanQR = qrCode.trim();
         console.log('🔍 Scanning QR:', cleanQR);
         
-        // البحث عن المنتج
         const { data: items, error: itemsError } = await sb
           .from('product_items')
           .select('*, product:products(*)')
@@ -610,7 +694,6 @@
           return;
         }
 
-        // Check member QR
         const { data: memberQR, error: memberError } = await sb
           .from('member_qr_codes')
           .select('*, member:users(*)')
@@ -1388,6 +1471,9 @@
       }
     }
 
+    // ============================================================
+    // PRINT MEMBER QR - CARD SIZE (85.6mm x 54mm)
+    // ============================================================
     async function printMemberQR() {
       const memberId = document.getElementById('member-select').value;
       if (!memberId) {
@@ -1396,8 +1482,12 @@
       }
 
       const member = members.find(m => m.id === memberId);
-      if (!member) return;
+      if (!member) {
+        showToast('Member not found', 'error');
+        return;
+      }
 
+      // جلب كود QR من قاعدة البيانات
       const { data: existing } = await sb
         .from('member_qr_codes')
         .select('qr_code')
@@ -1417,8 +1507,10 @@
         qrCode = result.data;
       }
 
+      // تجهيز منطقة الطباعة
       const printArea = document.getElementById('print-area');
-      printArea.className = 'card-print';
+      
+      // إعادة تعيين كل الأنماط
       printArea.style.display = 'block';
       printArea.style.position = 'fixed';
       printArea.style.left = '0';
@@ -1426,36 +1518,162 @@
       printArea.style.width = '85.6mm';
       printArea.style.height = '54mm';
       printArea.style.background = 'white';
-      printArea.style.padding = '0';
       printArea.style.zIndex = '9999';
+      printArea.style.padding = '0 !important';
+      printArea.style.margin = '0 !important';
+      printArea.style.overflow = 'hidden';
+      printArea.style.pageBreakAfter = 'avoid';
+      printArea.style.pageBreakInside = 'avoid';
+      printArea.style.boxShadow = 'none';
+      printArea.className = '';
 
+      // تصميم الكارت - زي الصورة بالظبط
       printArea.innerHTML = `
-        <div style="width: 85.6mm; height: 54mm; box-sizing: border-box; padding: 4mm; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: sans-serif; border: 0.3mm solid #ddd;">
-          <div style="font-size: 3mm; font-weight: bold; color: #1e3a8a; margin-bottom: 1mm;">${gymName}</div>
-          <div id="member-qr-print" style="width: 24mm; height: 24mm;"></div>
-          <div style="font-size: 2.6mm; font-weight: bold; margin-top: 1.5mm; text-align: center;">${member.full_name || 'Member'}</div>
-          <div style="font-size: 1.8mm; color: #999; margin-top: 0.5mm;">${qrCode}</div>
+        <div class="card-content" style="
+          width: 85.6mm;
+          height: 54mm;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 3mm;
+          box-sizing: border-box;
+          font-family: Arial, sans-serif;
+          background: white;
+          position: relative;
+          border-radius: 2mm;
+          border: 0.3mm solid #e5e7eb;
+        ">
+          <!-- Gradient Background -->
+          <div style="
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            border-radius: 2mm;
+            opacity: 0.06;
+            pointer-events: none;
+          "></div>
+          
+          <!-- Gym Name -->
+          <div style="
+            font-size: 3.8mm;
+            font-weight: 800;
+            color: #1a1a2e;
+            text-align: center;
+            letter-spacing: 0.3mm;
+            position: relative;
+            z-index: 1;
+            margin-bottom: 1mm;
+            text-transform: uppercase;
+          ">
+            ${gymName || 'GYM'}
+          </div>
+          
+          <!-- Avatar -->
+          <div style="
+            width: 18mm;
+            height: 18mm;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 7.5mm;
+            color: white;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 2mm 4mm rgba(79, 70, 229, 0.3);
+            margin-bottom: 1mm;
+            user-select: none;
+          ">
+            ${getInitials(member.full_name)}
+          </div>
+          
+          <!-- Member Name -->
+          <div style="
+            font-size: 4mm;
+            font-weight: 700;
+            color: #1a1a2e;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            line-height: 1.2;
+          ">
+            ${member.full_name || 'Member'}
+          </div>
+          
+          <!-- Member ID -->
+          <div style="
+            font-size: 2.2mm;
+            color: #6b7280;
+            text-align: center;
+            margin-top: 0.3mm;
+            position: relative;
+            z-index: 1;
+            font-family: monospace;
+            letter-spacing: 0.3mm;
+          ">
+            MEM-${member.id.substring(0, 12)}
+          </div>
+          
+          <!-- QR Code -->
+          <div id="member-qr-print" style="
+            width: 13mm;
+            height: 13mm;
+            margin-top: 1mm;
+            position: relative;
+            z-index: 1;
+            background: white;
+            padding: 0.3mm;
+            border-radius: 0.5mm;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          "></div>
+          
+          <!-- Valid Date -->
+          <div style="
+            font-size: 1.8mm;
+            color: #9ca3af;
+            text-align: center;
+            margin-top: 0.5mm;
+            position: relative;
+            z-index: 1;
+            letter-spacing: 0.2mm;
+          ">
+            Valid from ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+          </div>
         </div>
       `;
 
+      // رسم QR Code داخل الكارت
       if (typeof QRCode !== 'undefined') {
         const container = document.getElementById('member-qr-print');
         if (container) {
           container.innerHTML = '';
           new QRCode(container, {
             text: qrCode,
-            width: 90,
-            height: 90
+            width: 48,
+            height: 48,
+            colorDark: '#1a1a2e',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.H
           });
         }
       }
 
+      // تأخير صغير عشان يتأكد إن الـ QR اترسم
       setTimeout(() => {
         window.print();
         setTimeout(() => {
           printArea.style.display = 'none';
           printArea.innerHTML = '';
-        }, 500);
+          printArea.className = '';
+        }, 1000);
       }, 500);
     }
 

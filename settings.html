@@ -6,42 +6,210 @@
   <title>Settings - Gym Management</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    .logo-preview {
+      width: 80px;
+      height: 80px;
+      border-radius: 12px;
+      border: 2px dashed #d1d5db;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #f9fafb;
+      transition: all 0.3s;
+    }
+    .logo-preview:hover {
+      border-color: #3b82f6;
+    }
+    .logo-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .logo-preview .placeholder {
+      color: #9ca3af;
+      font-size: 14px;
+      text-align: center;
+      padding: 8px;
+    }
+    .card-template-selector {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 10px 0;
+    }
+    .card-template-btn {
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: 2px solid #e5e7eb;
+      background: white;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-template-btn:hover {
+      border-color: #3b82f6;
+      background: #f0f7ff;
+    }
+    .card-template-btn.active {
+      border-color: #3b82f6;
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    .card-template-preview {
+      width: 40px;
+      height: 26px;
+      border-radius: 4px;
+      display: inline-block;
+      border: 1px solid #ddd;
+      flex-shrink: 0;
+    }
+    .setting-group {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .setting-group h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .setting-group h3 .badge {
+      font-size: 11px;
+      background: #dbeafe;
+      color: #1e40af;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-weight: 500;
+    }
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      color: white;
+      z-index: 9999;
+      animation: slideUp 0.3s ease;
+      max-width: 400px;
+      font-size: 14px;
+    }
+    .toast-success { background: #10b981; }
+    .toast-error { background: #ef4444; }
+    .toast-info { background: #3b82f6; }
+    @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    
+    /* Card template preview styles */
+    .template-preview-card {
+      width: 100%;
+      max-width: 280px;
+      height: 177px;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      font-family: Arial, sans-serif;
+      position: relative;
+      margin: 0 auto;
+    }
+    .template-preview-card .preview-gym {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+    .template-preview-card .preview-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    .template-preview-card .preview-name {
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .template-preview-card .preview-id {
+      font-size: 7px;
+      font-family: monospace;
+      letter-spacing: 0.3px;
+      margin-top: 1px;
+    }
+    .template-preview-card .preview-qr {
+      width: 22px;
+      height: 22px;
+      margin-top: 2px;
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      font-weight: bold;
+    }
+    .template-preview-card .preview-date {
+      font-size: 5px;
+      margin-top: 2px;
+      letter-spacing: 0.2px;
+    }
+  </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
   <div id="app-nav"></div>
 
-  <main class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <main class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div id="loading-state" class="flex items-center justify-center h-96">
       <div class="spinner h-12 w-12"></div>
     </div>
 
     <div id="content" class="hidden space-y-6">
       <div>
-        <h1 class="text-2xl font-bold text-gray-800" data-i18n="settings.title">Settings</h1>
-        <p class="text-sm text-gray-500" data-i18n="settings.desc">Manage your gym profile and preferences</p>
+        <h1 class="text-2xl font-bold text-gray-800">⚙️ Settings</h1>
+        <p class="text-sm text-gray-500">Manage your gym profile, logo, and card templates</p>
       </div>
 
-      <div class="bg-white rounded-lg shadow-md p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4" data-i18n="settings.gym.profile">Gym Profile</h3>
+      <!-- ============================================ -->
+      <!-- GYM PROFILE SECTION -->
+      <!-- ============================================ -->
+      <div class="setting-group">
+        <h3>🏋️ Gym Profile</h3>
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="settings.gym.name">Gym Name</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Gym Name</label>
             <input type="text" id="f-name" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="settings.address">Address</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
             <input type="text" id="f-address" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="settings.phone">Phone Number</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
             <input type="text" id="f-phone" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="settings.email">Email</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
             <input type="email" id="f-email" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="settings.currency">Currency</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Currency</label>
             <select id="f-currency" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
               <option value="USD">USD ($)</option>
               <option value="EUR">EUR (€)</option>
@@ -50,61 +218,552 @@
               <option value="SAR">SAR (ر.س)</option>
             </select>
           </div>
-          <div class="pt-4 border-t flex items-center gap-3">
-            <button id="save-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2" data-i18n="settings.save">Save Settings</button>
-            <span id="msg" class="text-sm"></span>
+        </div>
+      </div>
+
+      <!-- ============================================ -->
+      <!-- GYM LOGO SECTION -->
+      <!-- ============================================ -->
+      <div class="setting-group">
+        <h3>🖼️ Gym Logo <span class="badge">Appears on member cards</span></h3>
+        <div class="flex items-start gap-6 flex-wrap">
+          <div class="logo-preview" id="logo-preview">
+            <div class="placeholder" id="logo-placeholder">
+              📷<br />Upload Logo
+            </div>
           </div>
+          <div class="flex-1 space-y-3">
+            <p class="text-sm text-gray-500">Upload your gym logo to display on member cards instead of the gym name text.</p>
+            <div class="flex gap-3 flex-wrap">
+              <input type="file" id="logo-upload" accept="image/*" class="hidden" />
+              <button id="upload-logo-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2 text-sm">
+                📤 Upload Logo
+              </button>
+              <button id="remove-logo-btn" class="bg-red-100 hover:bg-red-200 text-red-700 rounded-lg font-medium px-4 py-2 text-sm">
+                🗑️ Remove Logo
+              </button>
+            </div>
+            <div id="logo-status" class="text-sm"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================ -->
+      <!-- CARD TEMPLATES SECTION -->
+      <!-- ============================================ -->
+      <div class="setting-group">
+        <h3>🎨 Card Templates <span class="badge">Choose member card style</span></h3>
+        <p class="text-sm text-gray-500 mb-4">Select a template for member QR cards. This will be used when printing from the Canteen page.</p>
+        
+        <div id="card-templates-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <!-- Templates will be rendered here by JavaScript -->
+        </div>
+        
+        <div class="mt-4 flex items-center gap-3">
+          <button id="save-template-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2 text-sm">
+            💾 Save Template Selection
+          </button>
+          <span id="template-save-msg" class="text-sm"></span>
+        </div>
+      </div>
+
+      <!-- ============================================ -->
+      <!-- SAVE BUTTON -->
+      <!-- ============================================ -->
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center gap-3">
+          <button id="save-btn" class="bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-6 py-2">
+            💾 Save All Settings
+          </button>
+          <span id="msg" class="text-sm"></span>
         </div>
       </div>
     </div>
   </main>
+
+  <!-- Toast -->
+  <div id="toast" class="toast hidden"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabaseClient.js"></script>
   <script src="js/language.js"></script>
   <script>
     let gymId = null;
+    let selectedTemplate = 'dark';
+    let gymLogoUrl = null;
 
+    // ============================================================
+    // CARD TEMPLATES
+    // ============================================================
+    const cardTemplates = {
+      dark: {
+        name: 'Dark Premium',
+        gradient: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)',
+        gymColor: 'rgba(255,255,255,0.7)',
+        nameColor: 'white',
+        idColor: 'rgba(255,255,255,0.5)',
+        dateColor: 'rgba(255,255,255,0.4)',
+        avatarGradient: 'linear-gradient(135deg, #f472b6, #8b5cf6)',
+        qrBg: 'white',
+        border: 'none',
+        avatarTextColor: 'white'
+      },
+      light: {
+        name: 'Light Clean',
+        gradient: 'white',
+        gymColor: '#4f46e5',
+        nameColor: '#1a1a2e',
+        idColor: '#6b7280',
+        dateColor: '#9ca3af',
+        avatarGradient: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+        qrBg: 'white',
+        border: '2px solid #e5e7eb',
+        avatarTextColor: 'white'
+      },
+      red: {
+        name: 'Red Sport',
+        gradient: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 50%, #7f1d1d 100%)',
+        gymColor: 'rgba(255,255,255,0.8)',
+        nameColor: 'white',
+        idColor: 'rgba(255,255,255,0.5)',
+        dateColor: 'rgba(255,255,255,0.4)',
+        avatarGradient: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+        qrBg: 'white',
+        border: 'none',
+        avatarTextColor: '#7f1d1d'
+      },
+      neon: {
+        name: 'Neon Green',
+        gradient: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%)',
+        gymColor: '#00ff88',
+        nameColor: 'white',
+        idColor: 'rgba(0,255,136,0.5)',
+        dateColor: 'rgba(255,255,255,0.3)',
+        avatarGradient: 'linear-gradient(135deg, #00ff88, #00cc66)',
+        qrBg: '#0a0a0a',
+        border: '1px solid #00ff88',
+        avatarTextColor: '#0a0a0a'
+      },
+      blue: {
+        name: 'Ocean Blue',
+        gradient: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%)',
+        gymColor: 'rgba(255,255,255,0.8)',
+        nameColor: 'white',
+        idColor: 'rgba(255,255,255,0.5)',
+        dateColor: 'rgba(255,255,255,0.4)',
+        avatarGradient: 'linear-gradient(135deg, #f472b6, #ec4899)',
+        qrBg: 'white',
+        border: 'none',
+        avatarTextColor: 'white'
+      },
+      gold: {
+        name: 'Gold Luxury',
+        gradient: 'linear-gradient(135deg, #1a1a2e 0%, #2d1810 50%, #1a1a2e 100%)',
+        gymColor: '#d4a853',
+        nameColor: '#d4a853',
+        idColor: 'rgba(212,168,83,0.5)',
+        dateColor: 'rgba(212,168,83,0.3)',
+        avatarGradient: 'linear-gradient(135deg, #d4a853, #f59e0b)',
+        qrBg: '#1a1a2e',
+        border: '2px solid #d4a853',
+        avatarTextColor: '#1a1a2e'
+      },
+      green: {
+        name: 'Fitness Green',
+        gradient: 'linear-gradient(135deg, #065f46 0%, #059669 50%, #34d399 100%)',
+        gymColor: 'rgba(255,255,255,0.8)',
+        nameColor: 'white',
+        idColor: 'rgba(255,255,255,0.5)',
+        dateColor: 'rgba(255,255,255,0.4)',
+        avatarGradient: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+        qrBg: 'white',
+        border: 'none',
+        avatarTextColor: '#065f46'
+      },
+      purple: {
+        name: 'Purple Dream',
+        gradient: 'linear-gradient(135deg, #4c1d95 0%, #7c3aed 50%, #a78bfa 100%)',
+        gymColor: 'rgba(255,255,255,0.8)',
+        nameColor: 'white',
+        idColor: 'rgba(255,255,255,0.5)',
+        dateColor: 'rgba(255,255,255,0.4)',
+        avatarGradient: 'linear-gradient(135deg, #f472b6, #ec4899)',
+        qrBg: 'white',
+        border: 'none',
+        avatarTextColor: 'white'
+      }
+    };
+
+    // ============================================================
+    // TOAST
+    // ============================================================
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `toast toast-${type}`;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 4000);
+    }
+
+    // ============================================================
+    // INIT
+    // ============================================================
     async function init() {
       const auth = await requireAuth();
       if (!auth) return;
       
-      // Render nav AFTER auth is confirmed
       renderNav(auth.user, 'settings');
       gymId = auth.profile?.gym_id;
 
-      const gym = auth.profile?.gym || {};
-      document.getElementById('f-name').value = gym.name || '';
-      document.getElementById('f-address').value = gym.address || '';
-      document.getElementById('f-phone').value = gym.phone || '';
-      document.getElementById('f-email').value = gym.email || '';
-      document.getElementById('f-currency').value = gym.currency || 'USD';
+      if (!gymId) {
+        document.getElementById('loading-state').innerHTML = `
+          <div class="text-center py-12">
+            <p class="text-red-500 font-bold">⚠️ No gym linked to this account</p>
+            <p class="text-gray-500 mt-2">Please create a gym first</p>
+          </div>
+        `;
+        return;
+      }
+
+      await loadGymData();
+      await loadTemplatePreference();
+      await loadLogo();
 
       document.getElementById('loading-state').classList.add('hidden');
       document.getElementById('content').classList.remove('hidden');
 
-      document.getElementById('save-btn').addEventListener('click', saveSettings);
+      setupEventListeners();
+      renderTemplates();
       
-      // Apply translations after page is ready
       setTimeout(updatePageLanguage, 100);
     }
 
+    // ============================================================
+    // LOAD GYM DATA
+    // ============================================================
+    async function loadGymData() {
+      const { data: gym } = await sb
+        .from('gym_profiles')
+        .select('*')
+        .eq('id', gymId)
+        .single();
+
+      if (gym) {
+        document.getElementById('f-name').value = gym.name || '';
+        document.getElementById('f-address').value = gym.address || '';
+        document.getElementById('f-phone').value = gym.phone || '';
+        document.getElementById('f-email').value = gym.email || '';
+        document.getElementById('f-currency').value = gym.currency || 'USD';
+        gymLogoUrl = gym.logo_url || null;
+      }
+    }
+
+    // ============================================================
+    // LOAD TEMPLATE PREFERENCE
+    // ============================================================
+    async function loadTemplatePreference() {
+      const { data } = await sb
+        .from('gym_settings')
+        .select('card_template')
+        .eq('gym_id', gymId)
+        .single();
+
+      if (data?.card_template && cardTemplates[data.card_template]) {
+        selectedTemplate = data.card_template;
+      }
+    }
+
+    // ============================================================
+    // LOAD LOGO
+    // ============================================================
+    async function loadLogo() {
+      const { data: gym } = await sb
+        .from('gym_profiles')
+        .select('logo_url')
+        .eq('id', gymId)
+        .single();
+
+      if (gym?.logo_url) {
+        gymLogoUrl = gym.logo_url;
+        updateLogoPreview(gym.logo_url);
+      } else {
+        gymLogoUrl = null;
+        updateLogoPreview(null);
+      }
+    }
+
+    function updateLogoPreview(url) {
+      const preview = document.getElementById('logo-preview');
+      const placeholder = document.getElementById('logo-placeholder');
+      
+      if (url) {
+        preview.innerHTML = `<img src="${url}" alt="Gym Logo" />`;
+      } else {
+        preview.innerHTML = `<div class="placeholder" id="logo-placeholder">📷<br />Upload Logo</div>`;
+      }
+    }
+
+    // ============================================================
+    // RENDER TEMPLATES
+    // ============================================================
+    function renderTemplates() {
+      const grid = document.getElementById('card-templates-grid');
+      
+      grid.innerHTML = Object.entries(cardTemplates).map(([key, template]) => {
+        const isActive = key === selectedTemplate;
+        const previewHtml = `
+          <div class="template-preview-card" style="background:${template.gradient}; border:${template.border || 'none'};">
+            <div class="preview-gym" style="color:${template.gymColor};">${document.getElementById('f-name').value || 'GYM'}</div>
+            <div class="preview-avatar" style="background:${template.avatarGradient}; color:${template.avatarTextColor || 'white'};">JD</div>
+            <div class="preview-name" style="color:${template.nameColor};">John Doe</div>
+            <div class="preview-id" style="color:${template.idColor};">MEM-XXXX-XXXX</div>
+            <div class="preview-qr" style="background:${template.qrBg}; border:1px solid ${template.qrBg === '#0a0a0a' || template.qrBg === '#1a1a2e' ? 'rgba(255,255,255,0.2)' : '#ddd'};">
+              <span style="font-size:6px; color:${template.qrBg === '#0a0a0a' || template.qrBg === '#1a1a2e' ? 'white' : '#333'};">QR</span>
+            </div>
+            <div class="preview-date" style="color:${template.dateColor};">Valid from Jan 1, 2025</div>
+          </div>
+        `;
+
+        return `
+          <div class="border rounded-xl p-3 ${isActive ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-200'} hover:border-blue-300 transition-all cursor-pointer"
+               onclick="selectTemplate('${key}')"
+               data-template="${key}">
+            ${previewHtml}
+            <p class="text-center text-xs font-medium mt-2 ${isActive ? 'text-blue-600' : 'text-gray-600'}">${template.name}</p>
+            ${isActive ? '<p class="text-center text-[10px] text-blue-500">✓ Selected</p>' : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectTemplate(key) {
+      selectedTemplate = key;
+      renderTemplates();
+    }
+    window.selectTemplate = selectTemplate;
+
+    // ============================================================
+    // SETUP EVENT LISTENERS
+    // ============================================================
+    function setupEventListeners() {
+      // Save settings
+      document.getElementById('save-btn').addEventListener('click', saveSettings);
+      
+      // Save template
+      document.getElementById('save-template-btn').addEventListener('click', saveTemplatePreference);
+      
+      // Logo upload
+      document.getElementById('upload-logo-btn').addEventListener('click', () => {
+        document.getElementById('logo-upload').click();
+      });
+      
+      document.getElementById('logo-upload').addEventListener('change', uploadLogo);
+      
+      document.getElementById('remove-logo-btn').addEventListener('click', removeLogo);
+      
+      // Update preview when gym name changes
+      document.getElementById('f-name').addEventListener('input', () => {
+        renderTemplates();
+      });
+    }
+
+    // ============================================================
+    // SAVE SETTINGS
+    // ============================================================
     async function saveSettings() {
       const msgEl = document.getElementById('msg');
+      msgEl.textContent = '⏳ Saving...';
+      msgEl.className = 'text-sm text-blue-600';
+
       const payload = {
         name: document.getElementById('f-name').value,
         address: document.getElementById('f-address').value,
         phone: document.getElementById('f-phone').value,
         email: document.getElementById('f-email').value,
-        currency: document.getElementById('f-currency').value
+        currency: document.getElementById('f-currency').value,
+        logo_url: gymLogoUrl
       };
 
-      const { error } = await sb.from('gym_profiles').update(payload).eq('id', gymId);
-      msgEl.textContent = error ? 'Failed to save settings' : 'Settings saved successfully!';
-      msgEl.className = `text-sm ${error ? 'text-red-600' : 'text-green-600'}`;
+      const { error } = await sb
+        .from('gym_profiles')
+        .update(payload)
+        .eq('id', gymId);
+
+      if (error) {
+        msgEl.textContent = '❌ Failed to save: ' + error.message;
+        msgEl.className = 'text-sm text-red-600';
+        showToast('Failed to save settings', 'error');
+        return;
+      }
+
+      msgEl.textContent = '✅ Settings saved successfully!';
+      msgEl.className = 'text-sm text-green-600';
+      showToast('Settings saved successfully!', 'success');
+      
+      // Also save template
+      await saveTemplatePreference(true);
     }
 
-    // Run init when DOM is ready
+    // ============================================================
+    // SAVE TEMPLATE PREFERENCE
+    // ============================================================
+    async function saveTemplatePreference(silent = false) {
+      const msgEl = document.getElementById('template-save-msg');
+      if (!silent) {
+        msgEl.textContent = '⏳ Saving...';
+        msgEl.className = 'text-sm text-blue-600';
+      }
+
+      const { error } = await sb
+        .from('gym_settings')
+        .upsert({
+          gym_id: gymId,
+          card_template: selectedTemplate,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'gym_id' });
+
+      if (error) {
+        if (!silent) {
+          msgEl.textContent = '❌ Failed: ' + error.message;
+          msgEl.className = 'text-sm text-red-600';
+        }
+        showToast('Failed to save template', 'error');
+        return;
+      }
+
+      if (!silent) {
+        msgEl.textContent = '✅ Template saved!';
+        msgEl.className = 'text-sm text-green-600';
+        setTimeout(() => { msgEl.textContent = ''; }, 3000);
+      }
+      showToast('Template preference saved!', 'success');
+    }
+
+    // ============================================================
+    // UPLOAD LOGO
+    // ============================================================
+    async function uploadLogo(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        showToast('Please upload an image file', 'error');
+        return;
+      }
+
+      // Validate file size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        showToast('Image must be less than 2MB', 'error');
+        return;
+      }
+
+      const statusEl = document.getElementById('logo-status');
+      statusEl.textContent = '⏳ Uploading...';
+      statusEl.className = 'text-sm text-blue-600';
+
+      try {
+        // Upload to Supabase Storage
+        const fileExt = file.name.split('.').pop();
+        const fileName = `logo-${gymId}-${Date.now()}.${fileExt}`;
+        const filePath = `gym-logos/${fileName}`;
+
+        const { error: uploadError } = await sb.storage
+          .from('gym-assets')
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: true
+          });
+
+        if (uploadError) throw uploadError;
+
+        // Get public URL
+        const { data: urlData } = sb.storage
+          .from('gym-assets')
+          .getPublicUrl(filePath);
+
+        const publicUrl = urlData.publicUrl;
+
+        // Update gym profile with logo URL
+        const { error: updateError } = await sb
+          .from('gym_profiles')
+          .update({ logo_url: publicUrl })
+          .eq('id', gymId);
+
+        if (updateError) throw updateError;
+
+        gymLogoUrl = publicUrl;
+        updateLogoPreview(publicUrl);
+        
+        statusEl.textContent = '✅ Logo uploaded successfully!';
+        statusEl.className = 'text-sm text-green-600';
+        showToast('Logo uploaded successfully!', 'success');
+
+        // Update template previews (they show gym name, not logo, but we keep consistency)
+        renderTemplates();
+
+      } catch (err) {
+        console.error('Upload error:', err);
+        statusEl.textContent = '❌ Upload failed: ' + err.message;
+        statusEl.className = 'text-sm text-red-600';
+        showToast('Failed to upload logo', 'error');
+      }
+
+      // Reset file input
+      e.target.value = '';
+    }
+
+    // ============================================================
+    // REMOVE LOGO
+    // ============================================================
+    async function removeLogo() {
+      if (!confirm('Are you sure you want to remove the gym logo?')) return;
+
+      const statusEl = document.getElementById('logo-status');
+      statusEl.textContent = '⏳ Removing...';
+      statusEl.className = 'text-sm text-blue-600';
+
+      try {
+        const { error } = await sb
+          .from('gym_profiles')
+          .update({ logo_url: null })
+          .eq('id', gymId);
+
+        if (error) throw error;
+
+        gymLogoUrl = null;
+        updateLogoPreview(null);
+        
+        statusEl.textContent = '✅ Logo removed successfully!';
+        statusEl.className = 'text-sm text-green-600';
+        showToast('Logo removed successfully!', 'success');
+
+      } catch (err) {
+        statusEl.textContent = '❌ Failed to remove: ' + err.message;
+        statusEl.className = 'text-sm text-red-600';
+        showToast('Failed to remove logo', 'error');
+      }
+    }
+
+    // ============================================================
+    // EXPORT FUNCTIONS FOR CANTEEN PAGE
+    // ============================================================
+    // These functions will be used by canteen.html to get the
+    // selected template and logo
+    window.getGymSettings = async function() {
+      const [gymResult, settingsResult] = await Promise.all([
+        sb.from('gym_profiles').select('logo_url, name').eq('id', gymId).single(),
+        sb.from('gym_settings').select('card_template').eq('gym_id', gymId).single()
+      ]);
+
+      return {
+        logoUrl: gymResult.data?.logo_url || null,
+        gymName: gymResult.data?.name || 'GYM',
+        template: settingsResult.data?.card_template || 'dark'
+      };
+    };
+
+    // Run init
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', init);
     } else {

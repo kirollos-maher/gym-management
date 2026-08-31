@@ -23,20 +23,20 @@
         </div>
         <div class="flex gap-2 flex-wrap">
           <button id="add-member-btn" class="bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">
-            ➕ <span data-i18n="members.add">Add Member</span>
+            ➕ <span>Add Member</span>
           </button>
           <a href="canteen.html" class="bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">
             🛒 Canteen
           </a>
           <button id="refresh-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium px-4 py-2 flex items-center gap-2">
-            🔄 <span data-i18n="members.refresh">Refresh</span>
+            🔄 <span>Refresh</span>
           </button>
         </div>
       </div>
 
       <div class="bg-white rounded-lg shadow-md p-6">
         <div class="flex items-center gap-4 mb-6">
-          <input type="text" id="search-input" data-i18n-placeholder="members.search"
+          <input type="text" id="search-input" placeholder="Search by name, email, or phone..."
             class="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           <select id="status-filter" class="rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option value="all">All Members</option>
@@ -78,12 +78,23 @@
           <input type="password" id="new-password" required minlength="6" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           <p class="text-xs text-gray-500 mt-1">At least 6 characters</p>
         </div>
+        
+        <!-- Membership Plan Selection -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Membership Plan</label>
           <select id="new-membership" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option value="">None</option>
+            <option value="">-- Select a plan --</option>
           </select>
+          <div id="plan-details" class="mt-2 text-sm text-gray-500 hidden"></div>
         </div>
+
+        <!-- Custom Duration -->
+        <div id="custom-duration-section" class="hidden">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Custom Duration (Months)</label>
+          <input type="number" id="custom-duration" min="0.5" step="0.5" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <p class="text-xs text-gray-500 mt-1">Enter custom duration in months (e.g., 1, 3, 6, 12)</p>
+        </div>
+
         <div class="border-t pt-4 flex gap-3">
           <button type="button" id="cancel-add-btn" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-medium px-4 py-2">Cancel</button>
           <button type="submit" id="submit-add-btn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2">Add Member</button>
@@ -151,6 +162,8 @@
       document.getElementById('add-member-btn').addEventListener('click', () => {
         document.getElementById('add-member-modal').classList.remove('hidden');
         populateMembershipSelect();
+        document.getElementById('add-msg').classList.add('hidden');
+        document.getElementById('add-member-form').reset();
       });
       document.getElementById('close-modal-btn').addEventListener('click', () => {
         document.getElementById('add-member-modal').classList.add('hidden');
@@ -163,6 +176,9 @@
         document.getElementById('add-member-form').reset();
       });
       document.getElementById('add-member-form').addEventListener('submit', addMember);
+      
+      // Membership select change - show details
+      document.getElementById('new-membership').addEventListener('change', showPlanDetails);
       
       // Details Modal
       document.getElementById('close-details-btn').addEventListener('click', () => {
@@ -179,20 +195,70 @@
     }
 
     async function loadMemberships() {
-      const { data } = await sb
+      const { data, error } = await sb
         .from('memberships')
         .select('*')
         .eq('gym_id', gymId)
-        .order('price', { ascending: true });
+        .order('duration_months', { ascending: true });
+      
+      if (error) console.error('Error loading memberships:', error);
       memberships = data || [];
     }
 
     function populateMembershipSelect() {
       const select = document.getElementById('new-membership');
-      select.innerHTML = '<option value="">None</option>';
-      memberships.forEach(m => {
-        select.innerHTML += `<option value="${m.id}">${m.name} - $${m.price} (${m.duration_months} months)</option>`;
-      });
+      select.innerHTML = '<option value="">-- Select a plan --</option>';
+      
+      if (memberships.length === 0) {
+        select.innerHTML += '<option value="custom">📝 Custom Plan</option>';
+      } else {
+        memberships.forEach(m => {
+          const durationText = m.duration_months === 1 ? 'شهر' : 
+                              m.duration_months === 0.5 ? 'نصف شهر' :
+                              m.duration_months === 3 ? 'ربع سنوي' :
+                              m.duration_months === 6 ? 'نصف سنوي' :
+                              m.duration_months === 12 ? 'سنوي' :
+                              `${m.duration_months} شهور`;
+          select.innerHTML += `<option value="${m.id}">${m.name} - $${m.price} (${durationText})</option>`;
+        });
+        select.innerHTML += '<option value="custom">📝 Custom Plan</option>';
+      }
+    }
+
+    function showPlanDetails() {
+      const select = document.getElementById('new-membership');
+      const detailsEl = document.getElementById('plan-details');
+      const customSection = document.getElementById('custom-duration-section');
+      
+      if (select.value === 'custom') {
+        detailsEl.classList.add('hidden');
+        customSection.classList.remove('hidden');
+        return;
+      }
+      
+      customSection.classList.add('hidden');
+      
+      if (select.value) {
+        const plan = memberships.find(m => m.id === select.value);
+        if (plan) {
+          const durationText = plan.duration_months === 1 ? 'شهر' : 
+                              plan.duration_months === 0.5 ? 'نصف شهر' :
+                              plan.duration_months === 3 ? 'ربع سنوي' :
+                              plan.duration_months === 6 ? 'نصف سنوي' :
+                              plan.duration_months === 12 ? 'سنوي' :
+                              `${plan.duration_months} شهور`;
+          detailsEl.innerHTML = `
+            <div class="bg-blue-50 p-3 rounded-lg">
+              <p><strong>Price:</strong> $${plan.price}</p>
+              <p><strong>Duration:</strong> ${durationText}</p>
+              ${plan.perks ? `<p><strong>Perks:</strong> ${plan.perks.join(', ')}</p>` : ''}
+            </div>
+          `;
+          detailsEl.classList.remove('hidden');
+        }
+      } else {
+        detailsEl.classList.add('hidden');
+      }
     }
 
     async function addMember(e) {
@@ -208,7 +274,48 @@
       const email = document.getElementById('new-email').value || null;
       const phone = document.getElementById('new-phone').value || null;
       const password = document.getElementById('new-password').value;
-      const membershipId = document.getElementById('new-membership').value || null;
+      const membershipValue = document.getElementById('new-membership').value;
+      let membershipId = null;
+      let customDuration = null;
+
+      // Handle custom plan
+      if (membershipValue === 'custom') {
+        customDuration = parseFloat(document.getElementById('custom-duration').value);
+        if (!customDuration || customDuration <= 0) {
+          msgEl.textContent = '⚠️ Please enter a valid duration for custom plan';
+          msgEl.className = 'text-sm text-red-600';
+          msgEl.classList.remove('hidden');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Add Member';
+          return;
+        }
+        // Create a temporary membership for custom plan
+        const { data: newMembership, error: createError } = await sb
+          .from('memberships')
+          .insert({
+            gym_id: gymId,
+            name: `مخصص - ${customDuration} شهر`,
+            description: `خطة مخصصة لمدة ${customDuration} شهر`,
+            price: 0, // Will be set by user later
+            duration_months: customDuration,
+            perks: ['خطة مخصصة']
+          })
+          .select()
+          .single();
+        
+        if (createError) {
+          msgEl.textContent = '❌ Error creating custom plan: ' + createError.message;
+          msgEl.className = 'text-sm text-red-600';
+          msgEl.classList.remove('hidden');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Add Member';
+          return;
+        }
+        membershipId = newMembership.id;
+        await loadMemberships();
+      } else if (membershipValue) {
+        membershipId = membershipValue;
+      }
 
       try {
         // 1. Create auth user
@@ -280,6 +387,8 @@
         submitBtn.textContent = 'Add Member';
         
         document.getElementById('add-member-form').reset();
+        document.getElementById('plan-details').classList.add('hidden');
+        document.getElementById('custom-duration-section').classList.add('hidden');
         
         setTimeout(() => {
           document.getElementById('add-member-modal').classList.add('hidden');
@@ -328,13 +437,11 @@
       const statusFilter = document.getElementById('status-filter').value;
       
       const filtered = allMembers.filter((m) => {
-        // Search filter
         const matchSearch = 
           m.full_name?.toLowerCase().includes(term) ||
           m.email?.toLowerCase().includes(term) ||
           m.phone?.toLowerCase().includes(term);
         
-        // Status filter
         const sub = Array.isArray(m.subscription) ? m.subscription[0] : m.subscription;
         let matchStatus = true;
         if (statusFilter === 'active') {
@@ -348,15 +455,14 @@
         return matchSearch && matchStatus;
       });
 
-      const lang = localStorage.getItem('gym_lang') || 'en';
-      const noResultsText = lang === 'ar' ? 'لم يتم العثور على أعضاء' : 'No members found';
-      const unknownText = lang === 'ar' ? 'عضو غير معروف' : 'Unknown Member';
-      const noEmailText = lang === 'ar' ? 'لا يوجد بريد إلكتروني' : 'No email';
-      const activeText = lang === 'ar' ? 'نشط' : 'Active';
-      const inactiveText = lang === 'ar' ? 'غير نشط' : 'Inactive';
-      const expiredText = lang === 'ar' ? 'منتهي' : 'Expired';
-      const expiresText = lang === 'ar' ? 'ينتهي في' : 'Expires';
-      const showingText = lang === 'ar' ? 'عرض {count} من {total} عضو' : 'Showing {count} of {total} members';
+      const noResultsText = 'No members found';
+      const unknownText = 'Unknown Member';
+      const noEmailText = 'No email';
+      const activeText = 'Active';
+      const inactiveText = 'Inactive';
+      const expiredText = 'Expired';
+      const expiresText = 'Expires';
+      const showingText = 'Showing {count} of {total} members';
 
       const el = document.getElementById('members-list');
       if (filtered.length === 0) {
@@ -380,6 +486,18 @@
             
             const qr = Array.isArray(m.member_qr_codes) ? m.member_qr_codes[0] : m.member_qr_codes;
             
+            // Format duration text
+            let durationText = '';
+            if (sub?.membership) {
+              const months = sub.membership.duration_months;
+              durationText = months === 1 ? 'شهر' : 
+                            months === 0.5 ? 'نصف شهر' :
+                            months === 3 ? 'ربع سنوي' :
+                            months === 6 ? 'نصف سنوي' :
+                            months === 12 ? 'سنوي' :
+                            `${months} شهور`;
+            }
+            
             return `
             <div class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
               <div class="flex items-center gap-4">
@@ -392,9 +510,10 @@
                     <span>${m.email || noEmailText}</span>
                     ${m.phone ? `<span>📱 ${m.phone}</span>` : ''}
                   </div>
-                  <div class="flex items-center gap-2 mt-1">
+                  <div class="flex items-center gap-2 mt-1 flex-wrap">
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}">${statusText}</span>
-                    ${sub ? `<span class="text-xs text-gray-400">${sub.membership?.name || ''}</span>` : ''}
+                    ${sub ? `<span class="text-xs text-gray-500">${sub.membership?.name || ''}</span>` : ''}
+                    ${sub ? `<span class="text-xs text-gray-400">${durationText}</span>` : ''}
                     ${sub ? `<span class="text-xs text-gray-400">${expiresText} ${formatDate(sub.end_date)}</span>` : ''}
                   </div>
                 </div>
@@ -420,7 +539,6 @@
       const sub = Array.isArray(member.subscription) ? member.subscription[0] : member.subscription;
       const qr = Array.isArray(member.member_qr_codes) ? member.member_qr_codes[0] : member.member_qr_codes;
 
-      // Get attendance history
       const { data: attendance } = await sb
         .from('attendance_logs')
         .select('*')
@@ -429,11 +547,21 @@
         .order('check_in_time', { ascending: false })
         .limit(10);
 
-      // Get loyalty balance
       const { data: balance } = await sb.rpc('get_loyalty_balance', {
         p_member_id: memberId,
         p_gym_id: gymId
       });
+
+      let durationText = '';
+      if (sub?.membership) {
+        const months = sub.membership.duration_months;
+        durationText = months === 1 ? 'شهر' : 
+                      months === 0.5 ? 'نصف شهر' :
+                      months === 3 ? 'ربع سنوي' :
+                      months === 6 ? 'نصف سنوي' :
+                      months === 12 ? 'سنوي' :
+                      `${months} شهور`;
+      }
 
       const content = document.getElementById('member-details-content');
       content.innerHTML = `
@@ -473,11 +601,13 @@
               <h4 class="font-semibold text-gray-700 mb-2">Subscription Details</h4>
               <div class="grid grid-cols-2 gap-2 text-sm">
                 <p><span class="text-gray-500">Plan:</span> ${sub.membership?.name || 'N/A'}</p>
+                <p><span class="text-gray-500">Duration:</span> ${durationText}</p>
                 <p><span class="text-gray-500">Price:</span> $${sub.membership?.price || 0}</p>
+                <p><span class="text-gray-500">Status:</span> ${sub.status}</p>
                 <p><span class="text-gray-500">Start:</span> ${formatDate(sub.start_date)}</p>
                 <p><span class="text-gray-500">End:</span> ${formatDate(sub.end_date)}</p>
-                <p><span class="text-gray-500">Status:</span> ${sub.status}</p>
                 <p><span class="text-gray-500">Auto Renew:</span> ${sub.auto_renew ? '✅' : '❌'}</p>
+                ${sub.membership?.perks ? `<p class="col-span-2"><span class="text-gray-500">Perks:</span> ${sub.membership.perks.join(', ')}</p>` : ''}
               </div>
             </div>
           ` : ''}
@@ -513,7 +643,6 @@
         </div>
       `;
 
-      // Generate QR in details
       if (qr && typeof QRCode !== 'undefined') {
         const container = document.getElementById('detail-qr-canvas');
         if (container) {
@@ -536,7 +665,6 @@
 
       const qr = Array.isArray(member.member_qr_codes) ? member.member_qr_codes[0] : member.member_qr_codes;
       if (!qr) {
-        // Generate QR if not exists
         try {
           await sb.rpc('ensure_member_qr', {
             p_member_id: memberId,

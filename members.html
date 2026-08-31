@@ -18,91 +18,79 @@
     <div id="content" class="hidden space-y-6">
       <div class="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 class="text-2xl font-bold text-gray-800">Members</h1>
-          <p class="text-sm text-gray-500">Manage your gym members and their subscriptions</p>
+          <h1 class="text-2xl font-bold text-gray-800 dark:text-white" data-i18n="members.title">Members</h1>
+          <p class="text-sm text-gray-500 dark:text-gray-400" data-i18n="members.desc">Manage your gym members and their subscriptions</p>
         </div>
         <div class="flex gap-2 flex-wrap">
-          <button id="add-member-btn" class="bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">
+          <button id="add-member-btn" class="bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2" data-i18n="members.add">
             ➕ Add Member
           </button>
           <a href="canteen.html" class="bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">
             🛒 Canteen
           </a>
-          <button id="refresh-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium px-4 py-2 flex items-center gap-2">
+          <button id="refresh-btn" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium px-4 py-2 flex items-center gap-2" data-i18n="members.refresh">
             🔄 Refresh
           </button>
         </div>
       </div>
 
-      <div class="bg-white rounded-lg shadow-md p-6">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
         <div class="flex items-center gap-4 mb-6 flex-wrap">
           <input type="text" id="search-input" placeholder="Search by name, email, or phone..."
-            class="flex-1 min-w-[200px] rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          <select id="status-filter" class="rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option value="all">All Members</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-            <option value="expired">Expired</option>
+            class="flex-1 min-w-[200px] rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <select id="status-filter" class="rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="all" data-i18n="members.all">All Members</option>
+            <option value="active" data-i18n="members.active">Active</option>
+            <option value="inactive" data-i18n="members.inactive">Inactive</option>
+            <option value="expired" data-i18n="members.expired">Expired</option>
           </select>
         </div>
 
         <div id="members-list" class="space-y-3"></div>
 
-        <div id="count-label" class="mt-4 text-sm text-gray-500"></div>
+        <div id="count-label" class="mt-4 text-sm text-gray-500 dark:text-gray-400"></div>
       </div>
     </div>
   </main>
 
   <!-- Modal: Add Member -->
   <div id="add-member-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold text-gray-800">➕ Add New Member</h2>
-        <button id="close-modal-btn" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+        <h2 class="text-xl font-bold text-gray-800 dark:text-white" data-i18n="members.add">➕ Add New Member</h2>
+        <button id="close-modal-btn" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 text-2xl">&times;</button>
       </div>
       <form id="add-member-form" class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
-          <input type="text" id="new-fullname" required class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-i18n="members.fullname">Full Name *</label>
+          <input type="text" id="new-fullname" required class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-          <input type="email" id="new-email" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-i18n="members.email">Email</label>
+          <input type="email" id="new-email" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-          <input type="tel" id="new-phone" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-i18n="members.phone">Phone</label>
+          <input type="tel" id="new-phone" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Password *</label>
-          <input type="password" id="new-password" required minlength="6" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          <p class="text-xs text-gray-500 mt-1">At least 6 characters</p>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-i18n="auth.password">Password *</label>
+          <input type="password" id="new-password" required minlength="6" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1" data-i18n="auth.password.min">At least 6 characters</p>
         </div>
         
         <!-- Membership Plan Selection -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Membership Plan</label>
-          <select id="new-membership" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option value="">-- Select a plan --</option>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" data-i18n="members.plan">Membership Plan</label>
+          <select id="new-membership" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="" data-i18n="members.select.plan">-- Select a plan --</option>
           </select>
-          <div id="plan-details" class="mt-2 text-sm text-gray-500 hidden"></div>
+          <div id="plan-details" class="mt-2 text-sm text-gray-500 dark:text-gray-400 hidden"></div>
         </div>
 
-        <!-- Custom Duration -->
-        <div id="custom-duration-section" class="hidden">
-          <label class="block text-sm font-medium text-gray-700 mb-1">Custom Duration (Months)</label>
-          <input type="number" id="custom-duration" min="0.5" step="0.5" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          <p class="text-xs text-gray-500 mt-1">Enter custom duration in months (e.g., 1, 3, 6, 12)</p>
-          <div class="mt-2">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Custom Price</label>
-            <input type="number" id="custom-price" min="0" step="0.01" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            <p class="text-xs text-gray-500 mt-1">Enter price for this custom plan</p>
-          </div>
-        </div>
-
-        <div class="border-t pt-4 flex gap-3">
-          <button type="button" id="cancel-add-btn" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-medium px-4 py-2">Cancel</button>
-          <button type="submit" id="submit-add-btn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2">Add Member</button>
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-4 flex gap-3">
+          <button type="button" id="cancel-add-btn" class="flex-1 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-lg font-medium px-4 py-2" data-i18n="common.cancel">Cancel</button>
+          <button type="submit" id="submit-add-btn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2" data-i18n="members.add">Add Member</button>
         </div>
         <div id="add-msg" class="text-sm hidden"></div>
       </form>
@@ -111,10 +99,10 @@
 
   <!-- Modal: Member Details -->
   <div id="member-details-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold text-gray-800">👤 Member Details</h2>
-        <button id="close-details-btn" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+        <h2 class="text-xl font-bold text-gray-800 dark:text-white">👤 Member Details</h2>
+        <button id="close-details-btn" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 text-2xl">&times;</button>
       </div>
       <div id="member-details-content"></div>
     </div>
@@ -122,16 +110,16 @@
 
   <!-- Modal: Member QR -->
   <div id="member-qr-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 text-center">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md p-6 text-center">
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold text-gray-800">📱 Member QR Code</h2>
-        <button id="close-qr-modal" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+        <h2 class="text-xl font-bold text-gray-800 dark:text-white">📱 Member QR Code</h2>
+        <button id="close-qr-modal" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 text-2xl">&times;</button>
       </div>
       <div id="member-qr-display" class="flex flex-col items-center p-4">
         <div id="member-qr-canvas"></div>
-        <p id="qr-member-name" class="font-semibold text-gray-800 mt-4"></p>
-        <p id="qr-member-email" class="text-sm text-gray-500"></p>
-        <p id="qr-code-text" class="text-xs font-mono text-gray-400 mt-2 break-all"></p>
+        <p id="qr-member-name" class="font-semibold text-gray-800 dark:text-white mt-4"></p>
+        <p id="qr-member-email" class="text-sm text-gray-500 dark:text-gray-400"></p>
+        <p id="qr-code-text" class="text-xs font-mono text-gray-400 dark:text-gray-500 mt-2 break-all"></p>
         <button id="download-qr-btn" class="mt-4 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-4 py-2">
           📥 Download QR
         </button>
@@ -148,12 +136,17 @@
     let allMembers = [];
     let memberships = [];
     let currentQrMemberId = null;
+    let currencySymbol = '$';
 
     async function init() {
       const auth = await requireAuth();
       if (!auth) return;
       renderNav(auth.user, 'members');
       gymId = auth.profile?.gym_id;
+      
+      // جلب العملة
+      const currency = await getGymCurrency();
+      currencySymbol = getCurrencySymbol(currency);
 
       await loadMemberships();
       await fetchMembers();
@@ -170,7 +163,6 @@
         document.getElementById('add-msg').classList.add('hidden');
         document.getElementById('add-member-form').reset();
         document.getElementById('plan-details').classList.add('hidden');
-        document.getElementById('custom-duration-section').classList.add('hidden');
       });
       document.getElementById('close-modal-btn').addEventListener('click', () => {
         document.getElementById('add-member-modal').classList.add('hidden');
@@ -208,42 +200,12 @@
         .eq('gym_id', gymId)
         .order('duration_months', { ascending: true });
       
-      if (error) console.error('Error loading memberships:', error);
+      if (error) {
+        console.error('Error loading memberships:', error);
+        memberships = [];
+        return;
+      }
       memberships = data || [];
-      
-      // If no memberships exist, create default ones
-      if (memberships.length === 0) {
-        await createDefaultMemberships();
-        const { data: newData } = await sb
-          .from('memberships')
-          .select('*')
-          .eq('gym_id', gymId)
-          .order('duration_months', { ascending: true });
-        memberships = newData || [];
-      }
-    }
-
-    async function createDefaultMemberships() {
-      const defaultPlans = [
-        { name: 'شهري', description: 'اشتراك شهري', price: 50, duration_months: 1, perks: ['دخول غير محدود', 'خزانة مجانية'] },
-        { name: 'نصف شهري', description: 'اشتراك 15 يوم', price: 30, duration_months: 0.5, perks: ['دخول غير محدود'] },
-        { name: 'ربع سنوي', description: 'اشتراك 3 شهور', price: 130, duration_months: 3, perks: ['دخول غير محدود', 'خصم 10% كافتيريا'] },
-        { name: 'نصف سنوي', description: 'اشتراك 6 شهور', price: 225, duration_months: 6, perks: ['دخول غير محدود', 'خصم 15% كافتيريا', 'جلسة تدريب'] },
-        { name: 'سنوي', description: 'اشتراك سنة كاملة', price: 420, duration_months: 12, perks: ['دخول غير محدود', 'خصم 20% كافتيريا', 'VIP'] }
-      ];
-
-      for (const plan of defaultPlans) {
-        await sb
-          .from('memberships')
-          .insert({
-            gym_id: gymId,
-            name: plan.name,
-            description: plan.description,
-            price: plan.price,
-            duration_months: plan.duration_months,
-            perks: plan.perks
-          });
-      }
     }
 
     function populateMembershipSelect() {
@@ -252,41 +214,31 @@
       
       memberships.forEach(m => {
         const durationText = m.duration_months === 1 ? 'شهر' : 
-                            m.duration_months === 0.5 ? 'نصف شهر' :
+                            m.duration_months === 2 ? 'شهرين' :
                             m.duration_months === 3 ? 'ربع سنوي' :
                             m.duration_months === 6 ? 'نصف سنوي' :
                             m.duration_months === 12 ? 'سنوي' :
                             `${m.duration_months} شهور`;
-        select.innerHTML += `<option value="${m.id}">${m.name} - $${m.price} (${durationText})</option>`;
+        select.innerHTML += `<option value="${m.id}">${m.name} - ${currencySymbol}${m.price} (${durationText})</option>`;
       });
-      select.innerHTML += '<option value="custom">📝 Custom Plan</option>';
     }
 
     function showPlanDetails() {
       const select = document.getElementById('new-membership');
       const detailsEl = document.getElementById('plan-details');
-      const customSection = document.getElementById('custom-duration-section');
-      
-      if (select.value === 'custom') {
-        detailsEl.classList.add('hidden');
-        customSection.classList.remove('hidden');
-        return;
-      }
-      
-      customSection.classList.add('hidden');
       
       if (select.value) {
         const plan = memberships.find(m => m.id === select.value);
         if (plan) {
           const durationText = plan.duration_months === 1 ? 'شهر' : 
-                              plan.duration_months === 0.5 ? 'نصف شهر' :
+                              plan.duration_months === 2 ? 'شهرين' :
                               plan.duration_months === 3 ? 'ربع سنوي' :
                               plan.duration_months === 6 ? 'نصف سنوي' :
                               plan.duration_months === 12 ? 'سنوي' :
                               `${plan.duration_months} شهور`;
           detailsEl.innerHTML = `
-            <div class="bg-blue-50 p-3 rounded-lg">
-              <p><strong>Price:</strong> $${plan.price}</p>
+            <div class="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-lg">
+              <p><strong>Price:</strong> ${currencySymbol}${plan.price}</p>
               <p><strong>Duration:</strong> ${durationText}</p>
               ${plan.perks ? `<p><strong>Perks:</strong> ${plan.perks.join(', ')}</p>` : ''}
             </div>
@@ -298,9 +250,6 @@
       }
     }
 
-    // ============================================================
-    // ADD MEMBER - مع دعم الخطة المخصصة (باستخدام insert مباشر)
-    // ============================================================
     async function addMember(e) {
       e.preventDefault();
       const msgEl = document.getElementById('add-msg');
@@ -314,105 +263,21 @@
       const email = document.getElementById('new-email').value || null;
       const phone = document.getElementById('new-phone').value || null;
       const password = document.getElementById('new-password').value;
-      const membershipValue = document.getElementById('new-membership').value;
-      let membershipId = null;
+      const membershipId = document.getElementById('new-membership').value || null;
 
-      // ==========================================================
-      // Handle custom plan - استخدام insert مباشر (بدون RPC)
-      // ==========================================================
-      if (membershipValue === 'custom') {
-        const customDuration = parseFloat(document.getElementById('custom-duration').value);
-        const customPrice = parseFloat(document.getElementById('custom-price').value) || 0;
-        
-        if (!customDuration || customDuration <= 0) {
-          msgEl.textContent = '⚠️ Please enter a valid duration for custom plan';
-          msgEl.className = 'text-sm text-red-600';
-          msgEl.classList.remove('hidden');
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Add Member';
-          return;
-        }
-
-        try {
-          // Insert مباشر في جدول memberships
-          const { data: newMembership, error: createError } = await sb
-            .from('memberships')
-            .insert({
-              gym_id: gymId,
-              name: `مخصص - ${customDuration} شهر`,
-              description: `خطة مخصصة لمدة ${customDuration} شهر`,
-              price: customPrice || (customDuration * 50),
-              duration_months: customDuration,
-              perks: ['خطة مخصصة']
-            })
-            .select()
-            .single();
-          
-          if (createError) {
-            console.error('Create custom membership error:', createError);
-            
-            // لو في مشكلة RLS، حاول تاني من غير select
-            if (createError.message.includes('row-level security')) {
-              const { error: insertError } = await sb
-                .from('memberships')
-                .insert({
-                  gym_id: gymId,
-                  name: `مخصص - ${customDuration} شهر`,
-                  description: `خطة مخصصة لمدة ${customDuration} شهر`,
-                  price: customPrice || (customDuration * 50),
-                  duration_months: customDuration,
-                  perks: ['خطة مخصصة']
-                });
-              
-              if (insertError) throw insertError;
-              
-              // جلب الـ ID بعد الإدراج
-              const { data: fetched } = await sb
-                .from('memberships')
-                .select('id')
-                .eq('gym_id', gymId)
-                .eq('name', `مخصص - ${customDuration} شهر`)
-                .order('created_at', { ascending: false })
-                .limit(1)
-                .single();
-              
-              if (fetched) {
-                membershipId = fetched.id;
-              } else {
-                throw new Error('Could not retrieve custom plan ID');
-              }
-            } else {
-              throw createError;
-            }
-          } else {
-            membershipId = newMembership.id;
-          }
-          
-          // إعادة تحميل الخطط عشان تظهر في القائمة
-          await loadMemberships();
-          
-        } catch (err) {
-          console.error('Custom plan error:', err);
-          msgEl.textContent = '❌ Error creating custom plan: ' + err.message;
-          msgEl.className = 'text-sm text-red-600';
-          msgEl.classList.remove('hidden');
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Add Member';
-          return;
-        }
-      } else if (membershipValue) {
-        membershipId = membershipValue;
+      if (!membershipId) {
+        msgEl.textContent = '⚠️ Please select a membership plan';
+        msgEl.className = 'text-sm text-red-600 dark:text-red-400';
+        msgEl.classList.remove('hidden');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Add Member';
+        return;
       }
 
-      // ==========================================================
-      // إنشاء حساب المستخدم وإكمال التسجيل
-      // ==========================================================
       try {
-        // حفظ جلسة المدير
         const { data: sessionData } = await sb.auth.getSession();
         const adminSession = sessionData?.session;
 
-        // إنشاء مستخدم في auth
         const tempEmail = email || `${fullName.replace(/\s/g,'')}_${Date.now()}@temp.com`;
         const { data: authData, error: authError } = await sb.auth.signUp({
           email: tempEmail,
@@ -426,7 +291,6 @@
           throw new Error('Failed to create user');
         }
 
-        // استعادة جلسة المدير
         if (adminSession) {
           await sb.auth.setSession({
             access_token: adminSession.access_token,
@@ -434,66 +298,51 @@
           });
         }
 
-        // استخدام دالة finish_member_setup لإكمال التسجيل
-        const { error: setupError } = await sb.rpc('finish_member_setup', {
-          p_member_id: authData.user.id,
-          p_gym_id: gymId,
-          p_full_name: fullName,
-          p_phone: phone,
-          p_membership_id: membershipId
-        });
-
-        if (setupError) {
-          console.error('Setup error:', setupError);
-          
-          // لو الدالة مش موجودة، نعمل setup يدوي
-          if (setupError.message.includes('Could not find the function')) {
-            // تحديث المستخدم مباشرة
-            const { error: updateError } = await sb
-              .from('users')
-              .update({
+        const { error: updateError } = await sb
+          .from('users')
+          .update({
+            gym_id: gymId,
+            full_name: fullName,
+            phone: phone,
+            role: 'member'
+          })
+          .eq('id', authData.user.id);
+        
+        if (updateError) throw updateError;
+        
+        try {
+          await sb.rpc('ensure_member_qr', {
+            p_member_id: authData.user.id,
+            p_gym_id: gymId
+          });
+        } catch (qrError) {
+          console.error('QR error:', qrError);
+        }
+        
+        if (membershipId) {
+          const plan = memberships.find(m => m.id === membershipId);
+          if (plan) {
+            const endDate = new Date();
+            endDate.setDate(endDate.getDate() + (plan.duration_months * 30));
+            
+            const { error: subError } = await sb
+              .from('subscriptions')
+              .insert({
+                member_id: authData.user.id,
+                membership_id: membershipId,
                 gym_id: gymId,
-                full_name: fullName,
-                phone: phone,
-                role: 'member'
-              })
-              .eq('id', authData.user.id);
+                start_date: new Date().toISOString().split('T')[0],
+                end_date: endDate.toISOString().split('T')[0],
+                status: 'active',
+                auto_renew: false
+              });
             
-            if (updateError) throw updateError;
-            
-            // إنشاء QR Code
-            await sb.rpc('ensure_member_qr', {
-              p_member_id: authData.user.id,
-              p_gym_id: gymId
-            });
-            
-            // إذا كان فيه خطة عضوية، نضيف اشتراك
-            if (membershipId) {
-              const plan = memberships.find(m => m.id === membershipId);
-              if (plan) {
-                const endDate = new Date();
-                endDate.setDate(endDate.getDate() + (plan.duration_months * 30));
-                
-                await sb
-                  .from('subscriptions')
-                  .insert({
-                    member_id: authData.user.id,
-                    membership_id: membershipId,
-                    gym_id: gymId,
-                    start_date: new Date().toISOString().split('T')[0],
-                    end_date: endDate.toISOString().split('T')[0],
-                    status: 'active',
-                    auto_renew: false
-                  });
-              }
-            }
-          } else {
-            throw new Error(setupError.message || 'Failed to complete member setup');
+            if (subError) console.error('Subscription error:', subError);
           }
         }
 
         msgEl.textContent = '✅ Member added successfully!';
-        msgEl.className = 'text-sm text-green-600';
+        msgEl.className = 'text-sm text-green-600 dark:text-green-400';
         msgEl.classList.remove('hidden');
         
         submitBtn.disabled = false;
@@ -501,7 +350,6 @@
         
         document.getElementById('add-member-form').reset();
         document.getElementById('plan-details').classList.add('hidden');
-        document.getElementById('custom-duration-section').classList.add('hidden');
         
         setTimeout(() => {
           document.getElementById('add-member-modal').classList.add('hidden');
@@ -512,7 +360,7 @@
       } catch (err) {
         console.error('Add member error:', err);
         msgEl.textContent = '❌ Error: ' + err.message;
-        msgEl.className = 'text-sm text-red-600';
+        msgEl.className = 'text-sm text-red-600 dark:text-red-400';
         msgEl.classList.remove('hidden');
         submitBtn.disabled = false;
         submitBtn.textContent = 'Add Member';
@@ -581,7 +429,7 @@
 
       const el = document.getElementById('members-list');
       if (filtered.length === 0) {
-        el.innerHTML = `<div class="text-center py-8 text-gray-500"><p>${noResultsText}</p></div>`;
+        el.innerHTML = `<div class="text-center py-8 text-gray-500 dark:text-gray-400"><p>${noResultsText}</p></div>`;
       } else {
         el.innerHTML = filtered
           .map((m) => {
@@ -590,13 +438,13 @@
             const isExpired = sub?.status === 'expired';
             
             let statusText = inactiveText;
-            let statusClass = 'bg-gray-100 text-gray-600';
+            let statusClass = 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300';
             if (isActive) {
               statusText = activeText;
-              statusClass = 'bg-green-100 text-green-800';
+              statusClass = 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400';
             } else if (isExpired) {
               statusText = expiredText;
-              statusClass = 'bg-red-100 text-red-800';
+              statusClass = 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400';
             }
             
             const qr = Array.isArray(m.member_qr_codes) ? m.member_qr_codes[0] : m.member_qr_codes;
@@ -605,7 +453,7 @@
             if (sub?.membership) {
               const months = sub.membership.duration_months;
               durationText = months === 1 ? 'شهر' : 
-                            months === 0.5 ? 'نصف شهر' :
+                            months === 2 ? 'شهرين' :
                             months === 3 ? 'ربع سنوي' :
                             months === 6 ? 'نصف سنوي' :
                             months === 12 ? 'سنوي' :
@@ -613,29 +461,29 @@
             }
             
             return `
-            <div class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+            <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
               <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-xl font-bold text-blue-600">
+                <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-xl font-bold text-blue-600 dark:text-blue-400">
                   ${getInitials(m.full_name)}
                 </div>
                 <div>
-                  <p class="font-medium text-gray-900">${m.full_name || unknownText}</p>
-                  <div class="flex items-center gap-3 text-sm text-gray-500 flex-wrap">
+                  <p class="font-medium text-gray-900 dark:text-white">${m.full_name || unknownText}</p>
+                  <div class="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400 flex-wrap">
                     <span>${m.email || noEmailText}</span>
                     ${m.phone ? `<span>📱 ${m.phone}</span>` : ''}
                   </div>
                   <div class="flex items-center gap-2 mt-1 flex-wrap">
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}">${statusText}</span>
-                    ${sub ? `<span class="text-xs text-gray-500">${sub.membership?.name || ''}</span>` : ''}
-                    ${sub ? `<span class="text-xs text-gray-400">${durationText}</span>` : ''}
-                    ${sub ? `<span class="text-xs text-gray-400">${expiresText} ${formatDate(sub.end_date)}</span>` : ''}
+                    ${sub ? `<span class="text-xs text-gray-500 dark:text-gray-400">${sub.membership?.name || ''}</span>` : ''}
+                    ${sub ? `<span class="text-xs text-gray-400 dark:text-gray-500">${durationText}</span>` : ''}
+                    ${sub ? `<span class="text-xs text-gray-400 dark:text-gray-500">${expiresText} ${formatDate(sub.end_date)}</span>` : ''}
                   </div>
                 </div>
               </div>
               <div class="flex items-center gap-2">
-                ${qr ? `<button onclick="showMemberQR('${m.id}')" class="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full hover:bg-purple-200 transition-colors" title="QR Code">📱</button>` : ''}
-                <button onclick="showMemberDetails('${m.id}')" class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full hover:bg-blue-200 transition-colors">👁️</button>
-                <button onclick="deleteMember('${m.id}')" class="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full hover:bg-red-200 transition-colors">🗑️</button>
+                ${qr ? `<button onclick="showMemberQR('${m.id}')" class="text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 px-3 py-1 rounded-full hover:bg-purple-200 dark:hover:bg-purple-900/50 transition-colors" title="QR Code">📱</button>` : ''}
+                <button onclick="showMemberDetails('${m.id}')" class="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-3 py-1 rounded-full hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors">👁️</button>
+                <button onclick="deleteMember('${m.id}')" class="text-xs bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-3 py-1 rounded-full hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors">🗑️</button>
               </div>
             </div>`;
           })
@@ -645,7 +493,6 @@
       document.getElementById('count-label').textContent = showingText.replace('{count}', filtered.length).replace('{total}', allMembers.length);
     }
 
-    // ---------- Member Details ----------
     async function showMemberDetails(memberId) {
       const member = allMembers.find(m => m.id === memberId);
       if (!member) return;
@@ -681,7 +528,7 @@
       if (sub?.membership) {
         const months = sub.membership.duration_months;
         durationText = months === 1 ? 'شهر' : 
-                      months === 0.5 ? 'نصف شهر' :
+                      months === 2 ? 'شهرين' :
                       months === 3 ? 'ربع سنوي' :
                       months === 6 ? 'نصف سنوي' :
                       months === 12 ? 'سنوي' :
@@ -691,77 +538,77 @@
       const content = document.getElementById('member-details-content');
       content.innerHTML = `
         <div class="space-y-4">
-          <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-            <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-2xl font-bold text-blue-600">
+          <div class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+            <div class="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-2xl font-bold text-blue-600 dark:text-blue-400">
               ${getInitials(member.full_name)}
             </div>
             <div>
-              <h3 class="text-lg font-semibold text-gray-800">${member.full_name || unknownText}</h3>
-              <p class="text-sm text-gray-500">${member.email || noEmailText}</p>
-              ${member.phone ? `<p class="text-sm text-gray-500">📱 ${member.phone}</p>` : ''}
+              <h3 class="text-lg font-semibold text-gray-800 dark:text-white">${member.full_name || unknownText}</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400">${member.email || noEmailText}</p>
+              ${member.phone ? `<p class="text-sm text-gray-500 dark:text-gray-400">📱 ${member.phone}</p>` : ''}
             </div>
           </div>
 
           <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div class="bg-blue-50 p-3 rounded-lg text-center">
-              <p class="text-lg font-bold text-blue-600">${sub?.membership?.name || 'None'}</p>
-              <p class="text-xs text-gray-500">${planText}</p>
+            <div class="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-lg text-center">
+              <p class="text-lg font-bold text-blue-600 dark:text-blue-400">${sub?.membership?.name || 'None'}</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">${planText}</p>
             </div>
-            <div class="bg-green-50 p-3 rounded-lg text-center">
-              <p class="text-lg font-bold text-green-600">${sub?.status || 'None'}</p>
-              <p class="text-xs text-gray-500">${statusText}</p>
+            <div class="bg-green-50 dark:bg-green-900/30 p-3 rounded-lg text-center">
+              <p class="text-lg font-bold text-green-600 dark:text-green-400">${sub?.status || 'None'}</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">${statusText}</p>
             </div>
-            <div class="bg-yellow-50 p-3 rounded-lg text-center">
-              <p class="text-lg font-bold text-yellow-600">${balance || 0}</p>
-              <p class="text-xs text-gray-500">${pointsText}</p>
+            <div class="bg-yellow-50 dark:bg-yellow-900/30 p-3 rounded-lg text-center">
+              <p class="text-lg font-bold text-yellow-600 dark:text-yellow-400">${balance || 0}</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">${pointsText}</p>
             </div>
-            <div class="bg-purple-50 p-3 rounded-lg text-center">
-              <p class="text-lg font-bold text-purple-600">${qr ? '✅' : '❌'}</p>
-              <p class="text-xs text-gray-500">${qrText}</p>
+            <div class="bg-purple-50 dark:bg-purple-900/30 p-3 rounded-lg text-center">
+              <p class="text-lg font-bold text-purple-600 dark:text-purple-400">${qr ? '✅' : '❌'}</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">${qrText}</p>
             </div>
           </div>
 
           ${sub ? `
-            <div class="border-t pt-4">
-              <h4 class="font-semibold text-gray-700 mb-2">${subscriptionText}</h4>
+            <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+              <h4 class="font-semibold text-gray-700 dark:text-gray-300 mb-2">${subscriptionText}</h4>
               <div class="grid grid-cols-2 gap-2 text-sm">
-                <p><span class="text-gray-500">Plan:</span> ${sub.membership?.name || 'N/A'}</p>
-                <p><span class="text-gray-500">Duration:</span> ${durationText}</p>
-                <p><span class="text-gray-500">Price:</span> $${sub.membership?.price || 0}</p>
-                <p><span class="text-gray-500">Status:</span> ${sub.status}</p>
-                <p><span class="text-gray-500">Start:</span> ${formatDate(sub.start_date)}</p>
-                <p><span class="text-gray-500">End:</span> ${formatDate(sub.end_date)}</p>
-                <p><span class="text-gray-500">Auto Renew:</span> ${sub.auto_renew ? '✅' : '❌'}</p>
-                ${sub.membership?.perks ? `<p class="col-span-2"><span class="text-gray-500">Perks:</span> ${sub.membership.perks.join(', ')}</p>` : ''}
+                <p><span class="text-gray-500 dark:text-gray-400">Plan:</span> ${sub.membership?.name || 'N/A'}</p>
+                <p><span class="text-gray-500 dark:text-gray-400">Duration:</span> ${durationText}</p>
+                <p><span class="text-gray-500 dark:text-gray-400">Price:</span> ${currencySymbol}${sub.membership?.price || 0}</p>
+                <p><span class="text-gray-500 dark:text-gray-400">Status:</span> ${sub.status}</p>
+                <p><span class="text-gray-500 dark:text-gray-400">Start:</span> ${formatDate(sub.start_date)}</p>
+                <p><span class="text-gray-500 dark:text-gray-400">End:</span> ${formatDate(sub.end_date)}</p>
+                <p><span class="text-gray-500 dark:text-gray-400">Auto Renew:</span> ${sub.auto_renew ? '✅' : '❌'}</p>
+                ${sub.membership?.perks ? `<p class="col-span-2"><span class="text-gray-500 dark:text-gray-400">Perks:</span> ${sub.membership.perks.join(', ')}</p>` : ''}
               </div>
             </div>
           ` : ''}
 
           ${attendance && attendance.length > 0 ? `
-            <div class="border-t pt-4">
-              <h4 class="font-semibold text-gray-700 mb-2">${recentCheckinsText}</h4>
+            <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+              <h4 class="font-semibold text-gray-700 dark:text-gray-300 mb-2">${recentCheckinsText}</h4>
               <div class="space-y-1">
                 ${attendance.slice(0, 5).map(a => `
-                  <div class="flex items-center justify-between text-sm p-2 bg-gray-50 rounded">
-                    <span>${formatDateTime(a.check_in_time)}</span>
-                    <span class="text-xs text-gray-500">${a.method === 'qr_code' ? '📱 QR' : '✏️ Manual'}</span>
+                  <div class="flex items-center justify-between text-sm p-2 bg-gray-50 dark:bg-gray-700/50 rounded">
+                    <span class="text-gray-700 dark:text-gray-300">${formatDateTime(a.check_in_time)}</span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">${a.method === 'qr_code' ? '📱 QR' : '✏️ Manual'}</span>
                   </div>
                 `).join('')}
               </div>
             </div>
           ` : `
-            <div class="border-t pt-4">
-              <p class="text-sm text-gray-500 text-center">${noCheckinsText}</p>
+            <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+              <p class="text-sm text-gray-500 dark:text-gray-400 text-center">${noCheckinsText}</p>
             </div>
           `}
 
           ${qr ? `
-            <div class="border-t pt-4">
-              <h4 class="font-semibold text-gray-700 mb-2">QR Code</h4>
+            <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+              <h4 class="font-semibold text-gray-700 dark:text-gray-300 mb-2">QR Code</h4>
               <div class="flex items-center gap-4">
-                <div id="detail-qr-canvas" class="bg-white p-2 rounded border"></div>
+                <div id="detail-qr-canvas" class="bg-white dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-700"></div>
                 <div>
-                  <p class="text-xs font-mono text-gray-500 break-all">${qr.qr_code}</p>
+                  <p class="text-xs font-mono text-gray-500 dark:text-gray-400 break-all">${qr.qr_code}</p>
                   <button onclick="showMemberQR('${member.id}')" class="mt-2 text-sm bg-purple-600 hover:bg-purple-700 text-white px-4 py-1 rounded-lg">
                     View Full QR
                   </button>
@@ -787,7 +634,6 @@
       document.getElementById('member-details-modal').classList.remove('hidden');
     }
 
-    // ---------- Member QR ----------
     async function showMemberQR(memberId) {
       const member = allMembers.find(m => m.id === memberId);
       if (!member) return;
@@ -843,7 +689,6 @@
       }
     }
 
-    // ---------- Delete Member ----------
     async function deleteMember(memberId) {
       const member = allMembers.find(m => m.id === memberId);
       const lang = localStorage.getItem('gym_lang') || 'en';
@@ -853,27 +698,65 @@
       
       if (!confirm(confirmText)) return;
       
-      const { error } = await sb
-        .from('users')
-        .delete()
-        .eq('id', memberId)
-        .eq('gym_id', gymId);
-      
-      if (error) {
-        alert('Error deleting member: ' + error.message);
-        return;
+      try {
+        // 1. حذف الاشتراكات
+        await sb
+          .from('subscriptions')
+          .delete()
+          .eq('member_id', memberId)
+          .eq('gym_id', gymId);
+        
+        // 2. حذف سجل الحضور
+        await sb
+          .from('attendance_logs')
+          .delete()
+          .eq('user_id', memberId)
+          .eq('gym_id', gymId);
+        
+        // 3. حذف نقاط الولاء
+        await sb
+          .from('loyalty_transactions')
+          .delete()
+          .eq('member_id', memberId)
+          .eq('gym_id', gymId);
+        
+        // 4. حذف QR codes
+        await sb
+          .from('member_qr_codes')
+          .delete()
+          .eq('member_id', memberId)
+          .eq('gym_id', gymId);
+        
+        // 5. حذف المدفوعات
+        await sb
+          .from('customer_purchases')
+          .delete()
+          .eq('customer_id', memberId)
+          .eq('gym_id', gymId);
+        
+        // 6. حذف المستخدم
+        const { error } = await sb
+          .from('users')
+          .delete()
+          .eq('id', memberId)
+          .eq('gym_id', gymId);
+        
+        if (error) throw error;
+        
+        showToast('✅ Member deleted successfully!', 'success');
+        await fetchMembers();
+        
+      } catch (err) {
+        console.error('Delete error:', err);
+        alert('Error deleting member: ' + err.message);
       }
-      
-      await fetchMembers();
     }
 
-    // Make functions globally available
     window.showMemberDetails = showMemberDetails;
     window.showMemberQR = showMemberQR;
     window.deleteMember = deleteMember;
     window.downloadMemberQR = downloadMemberQR;
 
-    // Run init
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', init);
     } else {

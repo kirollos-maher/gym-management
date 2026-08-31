@@ -208,7 +208,22 @@ const translations = {
     'settings.add.plan.btn': 'Add Plan',
     'settings.no.plans': 'No membership plans yet. Add one below!',
     'settings.save.all': 'Save All Settings',
-    
+
+    // Settings - Import Data
+    'settings.import.title': 'Import Data',
+    'settings.import.badge': 'Bring data from an old system',
+    'settings.import.desc': "Selling this system to a gym that already has member data somewhere else? Export their members as a CSV file from the old system, then upload it here — this creates a real account, QR code, and subscription for each member automatically.",
+    'settings.import.download.template': 'Download CSV Template',
+    'settings.import.choose.file': 'Choose CSV File',
+    'settings.import.found.count': 'Found {count} members. Preview of the first rows:',
+    'settings.import.start': 'Start Import',
+    'settings.import.importing': 'Importing...',
+    'settings.import.progress': '{done} / {total} — ✅ {success} imported, ❌ {failed} failed',
+    'settings.import.row.success': '{name} imported',
+    'settings.import.row.failed.generic': '{name} failed',
+    'settings.import.finished': 'Import finished: {success} imported, {failed} failed',
+    'settings.import.hint': 'Not sure yet how your old system exports data? Most systems have an "Export" or "Reports" button that gives you CSV or Excel — check there first. Once you see it, we can also add attendance history, loyalty points, and canteen sales import to match its exact columns.',
+
     // Sign In / Sign Up
     'auth.signin': 'Sign In',
     'auth.signup': 'Create Account',
@@ -448,7 +463,22 @@ const translations = {
     'settings.add.plan.btn': 'إضافة خطة',
     'settings.no.plans': 'لا توجد خطط عضوية حتى الآن. أضف واحدة أدناه!',
     'settings.save.all': 'حفظ جميع الإعدادات',
-    
+
+    // Settings - Import Data
+    'settings.import.title': 'استيراد البيانات',
+    'settings.import.badge': 'انقل بيانات من نظام قديم',
+    'settings.import.desc': 'هتبيع النظام ده لجيم عنده بيانات أعضاء في مكان تاني؟ صدّر بيانات الأعضاء كملف CSV من النظام القديم، وارفعه هنا — ده هيعمل حساب حقيقي وQR code واشتراك لكل عضو تلقائيًا.',
+    'settings.import.download.template': 'تحميل نموذج CSV',
+    'settings.import.choose.file': 'اختر ملف CSV',
+    'settings.import.found.count': 'تم العثور على {count} عضو. معاينة أول الصفوف:',
+    'settings.import.start': 'بدء الاستيراد',
+    'settings.import.importing': 'جاري الاستيراد...',
+    'settings.import.progress': '{done} / {total} — ✅ تم استيراد {success}، ❌ فشل {failed}',
+    'settings.import.row.success': 'تم استيراد {name}',
+    'settings.import.row.failed.generic': 'فشل استيراد {name}',
+    'settings.import.finished': 'اكتمل الاستيراد: تم استيراد {success}، وفشل {failed}',
+    'settings.import.hint': 'مش عارف لسه إزاي النظام القديم بيصدّر البيانات؟ معظم الأنظمة فيها زرار "Export" أو "Reports" بيديك CSV أو Excel — دور عليه الأول. لما تلاقيه، هنقدر كمان نضيف استيراد سجل الحضور، ونقاط الولاء، ومبيعات الكانتين بنفس أعمدته بالظبط.',
+
     // Sign In / Sign Up
     'auth.signin': 'تسجيل الدخول',
     'auth.signup': 'إنشاء حساب',

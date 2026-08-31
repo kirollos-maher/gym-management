@@ -298,6 +298,9 @@
       }
     }
 
+    // ============================================================
+    // ADD MEMBER - مع دعم الخطة المخصصة
+    // ============================================================
     async function addMember(e) {
       e.preventDefault();
       const msgEl = document.getElementById('add-msg');
@@ -314,7 +317,9 @@
       const membershipValue = document.getElementById('new-membership').value;
       let membershipId = null;
 
-      // Handle custom plan
+      // ==========================================================
+      // Handle custom plan - استخدام الدالة الآمنة
+      // ==========================================================
       if (membershipValue === 'custom') {
         const customDuration = parseFloat(document.getElementById('custom-duration').value);
         const customPrice = parseFloat(document.getElementById('custom-price').value) || 0;
@@ -329,24 +334,26 @@
         }
 
         try {
-          // Create custom membership
-          const { data: newMembership, error: createError } = await sb
-            .from('memberships')
-            .insert({
-              gym_id: gymId,
-              name: `مخصص - ${customDuration} شهر`,
-              description: `خطة مخصصة لمدة ${customDuration} شهر`,
-              price: customPrice || (customDuration * 50),
-              duration_months: customDuration,
-              perks: ['خطة مخصصة']
-            })
-            .select()
-            .single();
+          // استخدام الدالة الجديدة create_custom_membership (بتتجاوز RLS)
+          const { data: newMembershipId, error: createError } = await sb.rpc('create_custom_membership', {
+            p_gym_id: gymId,
+            p_name: `مخصص - ${customDuration} شهر`,
+            p_description: `خطة مخصصة لمدة ${customDuration} شهر`,
+            p_price: customPrice || (customDuration * 50),
+            p_duration: customDuration,
+            p_perks: ['خطة مخصصة']
+          });
           
-          if (createError) throw createError;
+          if (createError) {
+            console.error('Create custom membership error:', createError);
+            throw new Error(createError.message);
+          }
           
-          membershipId = newMembership.id;
+          membershipId = newMembershipId;
+          
+          // إعادة تحميل الخطط عشان تظهر في القائمة
           await loadMemberships();
+          
         } catch (err) {
           msgEl.textContent = '❌ Error creating custom plan: ' + err.message;
           msgEl.className = 'text-sm text-red-600';
@@ -359,12 +366,15 @@
         membershipId = membershipValue;
       }
 
+      // ==========================================================
+      // إنشاء حساب المستخدم وإكمال التسجيل
+      // ==========================================================
       try {
-        // Save admin session
+        // حفظ جلسة المدير
         const { data: sessionData } = await sb.auth.getSession();
         const adminSession = sessionData?.session;
 
-        // Create auth user
+        // إنشاء مستخدم في auth
         const tempEmail = email || `${fullName.replace(/\s/g,'')}_${Date.now()}@temp.com`;
         const { data: authData, error: authError } = await sb.auth.signUp({
           email: tempEmail,
@@ -378,7 +388,7 @@
           throw new Error('Failed to create user');
         }
 
-        // Restore admin session
+        // استعادة جلسة المدير
         if (adminSession) {
           await sb.auth.setSession({
             access_token: adminSession.access_token,
@@ -386,7 +396,7 @@
           });
         }
 
-        // Finish member setup using the RPC function
+        // استخدام دالة finish_member_setup لإكمال التسجيل
         const { error: setupError } = await sb.rpc('finish_member_setup', {
           p_member_id: authData.user.id,
           p_gym_id: gymId,

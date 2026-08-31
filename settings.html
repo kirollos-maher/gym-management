@@ -36,42 +36,6 @@
       text-align: center;
       padding: 8px;
     }
-    .card-template-selector {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin: 10px 0;
-    }
-    .card-template-btn {
-      padding: 8px 14px;
-      border-radius: 8px;
-      border: 2px solid #e5e7eb;
-      background: white;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 500;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .card-template-btn:hover {
-      border-color: #3b82f6;
-      background: #f0f7ff;
-    }
-    .card-template-btn.active {
-      border-color: #3b82f6;
-      background: #dbeafe;
-      color: #1e40af;
-    }
-    .card-template-preview {
-      width: 40px;
-      height: 26px;
-      border-radius: 4px;
-      display: inline-block;
-      border: 1px solid #ddd;
-      flex-shrink: 0;
-    }
     .setting-group {
       background: white;
       border-radius: 12px;
@@ -113,6 +77,9 @@
     .toast-info { background: #3b82f6; }
     @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     
+    /* ============================================
+       CARD TEMPLATE PREVIEW - FIXED
+       ============================================ */
     .template-preview-card {
       width: 100%;
       max-width: 280px;
@@ -126,6 +93,7 @@
       font-family: Arial, sans-serif;
       position: relative;
       margin: 0 auto;
+      transition: all 0.3s ease;
     }
     .template-preview-card .preview-gym {
       font-size: 11px;
@@ -173,6 +141,45 @@
       letter-spacing: 0.2px;
     }
 
+    /* ============================================
+       CARD TEMPLATE BUTTONS
+       ============================================ */
+    .card-template-btn {
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: 2px solid #e5e7eb;
+      background: white;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      justify-content: center;
+    }
+    .card-template-btn:hover {
+      border-color: #3b82f6;
+      background: #f0f7ff;
+    }
+    .card-template-btn.active {
+      border-color: #3b82f6;
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    .card-template-preview {
+      width: 40px;
+      height: 26px;
+      border-radius: 4px;
+      display: inline-block;
+      border: 1px solid #ddd;
+      flex-shrink: 0;
+    }
+
+    /* ============================================
+       PLAN CARDS
+       ============================================ */
     .plan-card {
       border: 1px solid #e5e7eb;
       border-radius: 8px;
@@ -229,19 +236,12 @@
       cursor: pointer;
       transition: all 0.2s;
     }
-    .btn-sm-primary {
-      background: #3b82f6;
+    .btn-sm-warning {
+      background: #f59e0b;
       color: white;
     }
-    .btn-sm-primary:hover {
-      background: #2563eb;
-    }
-    .btn-sm-success {
-      background: #10b981;
-      color: white;
-    }
-    .btn-sm-success:hover {
-      background: #059669;
+    .btn-sm-warning:hover {
+      background: #d97706;
     }
     .btn-sm-danger {
       background: #ef4444;
@@ -250,15 +250,17 @@
     .btn-sm-danger:hover {
       background: #dc2626;
     }
-    .btn-sm-warning {
-      background: #f59e0b;
+    .btn-sm-success {
+      background: #10b981;
       color: white;
     }
-    .btn-sm-warning:hover {
-      background: #d97706;
+    .btn-sm-success:hover {
+      background: #059669;
     }
 
-    /* Theme switch */
+    /* ============================================
+       THEME SWITCH
+       ============================================ */
     .theme-switch {
       position: relative;
       display: inline-block;
@@ -455,24 +457,6 @@
       color: #60a5fa !important;
     }
 
-    body.dark-mode .template-preview-card {
-      background: #0f172a !important;
-    }
-
-    body.dark-mode .plan-edit-input {
-      background-color: #0f172a !important;
-      color: #e2e8f0 !important;
-      border-color: #334155 !important;
-    }
-
-    body.dark-mode .theme-switch .slider {
-      background-color: #475569 !important;
-    }
-
-    body.dark-mode .theme-switch input:checked + .slider {
-      background-color: #3b82f6 !important;
-    }
-
     body.dark-mode .btn-sm-warning {
       background-color: #b45309 !important;
       color: white !important;
@@ -485,11 +469,6 @@
 
     body.dark-mode .btn-sm-success {
       background-color: #047857 !important;
-      color: white !important;
-    }
-
-    body.dark-mode .btn-sm-primary {
-      background-color: #1d4ed8 !important;
       color: white !important;
     }
 
@@ -537,12 +516,91 @@
       background-color: #475569 !important;
     }
 
-    body.dark-mode .text-gray-800 {
-      color: #e2e8f0 !important;
-    }
-
     body.dark-mode .bg-white.rounded-lg.shadow-md {
       background-color: #1e293b !important;
+    }
+
+    /* Dark mode - Template preview fix */
+    body.dark-mode .template-preview-card {
+      background: #0f172a !important;
+    }
+
+    body.dark-mode .template-preview-card .preview-gym {
+      color: rgba(255, 255, 255, 0.8) !important;
+    }
+
+    body.dark-mode .template-preview-card .preview-name {
+      color: white !important;
+    }
+
+    body.dark-mode .template-preview-card .preview-id {
+      color: rgba(255, 255, 255, 0.5) !important;
+    }
+
+    body.dark-mode .template-preview-card .preview-date {
+      color: rgba(255, 255, 255, 0.4) !important;
+    }
+
+    body.dark-mode .template-preview-card .preview-avatar {
+      color: white !important;
+    }
+
+    body.dark-mode .template-preview-card .preview-qr {
+      background: white !important;
+    }
+
+    body.dark-mode .template-preview-card .preview-qr span {
+      color: #333 !important;
+    }
+
+    /* Fix for individual template styles in dark mode */
+    body.dark-mode .template-preview-card[data-template="light"] .preview-gym {
+      color: #4f46e5 !important;
+    }
+
+    body.dark-mode .template-preview-card[data-template="light"] .preview-name {
+      color: #1a1a2e !important;
+    }
+
+    body.dark-mode .template-preview-card[data-template="light"] .preview-id {
+      color: #6b7280 !important;
+    }
+
+    body.dark-mode .template-preview-card[data-template="light"] .preview-date {
+      color: #9ca3af !important;
+    }
+
+    body.dark-mode .template-preview-card[data-template="light"] {
+      background: white !important;
+    }
+
+    body.dark-mode .template-preview-card[data-template="gold"] .preview-gym {
+      color: #d4a853 !important;
+    }
+
+    body.dark-mode .template-preview-card[data-template="gold"] .preview-name {
+      color: #d4a853 !important;
+    }
+
+    body.dark-mode .template-preview-card[data-template="gold"] .preview-qr {
+      background: #1a1a2e !important;
+    }
+
+    body.dark-mode .template-preview-card[data-template="gold"] .preview-qr span {
+      color: white !important;
+    }
+
+    body.dark-mode .template-preview-card[data-template="neon"] .preview-gym {
+      color: #00ff88 !important;
+    }
+
+    body.dark-mode .template-preview-card[data-template="neon"] .preview-qr {
+      background: #0a0a0a !important;
+      border-color: #00ff88 !important;
+    }
+
+    body.dark-mode .template-preview-card[data-template="neon"] .preview-qr span {
+      color: white !important;
     }
   </style>
 </head>
@@ -718,7 +776,8 @@
         avatarGradient: 'linear-gradient(135deg, #f472b6, #8b5cf6)',
         qrBg: 'white',
         border: 'none',
-        avatarTextColor: 'white'
+        avatarTextColor: 'white',
+        avatarBgTextColor: 'white'
       },
       light: {
         name: 'Light Clean',
@@ -730,7 +789,8 @@
         avatarGradient: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
         qrBg: 'white',
         border: '2px solid #e5e7eb',
-        avatarTextColor: 'white'
+        avatarTextColor: 'white',
+        avatarBgTextColor: 'white'
       },
       red: {
         name: 'Red Sport',
@@ -742,7 +802,8 @@
         avatarGradient: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
         qrBg: 'white',
         border: 'none',
-        avatarTextColor: '#7f1d1d'
+        avatarTextColor: '#7f1d1d',
+        avatarBgTextColor: '#7f1d1d'
       },
       neon: {
         name: 'Neon Green',
@@ -754,7 +815,8 @@
         avatarGradient: 'linear-gradient(135deg, #00ff88, #00cc66)',
         qrBg: '#0a0a0a',
         border: '1px solid #00ff88',
-        avatarTextColor: '#0a0a0a'
+        avatarTextColor: '#0a0a0a',
+        avatarBgTextColor: '#0a0a0a'
       },
       blue: {
         name: 'Ocean Blue',
@@ -766,7 +828,8 @@
         avatarGradient: 'linear-gradient(135deg, #f472b6, #ec4899)',
         qrBg: 'white',
         border: 'none',
-        avatarTextColor: 'white'
+        avatarTextColor: 'white',
+        avatarBgTextColor: 'white'
       },
       gold: {
         name: 'Gold Luxury',
@@ -778,7 +841,8 @@
         avatarGradient: 'linear-gradient(135deg, #d4a853, #f59e0b)',
         qrBg: '#1a1a2e',
         border: '2px solid #d4a853',
-        avatarTextColor: '#1a1a2e'
+        avatarTextColor: '#1a1a2e',
+        avatarBgTextColor: '#1a1a2e'
       },
       green: {
         name: 'Fitness Green',
@@ -790,7 +854,8 @@
         avatarGradient: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
         qrBg: 'white',
         border: 'none',
-        avatarTextColor: '#065f46'
+        avatarTextColor: '#065f46',
+        avatarBgTextColor: '#065f46'
       },
       purple: {
         name: 'Purple Dream',
@@ -802,7 +867,8 @@
         avatarGradient: 'linear-gradient(135deg, #f472b6, #ec4899)',
         qrBg: 'white',
         border: 'none',
-        avatarTextColor: 'white'
+        avatarTextColor: 'white',
+        avatarBgTextColor: 'white'
       }
     };
 
@@ -958,16 +1024,72 @@
       
       grid.innerHTML = Object.entries(cardTemplates).map(([key, template]) => {
         const isActive = key === selectedTemplate;
+        const isDark = document.body.classList.contains('dark-mode');
+        const isLightTemplate = key === 'light';
+        const isGoldTemplate = key === 'gold';
+        const isNeonTemplate = key === 'neon';
+        
+        // تحديد لون الخلفية للـ preview حسب القالب
+        let previewBg = template.gradient;
+        let previewBorder = template.border || 'none';
+        let gymColor = template.gymColor;
+        let nameColor = template.nameColor;
+        let idColor = template.idColor;
+        let dateColor = template.dateColor;
+        let avatarBg = template.avatarGradient;
+        let avatarTextColor = template.avatarTextColor || 'white';
+        let qrBg = template.qrBg;
+        let qrTextColor = '#333';
+        
+        // تعديل الألوان في dark mode للقالب light
+        if (isDark && isLightTemplate) {
+          previewBg = 'white';
+          gymColor = '#4f46e5';
+          nameColor = '#1a1a2e';
+          idColor = '#6b7280';
+          dateColor = '#9ca3af';
+          qrTextColor = '#333';
+        }
+        
+        // تعديل الألوان في dark mode للقالب gold
+        if (isDark && isGoldTemplate) {
+          previewBg = 'linear-gradient(135deg, #1a1a2e 0%, #2d1810 50%, #1a1a2e 100%)';
+          gymColor = '#d4a853';
+          nameColor = '#d4a853';
+          idColor = 'rgba(212,168,83,0.5)';
+          dateColor = 'rgba(212,168,83,0.3)';
+          qrBg = '#1a1a2e';
+          qrTextColor = 'white';
+        }
+        
+        // تعديل الألوان في dark mode للقالب neon
+        if (isDark && isNeonTemplate) {
+          previewBg = 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%)';
+          gymColor = '#00ff88';
+          nameColor = 'white';
+          idColor = 'rgba(0,255,136,0.5)';
+          dateColor = 'rgba(255,255,255,0.3)';
+          qrBg = '#0a0a0a';
+          qrTextColor = 'white';
+        }
+        
+        // تعديل الألوان في dark mode للبقية
+        if (isDark && !isLightTemplate && !isGoldTemplate && !isNeonTemplate) {
+          // القوالب الداكنة التانية تفضل زي ما هي
+        }
+
         const previewHtml = `
-          <div class="template-preview-card" style="background:${template.gradient}; border:${template.border || 'none'};">
-            <div class="preview-gym" style="color:${template.gymColor};">${document.getElementById('f-name').value || 'GYM'}</div>
-            <div class="preview-avatar" style="background:${template.avatarGradient}; color:${template.avatarTextColor || 'white'};">JD</div>
-            <div class="preview-name" style="color:${template.nameColor};">John Doe</div>
-            <div class="preview-id" style="color:${template.idColor};">MEM-XXXX-XXXX</div>
-            <div class="preview-qr" style="background:${template.qrBg}; border:1px solid ${template.qrBg === '#0a0a0a' || template.qrBg === '#1a1a2e' ? 'rgba(255,255,255,0.2)' : '#ddd'};">
-              <span style="font-size:6px; color:${template.qrBg === '#0a0a0a' || template.qrBg === '#1a1a2e' ? 'white' : '#333'};">QR</span>
+          <div class="template-preview-card" 
+               style="background:${previewBg}; border:${previewBorder};"
+               data-template="${key}">
+            <div class="preview-gym" style="color:${gymColor};">${document.getElementById('f-name').value || 'GYM'}</div>
+            <div class="preview-avatar" style="background:${avatarBg}; color:${avatarTextColor};">JD</div>
+            <div class="preview-name" style="color:${nameColor};">John Doe</div>
+            <div class="preview-id" style="color:${idColor};">MEM-XXXX-XXXX</div>
+            <div class="preview-qr" style="background:${qrBg}; border:1px solid ${qrBg === '#0a0a0a' || qrBg === '#1a1a2e' ? 'rgba(255,255,255,0.2)' : '#ddd'};">
+              <span style="font-size:6px; color:${qrTextColor};">QR</span>
             </div>
-            <div class="preview-date" style="color:${template.dateColor};">Valid from Jan 1, 2025</div>
+            <div class="preview-date" style="color:${dateColor};">Valid from Jan 1, 2025</div>
           </div>
         `;
 

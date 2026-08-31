@@ -18,18 +18,18 @@
     <div id="content" class="hidden space-y-6">
       <div class="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 class="text-2xl font-bold text-gray-800" data-i18n="members.title">Members</h1>
-          <p class="text-sm text-gray-500" data-i18n="members.desc">Manage your gym members and their subscriptions</p>
+          <h1 class="text-2xl font-bold text-gray-800">Members</h1>
+          <p class="text-sm text-gray-500">Manage your gym members and their subscriptions</p>
         </div>
         <div class="flex gap-2 flex-wrap">
           <button id="add-member-btn" class="bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">
-            ➕ <span>Add Member</span>
+            ➕ Add Member
           </button>
           <a href="canteen.html" class="bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">
             🛒 Canteen
           </a>
           <button id="refresh-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium px-4 py-2 flex items-center gap-2">
-            🔄 <span>Refresh</span>
+            🔄 Refresh
           </button>
         </div>
       </div>
@@ -93,6 +93,11 @@
           <label class="block text-sm font-medium text-gray-700 mb-1">Custom Duration (Months)</label>
           <input type="number" id="custom-duration" min="0.5" step="0.5" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           <p class="text-xs text-gray-500 mt-1">Enter custom duration in months (e.g., 1, 3, 6, 12)</p>
+          <div class="mt-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Custom Price</label>
+            <input type="number" id="custom-price" min="0" step="0.01" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <p class="text-xs text-gray-500 mt-1">Enter price for this custom plan</p>
+          </div>
         </div>
 
         <div class="border-t pt-4 flex gap-3">
@@ -137,7 +142,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <script src="js/supabaseClient.js"></script>
-  <script src="js/language.js"></script>
   <script>
     let gymId = null;
     let allMembers = [];
@@ -164,6 +168,8 @@
         populateMembershipSelect();
         document.getElementById('add-msg').classList.add('hidden');
         document.getElementById('add-member-form').reset();
+        document.getElementById('plan-details').classList.add('hidden');
+        document.getElementById('custom-duration-section').classList.add('hidden');
       });
       document.getElementById('close-modal-btn').addEventListener('click', () => {
         document.getElementById('add-member-modal').classList.add('hidden');
@@ -203,26 +209,56 @@
       
       if (error) console.error('Error loading memberships:', error);
       memberships = data || [];
+      
+      // If no memberships exist, create default ones
+      if (memberships.length === 0) {
+        await createDefaultMemberships();
+        const { data: newData } = await sb
+          .from('memberships')
+          .select('*')
+          .eq('gym_id', gymId)
+          .order('duration_months', { ascending: true });
+        memberships = newData || [];
+      }
+    }
+
+    async function createDefaultMemberships() {
+      const defaultPlans = [
+        { name: 'شهري', description: 'اشتراك شهري', price: 50, duration_months: 1, perks: ['دخول غير محدود', 'خزانة مجانية'] },
+        { name: 'نصف شهري', description: 'اشتراك 15 يوم', price: 30, duration_months: 0.5, perks: ['دخول غير محدود'] },
+        { name: 'ربع سنوي', description: 'اشتراك 3 شهور', price: 130, duration_months: 3, perks: ['دخول غير محدود', 'خصم 10% كافتيريا'] },
+        { name: 'نصف سنوي', description: 'اشتراك 6 شهور', price: 225, duration_months: 6, perks: ['دخول غير محدود', 'خصم 15% كافتيريا', 'جلسة تدريب'] },
+        { name: 'سنوي', description: 'اشتراك سنة كاملة', price: 420, duration_months: 12, perks: ['دخول غير محدود', 'خصم 20% كافتيريا', 'VIP'] }
+      ];
+
+      for (const plan of defaultPlans) {
+        await sb
+          .from('memberships')
+          .insert({
+            gym_id: gymId,
+            name: plan.name,
+            description: plan.description,
+            price: plan.price,
+            duration_months: plan.duration_months,
+            perks: plan.perks
+          });
+      }
     }
 
     function populateMembershipSelect() {
       const select = document.getElementById('new-membership');
       select.innerHTML = '<option value="">-- Select a plan --</option>';
       
-      if (memberships.length === 0) {
-        select.innerHTML += '<option value="custom">📝 Custom Plan</option>';
-      } else {
-        memberships.forEach(m => {
-          const durationText = m.duration_months === 1 ? 'شهر' : 
-                              m.duration_months === 0.5 ? 'نصف شهر' :
-                              m.duration_months === 3 ? 'ربع سنوي' :
-                              m.duration_months === 6 ? 'نصف سنوي' :
-                              m.duration_months === 12 ? 'سنوي' :
-                              `${m.duration_months} شهور`;
-          select.innerHTML += `<option value="${m.id}">${m.name} - $${m.price} (${durationText})</option>`;
-        });
-        select.innerHTML += '<option value="custom">📝 Custom Plan</option>';
-      }
+      memberships.forEach(m => {
+        const durationText = m.duration_months === 1 ? 'شهر' : 
+                            m.duration_months === 0.5 ? 'نصف شهر' :
+                            m.duration_months === 3 ? 'ربع سنوي' :
+                            m.duration_months === 6 ? 'نصف سنوي' :
+                            m.duration_months === 12 ? 'سنوي' :
+                            `${m.duration_months} شهور`;
+        select.innerHTML += `<option value="${m.id}">${m.name} - $${m.price} (${durationText})</option>`;
+      });
+      select.innerHTML += '<option value="custom">📝 Custom Plan</option>';
     }
 
     function showPlanDetails() {
@@ -276,11 +312,12 @@
       const password = document.getElementById('new-password').value;
       const membershipValue = document.getElementById('new-membership').value;
       let membershipId = null;
-      let customDuration = null;
 
       // Handle custom plan
       if (membershipValue === 'custom') {
-        customDuration = parseFloat(document.getElementById('custom-duration').value);
+        const customDuration = parseFloat(document.getElementById('custom-duration').value);
+        const customPrice = parseFloat(document.getElementById('custom-price').value) || 0;
+        
         if (!customDuration || customDuration <= 0) {
           msgEl.textContent = '⚠️ Please enter a valid duration for custom plan';
           msgEl.className = 'text-sm text-red-600';
@@ -289,30 +326,34 @@
           submitBtn.textContent = 'Add Member';
           return;
         }
-        // Create a temporary membership for custom plan
-        const { data: newMembership, error: createError } = await sb
-          .from('memberships')
-          .insert({
-            gym_id: gymId,
-            name: `مخصص - ${customDuration} شهر`,
-            description: `خطة مخصصة لمدة ${customDuration} شهر`,
-            price: 0, // Will be set by user later
-            duration_months: customDuration,
-            perks: ['خطة مخصصة']
-          })
-          .select()
-          .single();
-        
-        if (createError) {
-          msgEl.textContent = '❌ Error creating custom plan: ' + createError.message;
+
+        try {
+          // Create custom membership using the function
+          const { data: newMembership, error: createError } = await sb
+            .from('memberships')
+            .insert({
+              gym_id: gymId,
+              name: `مخصص - ${customDuration} شهر`,
+              description: `خطة مخصصة لمدة ${customDuration} شهر`,
+              price: customPrice || (customDuration * 50),
+              duration_months: customDuration,
+              perks: ['خطة مخصصة']
+            })
+            .select()
+            .single();
+          
+          if (createError) throw createError;
+          
+          membershipId = newMembership.id;
+          await loadMemberships();
+        } catch (err) {
+          msgEl.textContent = '❌ Error creating custom plan: ' + err.message;
           msgEl.className = 'text-sm text-red-600';
           msgEl.classList.remove('hidden');
           submitBtn.disabled = false;
           submitBtn.textContent = 'Add Member';
           return;
         }
-        membershipId = newMembership.id;
-        await loadMemberships();
       } else if (membershipValue) {
         membershipId = membershipValue;
       }
@@ -486,7 +527,6 @@
             
             const qr = Array.isArray(m.member_qr_codes) ? m.member_qr_codes[0] : m.member_qr_codes;
             
-            // Format duration text
             let durationText = '';
             if (sub?.membership) {
               const months = sub.membership.duration_months;

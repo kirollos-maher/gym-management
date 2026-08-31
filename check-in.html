@@ -6,10 +6,230 @@
   <title>Check-In - Gym Management</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    /* Dark Mode Styles for Check-In */
+    body.dark-mode {
+      background-color: #0f172a !important;
+      color: #e2e8f0 !important;
+    }
+
+    body.dark-mode .bg-white {
+      background-color: #1e293b !important;
+      color: #e2e8f0 !important;
+    }
+
+    body.dark-mode .bg-gray-50 {
+      background-color: #0f172a !important;
+    }
+
+    body.dark-mode .text-gray-800 {
+      color: #e2e8f0 !important;
+    }
+
+    body.dark-mode .text-gray-700 {
+      color: #cbd5e1 !important;
+    }
+
+    body.dark-mode .text-gray-600 {
+      color: #94a3b8 !important;
+    }
+
+    body.dark-mode .text-gray-500 {
+      color: #64748b !important;
+    }
+
+    body.dark-mode .text-gray-400 {
+      color: #475569 !important;
+    }
+
+    body.dark-mode .border-gray-300 {
+      border-color: #334155 !important;
+    }
+
+    body.dark-mode .border-gray-200 {
+      border-color: #334155 !important;
+    }
+
+    body.dark-mode .border-gray-100 {
+      border-color: #1e293b !important;
+    }
+
+    body.dark-mode .shadow-md {
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    body.dark-mode .shadow-lg {
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.6) !important;
+    }
+
+    body.dark-mode input,
+    body.dark-mode select,
+    body.dark-mode textarea {
+      background-color: #0f172a !important;
+      color: #e2e8f0 !important;
+      border-color: #334155 !important;
+    }
+
+    body.dark-mode input::placeholder {
+      color: #64748b !important;
+    }
+
+    body.dark-mode .bg-blue-50 {
+      background-color: #1e3a5f !important;
+    }
+
+    body.dark-mode .bg-green-50 {
+      background-color: #064e3b !important;
+    }
+
+    body.dark-mode .bg-red-50 {
+      background-color: #4c0519 !important;
+    }
+
+    body.dark-mode .bg-blue-600 {
+      background-color: #2563eb !important;
+    }
+
+    body.dark-mode .bg-blue-600:hover {
+      background-color: #1d4ed8 !important;
+    }
+
+    body.dark-mode .text-blue-600 {
+      color: #60a5fa !important;
+    }
+
+    body.dark-mode .text-green-600 {
+      color: #34d399 !important;
+    }
+
+    body.dark-mode .text-red-600 {
+      color: #f87171 !important;
+    }
+
+    body.dark-mode .bg-blue-100 {
+      background-color: #1e3a5f !important;
+    }
+
+    body.dark-mode .bg-green-100 {
+      background-color: #064e3b !important;
+    }
+
+    body.dark-mode .bg-red-100 {
+      background-color: #4c0519 !important;
+    }
+
+    body.dark-mode .text-green-800 {
+      color: #6ee7b7 !important;
+    }
+
+    body.dark-mode .text-red-800 {
+      color: #fca5a5 !important;
+    }
+
+    body.dark-mode .bg-gradient-to-l {
+      background-image: linear-gradient(to left, #1e3a5f, #1e1b4b) !important;
+    }
+
+    body.dark-mode .bg-gradient-to-br {
+      background-image: linear-gradient(to bottom right, #0f172a, #1e293b) !important;
+    }
+
+    body.dark-mode .bg-gradient-to-br.from-green-50 {
+      background-image: linear-gradient(to bottom right, #064e3b, #0f172a) !important;
+    }
+
+    body.dark-mode .bg-gradient-to-br.to-emerald-50 {
+      background-image: linear-gradient(to bottom right, #064e3b, #0f172a) !important;
+    }
+
+    body.dark-mode .border-green-200 {
+      border-color: #064e3b !important;
+    }
+
+    body.dark-mode .border-red-200 {
+      border-color: #4c0519 !important;
+    }
+
+    body.dark-mode .text-green-700 {
+      color: #6ee7b7 !important;
+    }
+
+    body.dark-mode .text-red-700 {
+      color: #fca5a5 !important;
+    }
+
+    body.dark-mode .bg-red-500 {
+      background-color: #b91c1c !important;
+    }
+
+    body.dark-mode .bg-green-500 {
+      background-color: #047857 !important;
+    }
+
+    body.dark-mode .bg-blue-600 {
+      background-color: #2563eb !important;
+    }
+
+    body.dark-mode .bg-blue-600:hover {
+      background-color: #1d4ed8 !important;
+    }
+
+    body.dark-mode .bg-gray-50 {
+      background-color: #0f172a !important;
+    }
+
+    body.dark-mode .hover\:bg-gray-50:hover {
+      background-color: #1e293b !important;
+    }
+
+    body.dark-mode .divide-gray-200 {
+      border-color: #334155 !important;
+    }
+
+    body.dark-mode .text-gray-900 {
+      color: #e2e8f0 !important;
+    }
+
+    body.dark-mode .bg-blue-600 {
+      background-color: #2563eb !important;
+    }
+
+    body.dark-mode .bg-blue-600:hover {
+      background-color: #1d4ed8 !important;
+    }
+
+    body.dark-mode .border-blue-200 {
+      border-color: #1e3a5f !important;
+    }
+
+    body.dark-mode .bg-blue-50 {
+      background-color: #1e3a5f !important;
+    }
+
+    body.dark-mode .bg-red-100 {
+      background-color: #4c0519 !important;
+    }
+
+    body.dark-mode .text-red-800 {
+      color: #fca5a5 !important;
+    }
+
+    body.dark-mode .text-green-800 {
+      color: #6ee7b7 !important;
+    }
+
+    body.dark-mode .bg-white.rounded-lg.shadow-md {
+      background-color: #1e293b !important;
+    }
+
+    body.dark-mode .bg-gray-100 {
+      background-color: #1e293b !important;
+    }
+  </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
   <script>
-  // أضف ده تحت <body> في كل صفحة
+    // تطبيق Dark Mode فوراً عند تحميل الصفحة
     (function() {
       const isDark = localStorage.getItem('gym_theme') === 'dark';
       if (isDark) {

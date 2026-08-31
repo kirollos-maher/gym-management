@@ -12,6 +12,12 @@
   </script>
   <link rel="stylesheet" href="css/styles.css" />
   <style>
+    .toast { position: fixed; bottom: 20px; right: 20px; padding: 12px 24px; border-radius: 8px; color: white; z-index: 9999; animation: slideUp 0.3s ease; max-width: 400px; font-size: 14px; }
+    .toast-success { background: #10b981; }
+    .toast-error { background: #ef4444; }
+    .toast-info { background: #3b82f6; }
+    @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
     /* Dark Mode Styles for Members */
     body.dark-mode {
       background-color: #0f172a !important;
@@ -332,6 +338,7 @@
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
+  <div id="toast" class="toast hidden"></div>
   <script>
     // تطبيق Dark Mode فوراً عند تحميل الصفحة
     (function() {
@@ -468,32 +475,147 @@
 
   <!-- Modal: Member Card -->
   <div id="member-card-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden p-4">
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl p-6 text-center">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md p-6 text-center">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-bold text-gray-800 dark:text-white">🪪 <span data-i18n="members.card.title">Membership Card</span></h2>
         <button id="close-card-modal" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 text-2xl">&times;</button>
       </div>
-      <div class="flex justify-center">
-        <canvas id="member-card-canvas" class="w-full max-w-md rounded-xl shadow-lg"></canvas>
+      <div id="member-card-display" class="flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg"></div>
+      <div class="flex items-center justify-center gap-2 mt-4 flex-wrap">
+        <button id="print-card-btn" class="bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium px-4 py-2">
+          🖨️ <span data-i18n="members.card.print">Print</span>
+        </button>
+        <button id="download-card-btn" class="bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-4 py-2">
+          📥 <span data-i18n="members.card.download">Download Card</span>
+        </button>
       </div>
-      <button id="download-card-btn" class="mt-4 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-4 py-2">
-        📥 <span data-i18n="members.card.download">Download Card</span>
-      </button>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="js/supabaseClient.js"></script>
   <script src="js/language.js"></script>
   <script>
     let gymId = null;
     let gymName = '';
+    let gymLogoUrl = null;
     let allMembers = [];
     let memberships = [];
     let currentQrMemberId = null;
     let currentCardMemberId = null;
     let currencySymbol = '$';
+
+    // ============================================================
+    // MEMBER CARD TEMPLATES (must stay in sync with settings.html
+    // and canteen.html). The gym owner picks one of these 8 designs
+    // on the Settings page; every card rendered anywhere in the app
+    // (here, and when printing from Canteen) reads that same saved
+    // choice instead of using its own fixed look.
+    // ============================================================
+    let selectedCardTemplate = 'dark';
+    const cardTemplates = {
+      dark: { gradient: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)', gymColor: 'rgba(255,255,255,0.7)', nameColor: 'white', idColor: 'rgba(255,255,255,0.5)', dateColor: 'rgba(255,255,255,0.4)', avatarGradient: 'linear-gradient(135deg, #f472b6, #8b5cf6)', qrBg: 'white', border: 'none', avatarTextColor: 'white' },
+      light: { gradient: 'white', gymColor: '#4f46e5', nameColor: '#1a1a2e', idColor: '#6b7280', dateColor: '#9ca3af', avatarGradient: 'linear-gradient(135deg, #4f46e5, #7c3aed)', qrBg: 'white', border: '2px solid #e5e7eb', avatarTextColor: 'white' },
+      red: { gradient: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 50%, #7f1d1d 100%)', gymColor: 'rgba(255,255,255,0.8)', nameColor: 'white', idColor: 'rgba(255,255,255,0.5)', dateColor: 'rgba(255,255,255,0.4)', avatarGradient: 'linear-gradient(135deg, #fbbf24, #f59e0b)', qrBg: 'white', border: 'none', avatarTextColor: '#7f1d1d' },
+      neon: { gradient: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%)', gymColor: '#00ff88', nameColor: 'white', idColor: 'rgba(0,255,136,0.5)', dateColor: 'rgba(255,255,255,0.3)', avatarGradient: 'linear-gradient(135deg, #00ff88, #00cc66)', qrBg: '#0a0a0a', border: '1px solid #00ff88', avatarTextColor: '#0a0a0a' },
+      blue: { gradient: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%)', gymColor: 'rgba(255,255,255,0.8)', nameColor: 'white', idColor: 'rgba(255,255,255,0.5)', dateColor: 'rgba(255,255,255,0.4)', avatarGradient: 'linear-gradient(135deg, #f472b6, #ec4899)', qrBg: 'white', border: 'none', avatarTextColor: 'white' },
+      gold: { gradient: 'linear-gradient(135deg, #1a1a2e 0%, #2d1810 50%, #1a1a2e 100%)', gymColor: '#d4a853', nameColor: '#d4a853', idColor: 'rgba(212,168,83,0.5)', dateColor: 'rgba(212,168,83,0.3)', avatarGradient: 'linear-gradient(135deg, #d4a853, #f59e0b)', qrBg: '#1a1a2e', border: '2px solid #d4a853', avatarTextColor: '#1a1a2e' },
+      green: { gradient: 'linear-gradient(135deg, #065f46 0%, #059669 50%, #34d399 100%)', gymColor: 'rgba(255,255,255,0.8)', nameColor: 'white', idColor: 'rgba(255,255,255,0.5)', dateColor: 'rgba(255,255,255,0.4)', avatarGradient: 'linear-gradient(135deg, #fbbf24, #f59e0b)', qrBg: 'white', border: 'none', avatarTextColor: '#065f46' },
+      purple: { gradient: 'linear-gradient(135deg, #4c1d95 0%, #7c3aed 50%, #a78bfa 100%)', gymColor: 'rgba(255,255,255,0.8)', nameColor: 'white', idColor: 'rgba(255,255,255,0.5)', dateColor: 'rgba(255,255,255,0.4)', avatarGradient: 'linear-gradient(135deg, #f472b6, #ec4899)', qrBg: 'white', border: 'none', avatarTextColor: 'white' }
+    };
+
+    async function loadCardTemplatePreference() {
+      try {
+        const { data } = await sb.from('gym_settings').select('card_template').eq('gym_id', gymId).single();
+        if (data?.card_template && cardTemplates[data.card_template]) {
+          selectedCardTemplate = data.card_template;
+        }
+      } catch (e) {
+        console.error('Could not load card template preference:', e);
+      }
+    }
+
+    // Builds the member card markup using whichever template the gym picked
+    // in Settings — identical markup to canteen.html's buildMemberCardHTML,
+    // so the card looks exactly the same everywhere it's shown or printed.
+    // qrContainerId is where the caller should mount the QR code.
+    function buildMemberCardHTML(member, qrContainerId) {
+      const tpl = cardTemplates[selectedCardTemplate] || cardTemplates.dark;
+      const border = tpl.border === 'none' ? '0.3mm solid #e5e7eb' : tpl.border;
+      const avatarInner = gymLogoUrl
+        ? `<img src="${gymLogoUrl}" crossorigin="anonymous" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`
+        : getInitials(member.full_name);
+      const avatarBg = gymLogoUrl ? 'white' : tpl.avatarGradient;
+      return `
+        <div class="card-content" style="
+          width: 85.6mm;
+          height: 54mm;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 3mm;
+          box-sizing: border-box;
+          font-family: Arial, sans-serif;
+          background: ${tpl.gradient};
+          position: relative;
+          border-radius: 2mm;
+          border: ${border};
+        ">
+          <div style="font-size:3.8mm;font-weight:800;color:${tpl.gymColor};text-align:center;letter-spacing:0.3mm;position:relative;z-index:1;margin-bottom:1mm;text-transform:uppercase;">${gymName || 'GYM'}</div>
+          <div style="width:18mm;height:18mm;border-radius:50%;overflow:hidden;background:${avatarBg};display:flex;align-items:center;justify-content:center;font-size:7.5mm;color:${tpl.avatarTextColor};font-weight:700;position:relative;z-index:1;box-shadow:0 2mm 4mm rgba(0,0,0,0.25);margin-bottom:1mm;user-select:none;">${avatarInner}</div>
+          <div style="font-size:4mm;font-weight:700;color:${tpl.nameColor};text-align:center;position:relative;z-index:1;line-height:1.2;">${member.full_name || 'Member'}</div>
+          <div style="font-size:2.2mm;color:${tpl.idColor};text-align:center;margin-top:0.3mm;position:relative;z-index:1;font-family:monospace;letter-spacing:0.3mm;">MEM-${member.id.substring(0, 12)}</div>
+          <div id="${qrContainerId}" style="width:13mm;height:13mm;margin-top:1mm;position:relative;z-index:1;background:${tpl.qrBg};padding:0.3mm;border-radius:0.5mm;display:flex;align-items:center;justify-content:center;"></div>
+          <div style="font-size:1.8mm;color:${tpl.dateColor};text-align:center;margin-top:0.5mm;position:relative;z-index:1;letter-spacing:0.2mm;">Valid from ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+        </div>
+      `;
+    }
+
+    // Resolves once every <img> inside a card element has finished loading
+    // (or failed) — needed before html2canvas snapshots a card that has a
+    // gym logo, since that image loads asynchronously from Supabase Storage.
+    function waitForCardImages(cardEl) {
+      const imgs = Array.from(cardEl.querySelectorAll('img'));
+      if (imgs.length === 0) return Promise.resolve();
+      return Promise.all(imgs.map(img => {
+        if (img.complete) return Promise.resolve();
+        return new Promise(resolve => {
+          img.addEventListener('load', resolve, { once: true });
+          img.addEventListener('error', resolve, { once: true });
+        });
+      }));
+    }
+
+    // Renders the QR code into a card built by buildMemberCardHTML, using
+    // colors that stay readable against that template's QR background.
+    function renderQrIntoCard(containerId, qrCode) {
+      if (typeof QRCode === 'undefined') return;
+      const tpl = cardTemplates[selectedCardTemplate] || cardTemplates.dark;
+      const isDarkBg = tpl.qrBg === '#0a0a0a' || tpl.qrBg === '#1a1a2e';
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      container.innerHTML = '';
+      new QRCode(container, {
+        text: qrCode,
+        width: 48,
+        height: 48,
+        colorDark: isDarkBg ? '#ffffff' : '#1a1a2e',
+        colorLight: tpl.qrBg === 'white' ? '#ffffff' : tpl.qrBg,
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }
+
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `toast toast-${type}`;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 4000);
+    }
 
     async function init() {
       const auth = await requireAuth();
@@ -501,10 +623,12 @@
       renderNav(auth.user, 'members');
       gymId = auth.profile?.gym_id;
       gymName = auth.profile?.gym?.name || '';
+      gymLogoUrl = auth.profile?.gym?.logo_url || null;
       
       const currency = await getGymCurrency();
       currencySymbol = getCurrencySymbol(currency);
 
+      await loadCardTemplatePreference();
       await loadMemberships();
       await fetchMembers();
       
@@ -550,6 +674,7 @@
         document.getElementById('member-card-modal').classList.add('hidden');
       });
       document.getElementById('download-card-btn').addEventListener('click', downloadMemberCard);
+      document.getElementById('print-card-btn').addEventListener('click', printMemberCard);
       
       setTimeout(updatePageLanguage, 100);
     }
@@ -1057,179 +1182,114 @@
     }
 
     // ============================================================
-    // MEMBERSHIP CARD (full printable card: photo/initials, name,
-    // plan, status, dates, and QR — rendered on a canvas so it can
-    // be downloaded as one PNG for printing).
+    // MEMBERSHIP CARD — uses buildMemberCardHTML/renderQrIntoCard
+    // above, so this looks exactly like the template picked in
+    // Settings (and the card printed from the Canteen page).
     // ============================================================
-    function drawRoundedRect(ctx, x, y, width, height, radius) {
-      ctx.beginPath();
-      ctx.moveTo(x + radius, y);
-      ctx.arcTo(x + width, y, x + width, y + height, radius);
-      ctx.arcTo(x + width, y + height, x, y + height, radius);
-      ctx.arcTo(x, y + height, x, y, radius);
-      ctx.arcTo(x, y, x + width, y, radius);
-      ctx.closePath();
+    async function ensureMemberQrCode(memberId) {
+      let member = allMembers.find(m => m.id === memberId);
+      if (!member) return null;
+      let qr = Array.isArray(member.member_qr_codes) ? member.member_qr_codes[0] : member.member_qr_codes;
+      if (qr) return qr.qr_code;
+
+      await sb.rpc('ensure_member_qr', {
+        p_member_id: memberId,
+        p_gym_id: gymId
+      });
+      await fetchMembers();
+      const updatedMember = allMembers.find(m => m.id === memberId);
+      const newQr = Array.isArray(updatedMember?.member_qr_codes) ? updatedMember.member_qr_codes[0] : null;
+      return newQr ? newQr.qr_code : null;
     }
 
     async function showMemberCard(memberId) {
       const member = allMembers.find(m => m.id === memberId);
       if (!member) return;
 
-      let qr = Array.isArray(member.member_qr_codes) ? member.member_qr_codes[0] : member.member_qr_codes;
-      if (!qr) {
-        try {
-          await sb.rpc('ensure_member_qr', {
-            p_member_id: memberId,
-            p_gym_id: gymId
-          });
-          await fetchMembers();
-          const updatedMember = allMembers.find(m => m.id === memberId);
-          qr = Array.isArray(updatedMember?.member_qr_codes) ? updatedMember.member_qr_codes[0] : null;
-          if (!qr) return;
-        } catch (err) {
-          alert('Error generating QR: ' + err.message);
-          return;
-        }
+      let qrCode;
+      try {
+        qrCode = await ensureMemberQrCode(memberId);
+        if (!qrCode) return;
+      } catch (err) {
+        alert('Error generating QR: ' + err.message);
+        return;
       }
 
       currentCardMemberId = memberId;
+      const display = document.getElementById('member-card-display');
+      display.innerHTML = buildMemberCardHTML(member, 'member-card-qr-canvas');
       document.getElementById('member-card-modal').classList.remove('hidden');
-      await renderMemberCard(member, qr.qr_code);
+      renderQrIntoCard('member-card-qr-canvas', qrCode);
     }
 
-    async function renderMemberCard(member, qrCode) {
-      const lang = localStorage.getItem('gym_lang') || 'en';
-      const isRTL = lang === 'ar';
-      const sub = Array.isArray(member.subscription) ? member.subscription[0] : member.subscription;
+    // Downloads the FULL card (gym name/logo, avatar, name, QR, template
+    // colors) as one PNG, by snapshotting the card already shown in the
+    // modal with html2canvas.
+    async function downloadMemberCard() {
+      const member = allMembers.find(m => m.id === currentCardMemberId);
+      if (!member) return;
 
-      const canvas = document.getElementById('member-card-canvas');
-      const W = 1000, H = 620;
-      canvas.width = W;
-      canvas.height = H;
-      const ctx = canvas.getContext('2d');
-
-      // Background
-      const grad = ctx.createLinearGradient(0, 0, W, H);
-      grad.addColorStop(0, '#1d4ed8');
-      grad.addColorStop(1, '#4338ca');
-      drawRoundedRect(ctx, 0, 0, W, H, 28);
-      ctx.fillStyle = grad;
-      ctx.fill();
-
-      ctx.save();
-      ctx.globalAlpha = 0.08;
-      ctx.beginPath();
-      ctx.arc(W - 70, H - 70, 220, 0, Math.PI * 2);
-      ctx.fillStyle = '#ffffff';
-      ctx.fill();
-      ctx.restore();
-
-      // Header
-      ctx.fillStyle = '#ffffff';
-      ctx.textAlign = isRTL ? 'right' : 'left';
-      ctx.textBaseline = 'top';
-      ctx.font = 'bold 34px Tahoma, Arial, sans-serif';
-      ctx.fillText(gymName || (isRTL ? 'إدارة الجيم' : 'Gym Management'), isRTL ? W - 48 : 48, 40);
-
-      ctx.globalAlpha = 0.85;
-      ctx.font = '20px Tahoma, Arial, sans-serif';
-      ctx.fillText(isRTL ? 'بطاقة عضوية' : 'MEMBERSHIP CARD', isRTL ? W - 48 : 48, 84);
-      ctx.globalAlpha = 1;
-
-      // Avatar
-      const avatarX = isRTL ? W - 130 : 130;
-      const avatarY = 230;
-      ctx.beginPath();
-      ctx.arc(avatarX, avatarY, 70, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255,255,255,0.15)';
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 46px Tahoma, Arial, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(getInitials(member.full_name), avatarX, avatarY + 4);
-
-      // Name & plan
-      const textX = isRTL ? avatarX - 100 : avatarX + 100;
-      ctx.textAlign = isRTL ? 'right' : 'left';
-      ctx.textBaseline = 'top';
-      ctx.font = 'bold 32px Tahoma, Arial, sans-serif';
-      ctx.fillText(member.full_name || (isRTL ? 'عضو' : 'Member'), textX, avatarY - 60);
-
-      ctx.globalAlpha = 0.9;
-      ctx.font = '22px Tahoma, Arial, sans-serif';
-      const planName = sub?.membership?.name || (isRTL ? 'بدون خطة' : 'No Plan');
-      ctx.fillText(planName, textX, avatarY - 18);
-      ctx.globalAlpha = 1;
-
-      // Status badge
-      const statusMap = {
-        active: { text: isRTL ? 'نشط' : 'ACTIVE', color: '#22c55e' },
-        expired: { text: isRTL ? 'منتهي' : 'EXPIRED', color: '#ef4444' }
-      };
-      const status = statusMap[sub?.status] || { text: isRTL ? 'غير نشط' : 'INACTIVE', color: '#9ca3af' };
-      ctx.font = 'bold 18px Tahoma, Arial, sans-serif';
-      const badgeW = ctx.measureText(status.text).width + 32;
-      const badgeX = isRTL ? textX - badgeW : textX;
-      drawRoundedRect(ctx, badgeX, avatarY + 22, badgeW, 34, 17);
-      ctx.fillStyle = status.color;
-      ctx.fill();
-      ctx.fillStyle = '#ffffff';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(status.text, badgeX + badgeW / 2, avatarY + 40);
-
-      // Dates footer
-      ctx.textAlign = isRTL ? 'right' : 'left';
-      ctx.textBaseline = 'top';
-      ctx.font = '18px Tahoma, Arial, sans-serif';
-      ctx.globalAlpha = 0.85;
-      const startLabel = isRTL ? 'تاريخ الاشتراك' : 'Member Since';
-      const endLabel = isRTL ? 'صالحة حتى' : 'Valid Until';
-      const startVal = sub ? formatDate(sub.start_date) : '-';
-      const endVal = sub ? formatDate(sub.end_date) : '-';
-      const footerX = isRTL ? W - 48 : 48;
-      ctx.fillText(`${startLabel}: ${startVal}`, footerX, H - 96);
-      ctx.fillText(`${endLabel}: ${endVal}`, footerX, H - 64);
-      ctx.globalAlpha = 1;
-
-      // QR code (rendered off-screen with qrcodejs, then drawn onto the card)
-      const qrTemp = document.createElement('div');
-      qrTemp.style.position = 'fixed';
-      qrTemp.style.left = '-9999px';
-      document.body.appendChild(qrTemp);
-      new QRCode(qrTemp, {
-        text: qrCode,
-        width: 220,
-        height: 220,
-        correctLevel: (typeof QRCode !== 'undefined' && QRCode.CorrectLevel) ? QRCode.CorrectLevel.M : undefined
-      });
-      await new Promise((resolve) => setTimeout(resolve, 60));
-      const qrCanvas = qrTemp.querySelector('canvas');
-      const qrSize = 220;
-      const qrX = isRTL ? 48 : W - qrSize - 48;
-      const qrY = H - qrSize - 48;
-
-      drawRoundedRect(ctx, qrX - 16, qrY - 16, qrSize + 32, qrSize + 32, 12);
-      ctx.fillStyle = '#ffffff';
-      ctx.fill();
-      if (qrCanvas) {
-        ctx.drawImage(qrCanvas, qrX, qrY, qrSize, qrSize);
-      }
-      document.body.removeChild(qrTemp);
-    }
-
-    function downloadMemberCard() {
-      const canvas = document.getElementById('member-card-canvas');
-      if (canvas) {
+      try {
+        const cardEl = document.querySelector('#member-card-display .card-content');
+        if (!cardEl) return;
+        await waitForCardImages(cardEl);
+        const canvas = await html2canvas(cardEl, { scale: 4, backgroundColor: null, useCORS: true });
         const link = document.createElement('a');
-        link.download = `member-${currentCardMemberId}-card.png`;
+        const safeName = (member.full_name || 'member').trim().replace(/\s+/g, '-');
+        link.download = `${safeName}-card.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
+      } catch (err) {
+        console.error('Card download error:', err);
+        alert('Error generating card image: ' + err.message);
+      }
+    }
+
+    // Renders the card off-screen, snapshots it, then embeds that snapshot
+    // into a PDF whose page size is set to exactly 85.6mm x 54mm — matching
+    // the print flow on the Canteen page so a printed card looks identical
+    // no matter which page it was printed from.
+    async function printMemberCard() {
+      const member = allMembers.find(m => m.id === currentCardMemberId);
+      if (!member) return;
+
+      let qrCode;
+      try {
+        qrCode = await ensureMemberQrCode(currentCardMemberId);
+        if (!qrCode) return;
+      } catch (err) {
+        alert('Error generating QR: ' + err.message);
+        return;
+      }
+
+      const holder = document.createElement('div');
+      holder.style.position = 'fixed';
+      holder.style.left = '-9999px';
+      holder.style.top = '0';
+      holder.innerHTML = buildMemberCardHTML(member, 'member-card-print-canvas');
+      document.body.appendChild(holder);
+      renderQrIntoCard('member-card-print-canvas', qrCode);
+
+      await new Promise(resolve => setTimeout(resolve, 150));
+
+      try {
+        const cardEl = holder.querySelector('.card-content');
+        await waitForCardImages(cardEl);
+        const canvas = await html2canvas(cardEl, { scale: 4, backgroundColor: null, useCORS: true });
+        const imgData = canvas.toDataURL('image/png');
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ unit: 'mm', format: [85.6, 54] });
+        doc.addImage(imgData, 'PNG', 0, 0, 85.6, 54);
+
+        const safeName = (member.full_name || 'member').trim().replace(/\s+/g, '-');
+        doc.save(`${safeName}-card.pdf`);
+        showToast('✅ PDF downloaded — open it in Adobe Acrobat (not the browser) and print with "Actual Size"', 'success');
+      } catch (err) {
+        console.error('Print error:', err);
+        alert('Error preparing card for print: ' + err.message);
+      } finally {
+        document.body.removeChild(holder);
       }
     }
 

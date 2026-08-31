@@ -2107,34 +2107,39 @@
         qrCode = result.data;
       }
 
-      const printArea = document.getElementById('print-area');
-      printArea.style.display = 'block';
-      printArea.style.position = 'fixed';
-      printArea.style.left = '0';
-      printArea.style.top = '0';
-      printArea.style.width = '85.6mm';
-      printArea.style.height = '54mm';
-      printArea.style.background = 'white';
-      printArea.style.zIndex = '9999';
-      printArea.style.padding = '0 !important';
-      printArea.style.margin = '0 !important';
-      printArea.style.overflow = 'hidden';
-      printArea.style.pageBreakAfter = 'avoid';
-      printArea.style.pageBreakInside = 'avoid';
-      printArea.style.boxShadow = 'none';
-      printArea.className = '';
-
-      printArea.innerHTML = buildMemberCardHTML(member, 'member-qr-print');
+      // Render the card off-screen, snapshot it, then embed that snapshot
+      // into a PDF whose page size is set to exactly 85.6mm x 54mm. A PDF's
+      // own page size is respected by print dialogs far more reliably than
+      // a browser's @page CSS rule (which many printers/virtual printers,
+      // like "OneNote", simply ignore and fall back to A4/Letter).
+      const holder = document.createElement('div');
+      holder.style.position = 'fixed';
+      holder.style.left = '-9999px';
+      holder.style.top = '0';
+      holder.innerHTML = buildMemberCardHTML(member, 'member-qr-print');
+      document.body.appendChild(holder);
       renderQrIntoCard('member-qr-print', qrCode);
 
-      setTimeout(() => {
-        window.print();
-        setTimeout(() => {
-          printArea.style.display = 'none';
-          printArea.innerHTML = '';
-          printArea.className = '';
-        }, 1000);
-      }, 500);
+      await new Promise(resolve => setTimeout(resolve, 150));
+
+      try {
+        const cardEl = holder.querySelector('.card-content');
+        const canvas = await html2canvas(cardEl, { scale: 4, backgroundColor: null });
+        const imgData = canvas.toDataURL('image/png');
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ unit: 'mm', format: [85.6, 54] });
+        doc.addImage(imgData, 'PNG', 0, 0, 85.6, 54);
+        doc.autoPrint();
+
+        const blobUrl = doc.output('bloburl');
+        window.open(blobUrl, '_blank');
+      } catch (err) {
+        console.error('Print error:', err);
+        showToast('Error preparing card for print: ' + err.message, 'error');
+      } finally {
+        document.body.removeChild(holder);
+      }
     }
 
     // ============================================================

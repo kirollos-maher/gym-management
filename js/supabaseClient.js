@@ -311,3 +311,57 @@ window.formatDateTime = formatDateTime;
 window.daysBetween = daysBetween;
 window.getInitials = getInitials;
 window.renderNav = renderNav;
+
+// ============================================================
+// SMOOTH NAVIGATION
+// ============================================================
+function navigateTo(url) {
+  event.preventDefault();
+  // حفظ الحالة الحالية
+  const currentState = {
+    scroll: window.scrollY,
+    theme: localStorage.getItem('gym_theme'),
+    lang: localStorage.getItem('gym_lang')
+  };
+  
+  // الانتقال للرابط الجديد
+  window.location.href = url;
+}
+
+// Prefetch الروابط
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('a[href]').forEach(link => {
+    if (link.href.startsWith(window.location.origin)) {
+      link.addEventListener('mouseenter', function() {
+        // Prefetch الصفحة
+        const link = document.createElement('link');
+        link.rel = 'prefetch';
+        link.href = this.href;
+        document.head.appendChild(link);
+      });
+    }
+  });
+});
+
+// منع إعادة تحميل الصفحة عند تغيير اللغة أو الثيم
+function updateThemeAndLanguage(newLang, newTheme) {
+  if (newLang) {
+    localStorage.setItem('gym_lang', newLang);
+    document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = newLang;
+  }
+  if (newTheme) {
+    localStorage.setItem('gym_theme', newTheme);
+    if (newTheme === 'dark') {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+  }
+  // تحديث الصفحة بدون إعادة تحميل
+  updatePageLanguage();
+  // إعادة تحميل البيانات إذا لزم الأمر
+  if (typeof loadDashboard === 'function') loadDashboard();
+  if (typeof renderProducts === 'function') renderProducts();
+  if (typeof renderMembers === 'function') renderMembers();
+}

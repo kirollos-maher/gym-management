@@ -8,44 +8,54 @@
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body class="bg-gray-50 min-h-screen">
+  <script>
+    // تطبيق Dark Mode فوراً عند تحميل الصفحة
+    (function() {
+      const isDark = localStorage.getItem('gym_theme') === 'dark';
+      if (isDark) {
+        document.body.classList.add('dark-mode');
+      }
+    })();
+  </script>
+
   <div id="app-nav"></div>
 
   <main class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <h1 class="text-2xl font-bold text-gray-800 mb-6" data-i18n="checkin.title">Member Check-In</h1>
+    <h1 class="text-2xl font-bold text-gray-800 dark:text-white mb-6" data-i18n="checkin.title">Member Check-In</h1>
 
-    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-      <div class="border-b bg-gradient-to-l from-blue-50 to-indigo-50 px-6 py-4">
-        <h2 class="text-xl font-bold text-gray-800" data-i18n="checkin.manual">Manual Check-In</h2>
-        <p class="text-sm text-gray-500" data-i18n="checkin.search">Search by name, email, or phone number</p>
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+      <div class="border-b border-gray-200 dark:border-gray-700 bg-gradient-to-l from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 px-6 py-4">
+        <h2 class="text-xl font-bold text-gray-800 dark:text-white" data-i18n="checkin.manual">Manual Check-In</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400" data-i18n="checkin.search">Search by name, email, or phone number</p>
       </div>
 
       <div class="p-6 space-y-6">
         <!-- Search state -->
         <div id="search-state" class="space-y-4">
           <input type="text" id="search-input" data-i18n-placeholder="checkin.search.placeholder"
-            class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          <div id="search-loading" class="hidden flex items-center justify-center py-4 gap-2 text-gray-600">
+            class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <div id="search-loading" class="hidden flex items-center justify-center py-4 gap-2 text-gray-600 dark:text-gray-400">
             <div class="spinner h-5 w-5"></div> <span data-i18n="checkin.searching">Searching...</span>
           </div>
-          <div id="search-results" class="border rounded-lg overflow-hidden divide-y hidden"></div>
-          <div id="no-results" class="hidden text-center py-8 text-gray-500" data-i18n="checkin.noresults">
+          <div id="search-results" class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden divide-y divide-gray-200 dark:divide-gray-700 hidden"></div>
+          <div id="no-results" class="hidden text-center py-8 text-gray-500 dark:text-gray-400" data-i18n="checkin.noresults">
             No members found. Try a different search term.
           </div>
         </div>
 
         <!-- Selected member state -->
         <div id="selected-state" class="hidden">
-          <div class="p-6 border-2 border-blue-200 bg-blue-50 rounded-lg">
+          <div class="p-6 border-2 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
             <div class="flex items-start justify-between">
               <div class="flex items-start gap-4">
                 <div id="selected-avatar" class="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center text-white text-2xl font-bold"></div>
                 <div>
-                  <h3 id="selected-name" class="text-xl font-semibold text-gray-900"></h3>
-                  <p id="selected-email" class="text-sm text-gray-600"></p>
+                  <h3 id="selected-name" class="text-xl font-semibold text-gray-900 dark:text-white"></h3>
+                  <p id="selected-email" class="text-sm text-gray-600 dark:text-gray-400"></p>
                   <span id="selected-status" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-2"></span>
                 </div>
               </div>
-              <button id="change-member-btn" class="text-sm text-gray-500 hover:text-gray-700" data-i18n="checkin.change">Change Member</button>
+              <button id="change-member-btn" class="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300" data-i18n="checkin.change">Change Member</button>
             </div>
             <div class="mt-4">
               <button id="checkin-btn"
@@ -133,15 +143,15 @@
           const sub = Array.isArray(m.subscription) ? m.subscription[0] : m.subscription;
           const isActive = sub?.status === 'active';
           const statusText = isActive ? activeText : inactiveText;
-          const statusClass = isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+          const statusClass = isActive ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400';
           return `
-          <div class="p-4 hover:bg-gray-50 cursor-pointer transition-colors" data-index="${i}">
+          <div class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-colors" data-index="${i}">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">👤</div>
+                <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">👤</div>
                 <div>
-                  <p class="font-medium text-gray-900">${m.full_name || unknownText}</p>
-                  <p class="text-sm text-gray-500">${m.email || noEmailText}</p>
+                  <p class="font-medium text-gray-900 dark:text-white">${m.full_name || unknownText}</p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">${m.email || noEmailText}</p>
                 </div>
               </div>
               <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}">${statusText}</span>
@@ -170,7 +180,7 @@
       const sub = Array.isArray(member.subscription) ? member.subscription[0] : member.subscription;
       const isActive = sub?.status === 'active';
       const statusText = isActive ? activeText : inactiveText;
-      const statusClass = isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+      const statusClass = isActive ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400';
 
       document.getElementById('selected-avatar').textContent = getInitials(member.full_name);
       document.getElementById('selected-name').textContent = member.full_name || unknownText;
@@ -268,18 +278,18 @@
 
       if (success) {
         resultEl.innerHTML = `
-          <div class="p-6 border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg text-center">
+          <div class="p-6 border-2 border-green-200 dark:border-green-800 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg text-center">
             <div class="w-20 h-20 rounded-full bg-green-500 flex items-center justify-center mx-auto mb-4 text-4xl">✅</div>
-            <h2 class="text-2xl font-bold text-green-800 mb-2">${successTitle}</h2>
-            <p class="text-green-700 mb-4">${member.full_name || unknownText} — ${new Date(checkInTime).toLocaleTimeString()}</p>
+            <h2 class="text-2xl font-bold text-green-800 dark:text-green-400 mb-2">${successTitle}</h2>
+            <p class="text-green-700 dark:text-green-300 mb-4">${member.full_name || unknownText} — ${new Date(checkInTime).toLocaleTimeString()}</p>
             <button id="new-checkin-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-6 py-2">${newText}</button>
           </div>`;
       } else {
         resultEl.innerHTML = `
-          <div class="p-6 border-2 border-red-200 bg-red-50 rounded-lg text-center">
+          <div class="p-6 border-2 border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 rounded-lg text-center">
             <div class="w-20 h-20 rounded-full bg-red-500 flex items-center justify-center mx-auto mb-4 text-4xl">❌</div>
-            <h2 class="text-2xl font-bold text-red-800 mb-2">${failedTitle}</h2>
-            <p class="text-red-700 mb-4">${errorMessage}</p>
+            <h2 class="text-2xl font-bold text-red-800 dark:text-red-400 mb-2">${failedTitle}</h2>
+            <p class="text-red-700 dark:text-red-300 mb-4">${errorMessage}</p>
             <button id="new-checkin-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-6 py-2">${tryAgainText}</button>
           </div>`;
       }
@@ -288,7 +298,6 @@
       setTimeout(updatePageLanguage, 50);
     }
 
-    // Run init when DOM is ready
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', init);
     } else {

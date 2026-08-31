@@ -788,6 +788,85 @@
     let realtimeRefreshTimeout = null;
 
     // ============================================================
+    // MEMBER CARD TEMPLATES (must stay in sync with settings.html)
+    // These are the same 8 designs the gym owner picks from on the
+    // Settings page. Card printing/downloading here reads the gym's
+    // saved choice instead of always using one fixed look.
+    // ============================================================
+    let selectedCardTemplate = 'dark';
+    const cardTemplates = {
+      dark: { gradient: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)', gymColor: 'rgba(255,255,255,0.7)', nameColor: 'white', idColor: 'rgba(255,255,255,0.5)', dateColor: 'rgba(255,255,255,0.4)', avatarGradient: 'linear-gradient(135deg, #f472b6, #8b5cf6)', qrBg: 'white', border: 'none', avatarTextColor: 'white' },
+      light: { gradient: 'white', gymColor: '#4f46e5', nameColor: '#1a1a2e', idColor: '#6b7280', dateColor: '#9ca3af', avatarGradient: 'linear-gradient(135deg, #4f46e5, #7c3aed)', qrBg: 'white', border: '2px solid #e5e7eb', avatarTextColor: 'white' },
+      red: { gradient: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 50%, #7f1d1d 100%)', gymColor: 'rgba(255,255,255,0.8)', nameColor: 'white', idColor: 'rgba(255,255,255,0.5)', dateColor: 'rgba(255,255,255,0.4)', avatarGradient: 'linear-gradient(135deg, #fbbf24, #f59e0b)', qrBg: 'white', border: 'none', avatarTextColor: '#7f1d1d' },
+      neon: { gradient: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%)', gymColor: '#00ff88', nameColor: 'white', idColor: 'rgba(0,255,136,0.5)', dateColor: 'rgba(255,255,255,0.3)', avatarGradient: 'linear-gradient(135deg, #00ff88, #00cc66)', qrBg: '#0a0a0a', border: '1px solid #00ff88', avatarTextColor: '#0a0a0a' },
+      blue: { gradient: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%)', gymColor: 'rgba(255,255,255,0.8)', nameColor: 'white', idColor: 'rgba(255,255,255,0.5)', dateColor: 'rgba(255,255,255,0.4)', avatarGradient: 'linear-gradient(135deg, #f472b6, #ec4899)', qrBg: 'white', border: 'none', avatarTextColor: 'white' },
+      gold: { gradient: 'linear-gradient(135deg, #1a1a2e 0%, #2d1810 50%, #1a1a2e 100%)', gymColor: '#d4a853', nameColor: '#d4a853', idColor: 'rgba(212,168,83,0.5)', dateColor: 'rgba(212,168,83,0.3)', avatarGradient: 'linear-gradient(135deg, #d4a853, #f59e0b)', qrBg: '#1a1a2e', border: '2px solid #d4a853', avatarTextColor: '#1a1a2e' },
+      green: { gradient: 'linear-gradient(135deg, #065f46 0%, #059669 50%, #34d399 100%)', gymColor: 'rgba(255,255,255,0.8)', nameColor: 'white', idColor: 'rgba(255,255,255,0.5)', dateColor: 'rgba(255,255,255,0.4)', avatarGradient: 'linear-gradient(135deg, #fbbf24, #f59e0b)', qrBg: 'white', border: 'none', avatarTextColor: '#065f46' },
+      purple: { gradient: 'linear-gradient(135deg, #4c1d95 0%, #7c3aed 50%, #a78bfa 100%)', gymColor: 'rgba(255,255,255,0.8)', nameColor: 'white', idColor: 'rgba(255,255,255,0.5)', dateColor: 'rgba(255,255,255,0.4)', avatarGradient: 'linear-gradient(135deg, #f472b6, #ec4899)', qrBg: 'white', border: 'none', avatarTextColor: 'white' }
+    };
+
+    async function loadCardTemplatePreference() {
+      try {
+        const { data } = await sb.from('gym_settings').select('card_template').eq('gym_id', gymId).single();
+        if (data?.card_template && cardTemplates[data.card_template]) {
+          selectedCardTemplate = data.card_template;
+        }
+      } catch (e) {
+        console.error('Could not load card template preference:', e);
+      }
+    }
+
+    // Builds the member card markup using whichever template the gym picked
+    // in Settings. qrContainerId is where the caller should mount the QR code.
+    function buildMemberCardHTML(member, qrContainerId) {
+      const tpl = cardTemplates[selectedCardTemplate] || cardTemplates.dark;
+      const border = tpl.border === 'none' ? '0.3mm solid #e5e7eb' : tpl.border;
+      return `
+        <div class="card-content" style="
+          width: 85.6mm;
+          height: 54mm;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 3mm;
+          box-sizing: border-box;
+          font-family: Arial, sans-serif;
+          background: ${tpl.gradient};
+          position: relative;
+          border-radius: 2mm;
+          border: ${border};
+        ">
+          <div style="font-size:3.8mm;font-weight:800;color:${tpl.gymColor};text-align:center;letter-spacing:0.3mm;position:relative;z-index:1;margin-bottom:1mm;text-transform:uppercase;">${gymName || 'GYM'}</div>
+          <div style="width:18mm;height:18mm;border-radius:50%;background:${tpl.avatarGradient};display:flex;align-items:center;justify-content:center;font-size:7.5mm;color:${tpl.avatarTextColor};font-weight:700;position:relative;z-index:1;box-shadow:0 2mm 4mm rgba(0,0,0,0.25);margin-bottom:1mm;user-select:none;">${getInitials(member.full_name)}</div>
+          <div style="font-size:4mm;font-weight:700;color:${tpl.nameColor};text-align:center;position:relative;z-index:1;line-height:1.2;">${member.full_name || 'Member'}</div>
+          <div style="font-size:2.2mm;color:${tpl.idColor};text-align:center;margin-top:0.3mm;position:relative;z-index:1;font-family:monospace;letter-spacing:0.3mm;">MEM-${member.id.substring(0, 12)}</div>
+          <div id="${qrContainerId}" style="width:13mm;height:13mm;margin-top:1mm;position:relative;z-index:1;background:${tpl.qrBg};padding:0.3mm;border-radius:0.5mm;display:flex;align-items:center;justify-content:center;"></div>
+          <div style="font-size:1.8mm;color:${tpl.dateColor};text-align:center;margin-top:0.5mm;position:relative;z-index:1;letter-spacing:0.2mm;">Valid from ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+        </div>
+      `;
+    }
+
+    // Renders the QR code into a card built by buildMemberCardHTML, using
+    // colors that stay readable against that template's QR background.
+    function renderQrIntoCard(containerId, qrCode) {
+      if (typeof QRCode === 'undefined') return;
+      const tpl = cardTemplates[selectedCardTemplate] || cardTemplates.dark;
+      const isDarkBg = tpl.qrBg === '#0a0a0a' || tpl.qrBg === '#1a1a2e';
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      container.innerHTML = '';
+      new QRCode(container, {
+        text: qrCode,
+        width: 48,
+        height: 48,
+        colorDark: isDarkBg ? '#ffffff' : '#1a1a2e',
+        colorLight: tpl.qrBg === 'white' ? '#ffffff' : tpl.qrBg,
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }
+
+    // ============================================================
     // دالة تحديث العملة
     // ============================================================
     async function updateCurrency() {
@@ -813,6 +892,7 @@
         return;
       }
 
+      await loadCardTemplatePreference();
       await loadData();
       setupEventListeners();
       renderProducts();
@@ -1919,35 +1999,76 @@
       }
 
       display.innerHTML = `
-        <div class="qr-container"><div id="member-qr-display-canvas"></div></div>
-        <p class="font-medium text-gray-800 dark:text-white mt-4">${member.full_name || 'Member'}</p>
-        <p class="text-sm text-gray-500 dark:text-gray-400">${member.email || ''}</p>
-        <p class="text-xs font-mono text-gray-400 dark:text-gray-500 mt-2">${qrCode}</p>
+        ${buildMemberCardHTML(member, 'member-qr-display-canvas')}
+        <p class="text-xs font-mono text-gray-400 dark:text-gray-500 mt-3">${qrCode}</p>
         <div class="flex gap-2 mt-4 flex-wrap">
           <button onclick="printMemberQR()" class="bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">🖨️ Print</button>
           <button onclick="downloadMemberQR()" class="bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">📥 Download</button>
         </div>
       `;
 
-      if (typeof QRCode !== 'undefined') {
-        const container = document.getElementById('member-qr-display-canvas');
-        container.innerHTML = '';
-        new QRCode(container, {
-          text: qrCode,
-          width: 150,
-          height: 150
-        });
-      }
+      renderQrIntoCard('member-qr-display-canvas', qrCode);
     }
 
-    function downloadMemberQR() {
-      const canvas = document.querySelector('#member-qr-display-canvas canvas');
-      if (canvas) {
+    // Downloads the FULL card (gym name, avatar, name, QR, template colors)
+    // as one PNG — not just the bare QR square — by snapshotting the same
+    // markup buildMemberCardHTML() uses for print, rendered off-screen.
+    async function downloadMemberQR() {
+      const memberId = document.getElementById('member-select').value;
+      if (!memberId) {
+        showToast('Please select a member first', 'error');
+        return;
+      }
+      const member = members.find(m => m.id === memberId);
+      if (!member) {
+        showToast('Member not found', 'error');
+        return;
+      }
+
+      const { data: existing } = await sb
+        .from('member_qr_codes')
+        .select('qr_code')
+        .eq('member_id', memberId)
+        .eq('gym_id', gymId)
+        .eq('is_active', true)
+        .single();
+
+      let qrCode;
+      if (existing) {
+        qrCode = existing.qr_code;
+      } else {
+        const result = await sb.rpc('ensure_member_qr', {
+          p_member_id: memberId,
+          p_gym_id: gymId
+        });
+        qrCode = result.data;
+      }
+
+      const holder = document.createElement('div');
+      holder.style.position = 'fixed';
+      holder.style.left = '-9999px';
+      holder.style.top = '0';
+      holder.innerHTML = buildMemberCardHTML(member, 'member-qr-download-canvas');
+      document.body.appendChild(holder);
+      renderQrIntoCard('member-qr-download-canvas', qrCode);
+
+      // let the QR code library finish painting before we snapshot it
+      await new Promise(resolve => setTimeout(resolve, 150));
+
+      try {
+        const cardEl = holder.querySelector('.card-content');
+        const canvas = await html2canvas(cardEl, { scale: 4, backgroundColor: null });
         const link = document.createElement('a');
-        link.download = 'member-qr.png';
-        link.href = canvas.toDataURL();
+        const safeName = (member.full_name || 'member').trim().replace(/\s+/g, '-');
+        link.download = `${safeName}-card.png`;
+        link.href = canvas.toDataURL('image/png');
         link.click();
-        showToast('✅ QR code downloaded!', 'success');
+        showToast('✅ Member card downloaded!', 'success');
+      } catch (err) {
+        console.error('Card download error:', err);
+        showToast('Error generating card image: ' + err.message, 'error');
+      } finally {
+        document.body.removeChild(holder);
       }
     }
 
@@ -2003,46 +2124,8 @@
       printArea.style.boxShadow = 'none';
       printArea.className = '';
 
-      printArea.innerHTML = `
-        <div class="card-content" style="
-          width: 85.6mm;
-          height: 54mm;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 3mm;
-          box-sizing: border-box;
-          font-family: Arial, sans-serif;
-          background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-          position: relative;
-          border-radius: 2mm;
-          border: 0.3mm solid #e5e7eb;
-        ">
-          <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);border-radius:2mm;opacity:0.06;pointer-events:none;"></div>
-          <div style="font-size:3.8mm;font-weight:800;color:rgba(255,255,255,0.7);text-align:center;letter-spacing:0.3mm;position:relative;z-index:1;margin-bottom:1mm;text-transform:uppercase;">${gymName || 'GYM'}</div>
-          <div style="width:18mm;height:18mm;border-radius:50%;background:linear-gradient(135deg,#f472b6,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:7.5mm;color:white;font-weight:700;position:relative;z-index:1;box-shadow:0 2mm 4mm rgba(79,70,229,0.3);margin-bottom:1mm;user-select:none;">${getInitials(member.full_name)}</div>
-          <div style="font-size:4mm;font-weight:700;color:white;text-align:center;position:relative;z-index:1;line-height:1.2;">${member.full_name || 'Member'}</div>
-          <div style="font-size:2.2mm;color:rgba(255,255,255,0.5);text-align:center;margin-top:0.3mm;position:relative;z-index:1;font-family:monospace;letter-spacing:0.3mm;">MEM-${member.id.substring(0, 12)}</div>
-          <div id="member-qr-print" style="width:13mm;height:13mm;margin-top:1mm;position:relative;z-index:1;background:white;padding:0.3mm;border-radius:0.5mm;display:flex;align-items:center;justify-content:center;"></div>
-          <div style="font-size:1.8mm;color:rgba(255,255,255,0.4);text-align:center;margin-top:0.5mm;position:relative;z-index:1;letter-spacing:0.2mm;">Valid from ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
-        </div>
-      `;
-
-      if (typeof QRCode !== 'undefined') {
-        const container = document.getElementById('member-qr-print');
-        if (container) {
-          container.innerHTML = '';
-          new QRCode(container, {
-            text: qrCode,
-            width: 48,
-            height: 48,
-            colorDark: '#1a1a2e',
-            colorLight: '#ffffff',
-            correctLevel: QRCode.CorrectLevel.H
-          });
-        }
-      }
+      printArea.innerHTML = buildMemberCardHTML(member, 'member-qr-print');
+      renderQrIntoCard('member-qr-print', qrCode);
 
       setTimeout(() => {
         window.print();

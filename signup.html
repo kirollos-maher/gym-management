@@ -59,7 +59,7 @@
   
   <script>
     // ============================================
-    // زر تغيير اللغة
+    // زر تغيير اللغة - إعادة تحميل الصفحة
     // ============================================
     document.addEventListener('DOMContentLoaded', function() {
       const langToggle = document.getElementById('lang-toggle');
@@ -70,10 +70,7 @@
           const currentLang = localStorage.getItem('gym_lang') || 'en';
           const newLang = currentLang === 'ar' ? 'en' : 'ar';
           localStorage.setItem('gym_lang', newLang);
-          document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr';
-          document.documentElement.lang = newLang;
-          updatePageLanguage();
-          updateLanguageToggle();
+          window.location.reload();
         });
       }
       
@@ -105,7 +102,6 @@
       };
 
       try {
-        // 1. إنشاء حساب auth
         const { data: signUpData, error: signUpError } = await sb.auth.signUp({
           email,
           password,
@@ -123,7 +119,6 @@
           );
         }
 
-        // 2. استخدام الدالة create_gym_owner_account
         const { data: gymData, error: rpcError } = await sb.rpc('create_gym_owner_account', {
           p_gym_name: gymName,
           p_full_name: fullName
@@ -135,8 +130,6 @@
         }
 
         console.log('✅ Gym created with ID:', gymData);
-
-        // 3. الانتقال إلى لوحة التحكم
         window.location.href = 'dashboard.html';
 
       } catch (err) {

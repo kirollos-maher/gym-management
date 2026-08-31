@@ -15,6 +15,22 @@
       border-right: 3px solid #93c5fd;
       padding-right: 0.75rem;
     }
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      color: white;
+      z-index: 9999;
+      animation: slideUp 0.3s ease;
+      max-width: 400px;
+      font-size: 14px;
+    }
+    .toast-success { background: #10b981; }
+    .toast-error { background: #ef4444; }
+    .toast-info { background: #3b82f6; }
+    @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -27,11 +43,15 @@
     <div id="content" class="hidden space-y-6"></div>
   </main>
 
+  <!-- Toast -->
+  <div id="toast" class="toast hidden"></div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabaseClient.js"></script>
   <script src="js/language.js"></script>
   <script>
     let gymId, userId, role;
+    let currencySymbol = '$';
 
     async function init() {
       const auth = await requireAuth();
@@ -41,6 +61,9 @@
       gymId = auth.profile?.gym_id;
       userId = auth.user.id;
       role = auth.profile?.role;
+      
+      // جلب العملة (من بيانات الجيم اللي أصلاً راجعة مع البروفايل)
+      currencySymbol = getCurrencySymbol(auth.profile?.gym?.currency || 'EGP');
 
       document.getElementById('loading-state').classList.add('hidden');
       const content = document.getElementById('content');
@@ -77,6 +100,14 @@
       }
       
       setTimeout(updatePageLanguage, 100);
+    }
+
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `toast toast-${type}`;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 4000);
     }
 
     async function getMemberBalance(memberId) {
@@ -246,29 +277,24 @@
 
       const lang = localStorage.getItem('gym_lang') || 'en';
       
-      // الترجمات مع الشرح
       const settingsTitle = lang === 'ar' ? 'إعدادات نقاط الولاء' : 'Loyalty Points Settings';
       const settingsDesc = lang === 'ar' ? 'تكوين كيفية كسب الأعضاء واستبدال نقاط الولاء' : 'Configure how members earn and redeem loyalty points';
       
-      // الخيار 1: نقاط لكل تسجيل حضور
       const checkinLabel = lang === 'ar' ? 'نقاط لكل تسجيل حضور' : 'Points per Check-in';
       const checkinHint = lang === 'ar' 
         ? '💡 كل مرة يسجل فيها العضو حضوره، يحصل على هذا العدد من النقاط. مثال: لو حطيت 5، كل عضو يسجل حضور ياخد 5 نقاط.'
         : '💡 Each time a member checks in, they earn this many points. Example: If you set 5, each check-in gives 5 points.';
       
-      // الخيار 2: نقاط لكل وحدة عملة عند التجديد
       const renewalLabel = lang === 'ar' ? 'نقاط لكل وحدة عملة عند التجديد' : 'Points per Currency Unit on Renewal';
       const renewalHint = lang === 'ar'
         ? '💡 كلما جدد العضو اشتراكه، يحصل على نقاط مقابل كل وحدة عملة يدفعها. مثال: لو حطيت 2 وسعر التجديد 100 جنيه، ياخد 200 نقطة.'
         : '💡 When a member renews their subscription, they earn points for each currency unit paid. Example: If you set 2 and renewal costs $100, they get 200 points.';
       
-      // الخيار 3: نقاط لكل وحدة عملة عند شراء من الكافتيريا
       const canteenLabel = lang === 'ar' ? 'نقاط لكل وحدة عملة عند شراء من الكافتيريا' : 'Points per Currency Unit on Canteen Purchase';
       const canteenHint = lang === 'ar'
         ? '💡 كلما اشترى العضو منتجات من الكافتيريا، يحصل على نقاط مقابل كل وحدة عملة يدفعها. مثال: لو حطيت 3 واشترى بـ 50 جنيه، ياخد 150 نقطة.'
         : '💡 When a member buys from the canteen, they earn points for each currency unit spent. Example: If you set 3 and they spend $50, they get 150 points.';
       
-      // الخيار 4: معدل استبدال النقاط
       const redemptionLabel = lang === 'ar' ? 'معدل استبدال النقاط' : 'Points Redemption Rate';
       const redemptionHint = lang === 'ar'
         ? '💡 قيمة كل نقطة عند استبدالها بالعملة. مثال: لو حطيت 0.5، كل 100 نقطة = 50 جنيه قيمة خصم أو منتج.'
@@ -280,7 +306,6 @@
         <h3 class="text-lg font-semibold text-gray-900 mb-1">${settingsTitle}</h3>
         <p class="text-sm text-gray-500 mb-4">${settingsDesc}</p>
         <div class="space-y-5">
-          <!-- نقاط لكل تسجيل حضور -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">${checkinLabel}</label>
             <input type="number" min="0" id="s-checkin" value="${values.points_per_checkin}"
@@ -288,7 +313,6 @@
             <p class="setting-hint">${checkinHint}</p>
           </div>
           
-          <!-- نقاط لكل وحدة عملة عند التجديد -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">${renewalLabel}</label>
             <input type="number" min="0" step="0.01" id="s-renewal" value="${values.points_per_renewal_currency}"
@@ -296,7 +320,6 @@
             <p class="setting-hint">${renewalHint}</p>
           </div>
           
-          <!-- نقاط لكل وحدة عملة عند شراء من الكافتيريا -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">${canteenLabel}</label>
             <input type="number" min="0" step="0.01" id="s-canteen" value="${values.points_per_canteen_purchase}"
@@ -304,7 +327,6 @@
             <p class="setting-hint">${canteenHint}</p>
           </div>
           
-          <!-- معدل استبدال النقاط -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">${redemptionLabel}</label>
             <input type="number" min="0" step="0.01" id="s-redemption" value="${values.points_redemption_rate}"
@@ -336,12 +358,12 @@
         const { error } = await sb.from('loyalty_settings').upsert(payload, { onConflict: 'gym_id' });
         msgEl.textContent = error ? failedText : savedText;
         msgEl.className = `text-sm ${error ? 'text-red-600' : 'text-green-600'}`;
+        if (!error) showToast(savedText, 'success');
       });
       
       setTimeout(updatePageLanguage, 50);
     }
 
-    // Run init when DOM is ready
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', init);
     } else {

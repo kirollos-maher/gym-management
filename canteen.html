@@ -9,6 +9,8 @@
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- HTML5 QR Code Scanner -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <style>
     .product-card {
       transition: all 0.3s ease;
@@ -35,41 +37,6 @@
       color: #374151;
       border-bottom: 3px solid #d1d5db;
     }
-    .qr-print-item {
-      display: inline-block;
-      margin: 8px;
-      padding: 12px;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      text-align: center;
-      background: white;
-    }
-    .qr-print-item .product-name {
-      font-size: 10px;
-      margin-top: 4px;
-      max-width: 100px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    @media print {
-      body * {
-        visibility: hidden;
-      }
-      #print-area, #print-area * {
-        visibility: visible;
-      }
-      #print-area {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        padding: 20px;
-      }
-      .no-print {
-        display: none !important;
-      }
-    }
     .toast {
       position: fixed;
       bottom: 20px;
@@ -80,6 +47,7 @@
       z-index: 9999;
       animation: slideUp 0.3s ease;
       max-width: 400px;
+      font-size: 14px;
     }
     .toast-success {
       background: #10b981;
@@ -93,6 +61,131 @@
     @keyframes slideUp {
       from { transform: translateY(100px); opacity: 0; }
       to { transform: translateY(0); opacity: 1; }
+    }
+    #scanner-container {
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+    #scanner-container video {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+    }
+    .scanner-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 200px;
+      height: 200px;
+      border: 3px solid #3b82f6;
+      border-radius: 12px;
+      box-shadow: 0 0 0 4000px rgba(0,0,0,0.3);
+      pointer-events: none;
+    }
+    .scanner-corner {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-color: #3b82f6;
+      border-style: solid;
+      border-width: 0;
+    }
+    .scanner-corner-tl {
+      top: -3px;
+      left: -3px;
+      border-top-width: 3px;
+      border-left-width: 3px;
+      border-radius: 4px 0 0 0;
+    }
+    .scanner-corner-tr {
+      top: -3px;
+      right: -3px;
+      border-top-width: 3px;
+      border-right-width: 3px;
+      border-radius: 0 4px 0 0;
+    }
+    .scanner-corner-bl {
+      bottom: -3px;
+      left: -3px;
+      border-bottom-width: 3px;
+      border-left-width: 3px;
+      border-radius: 0 0 0 4px;
+    }
+    .scanner-corner-br {
+      bottom: -3px;
+      right: -3px;
+      border-bottom-width: 3px;
+      border-right-width: 3px;
+      border-radius: 0 0 4px 0;
+    }
+    .scan-line {
+      position: absolute;
+      left: 10%;
+      right: 10%;
+      height: 2px;
+      background: #3b82f6;
+      animation: scanMove 2s linear infinite;
+      opacity: 0.6;
+    }
+    @keyframes scanMove {
+      0% { top: 10%; }
+      50% { top: 90%; }
+      100% { top: 10%; }
+    }
+    #scanner-container {
+      position: relative;
+    }
+    .flash-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: white;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 10;
+      transition: opacity 0.1s;
+    }
+    .flash-overlay.active {
+      opacity: 0.8;
+    }
+    @media print {
+      body * { visibility: hidden; }
+      #print-area, #print-area * { visibility: visible; }
+      #print-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 20px;
+      }
+      .no-print { display: none !important; }
+    }
+    .member-select-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      backdrop-filter: blur(4px);
+    }
+    .member-select-content {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      max-width: 400px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
     }
   </style>
 </head>
@@ -255,20 +348,36 @@
     </div>
   </div>
 
-  <!-- Modal: Scan QR -->
-  <div id="scan-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
-      <div class="flex justify-between items-center mb-4">
+  <!-- Modal: Scan QR with Camera -->
+  <div id="scan-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-4 max-h-[95vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-3">
         <h2 class="text-xl font-bold text-gray-800">📷 Scan QR Code</h2>
-        <button id="close-scan" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
-      </div>
-      <div class="text-center">
-        <div class="border-4 border-blue-500 rounded-lg p-4 mb-4">
-          <input type="text" id="qr-input" placeholder="Paste QR code or scan..." class="w-full rounded-lg border-2 border-dashed border-blue-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <div class="flex gap-2">
+          <button id="toggle-flash-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg px-3 py-1 text-sm">💡 Flash</button>
+          <button id="close-scan" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
         </div>
-        <p class="text-sm text-gray-500 mb-4">Enter QR code manually or use a scanner device</p>
-        <button id="process-qr-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2">Process QR Code</button>
-        <div id="scan-result" class="mt-4 text-sm"></div>
+      </div>
+      
+      <div id="scanner-container">
+        <div id="scanner"></div>
+        <div class="scanner-overlay">
+          <div class="scanner-corner scanner-corner-tl"></div>
+          <div class="scanner-corner scanner-corner-tr"></div>
+          <div class="scanner-corner scanner-corner-bl"></div>
+          <div class="scanner-corner scanner-corner-br"></div>
+          <div class="scan-line"></div>
+        </div>
+        <div class="flash-overlay" id="flash-overlay"></div>
+      </div>
+      
+      <div class="mt-3 text-center">
+        <p class="text-sm text-gray-500">Align the QR code within the frame to scan</p>
+        <div id="scan-result" class="mt-2 text-sm font-medium"></div>
+        <div class="flex gap-2 mt-3">
+          <input type="text" id="qr-input" placeholder="Or enter QR code manually..." class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <button id="process-manual-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2 text-sm">Process</button>
+        </div>
       </div>
     </div>
   </div>
@@ -307,7 +416,13 @@
     let members = [];
     let currentTab = 'products';
     let selectedProducts = new Set();
+    let html5QrCode = null;
+    let isScanning = false;
+    let scannerInitialized = false;
 
+    // ============================================================
+    // INIT
+    // ============================================================
     async function init() {
       const auth = await requireAuth();
       if (!auth) return;
@@ -364,6 +479,9 @@
       members = membersData || [];
     }
 
+    // ============================================================
+    // SETUP EVENT LISTENERS
+    // ============================================================
     function setupEventListeners() {
       document.querySelectorAll('[data-tab]').forEach(tab => {
         tab.addEventListener('click', () => switchTab(tab.dataset.tab));
@@ -382,16 +500,14 @@
       });
       document.getElementById('add-product-form').addEventListener('submit', addProduct);
 
-      document.getElementById('scan-qr-btn').addEventListener('click', () => {
-        document.getElementById('scan-modal').classList.remove('hidden');
-        document.getElementById('qr-input').value = '';
-        document.getElementById('scan-result').textContent = '';
-        document.getElementById('scan-result').className = 'mt-4 text-sm';
+      // Scan QR
+      document.getElementById('scan-qr-btn').addEventListener('click', openScanner);
+      document.getElementById('close-scan').addEventListener('click', closeScanner);
+      document.getElementById('process-manual-btn').addEventListener('click', processManualQR);
+      document.getElementById('qr-input').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') processManualQR();
       });
-      document.getElementById('close-scan').addEventListener('click', () => {
-        document.getElementById('scan-modal').classList.add('hidden');
-      });
-      document.getElementById('process-qr-btn').addEventListener('click', processQR);
+      document.getElementById('toggle-flash-btn').addEventListener('click', toggleFlash);
 
       document.getElementById('generate-qr-btn').addEventListener('click', generateMemberQR);
       document.getElementById('print-member-qr-btn').addEventListener('click', printMemberQR);
@@ -404,10 +520,6 @@
       });
       document.getElementById('print-items-qr-btn').addEventListener('click', printItemsQR);
       document.getElementById('download-items-qr-btn').addEventListener('click', downloadItemsQR);
-
-      document.getElementById('qr-input').addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') processQR();
-      });
 
       document.getElementById('print-all-qr-btn').addEventListener('click', () => {
         switchTab('print-qr');
@@ -426,8 +538,16 @@
 
       document.getElementById('print-selected-qr-btn').addEventListener('click', printSelectedQR);
       document.getElementById('download-selected-qr-btn').addEventListener('click', downloadSelectedQR);
+
+      // Close scanner on escape
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeScanner();
+      });
     }
 
+    // ============================================================
+    // SWITCH TAB
+    // ============================================================
     function switchTab(tab) {
       currentTab = tab;
       document.querySelectorAll('[data-tab]').forEach(t => {
@@ -440,7 +560,340 @@
     }
 
     // ============================================================
-    // PRODUCTS
+    // QR SCANNER FUNCTIONS
+    // ============================================================
+    async function openScanner() {
+      const modal = document.getElementById('scan-modal');
+      modal.classList.remove('hidden');
+      document.getElementById('scan-result').textContent = '';
+      document.getElementById('scan-result').className = 'mt-2 text-sm font-medium';
+      
+      // Reset scanner
+      if (html5QrCode) {
+        try {
+          await html5QrCode.stop();
+          html5QrCode.clear();
+        } catch(e) {}
+        html5QrCode = null;
+        scannerInitialized = false;
+      }
+
+      // Start scanner after a small delay
+      setTimeout(() => startScanner(), 300);
+    }
+
+    async function startScanner() {
+      if (scannerInitialized) return;
+      
+      try {
+        const scannerContainer = document.getElementById('scanner');
+        scannerContainer.innerHTML = '';
+        
+        html5QrCode = new Html5Qrcode("scanner");
+        
+        const config = {
+          fps: 15,
+          qrbox: { width: 200, height: 200 },
+          aspectRatio: 1.0,
+          formatsToSupport: [ 
+            Html5QrcodeSupportedFormats.QR_CODE,
+            Html5QrcodeSupportedFormats.DATA_MATRIX
+          ]
+        };
+
+        await html5QrCode.start(
+          { facingMode: "environment" },
+          config,
+          onScanSuccess,
+          onScanError
+        );
+        
+        scannerInitialized = true;
+        isScanning = true;
+        document.getElementById('scan-result').textContent = '📷 Scanner ready - point at QR code';
+        document.getElementById('scan-result').className = 'mt-2 text-sm font-medium text-green-600';
+        
+      } catch (err) {
+        console.error('Scanner error:', err);
+        document.getElementById('scan-result').textContent = '❌ Camera error: ' + err.message;
+        document.getElementById('scan-result').className = 'mt-2 text-sm font-medium text-red-600';
+        showToast('❌ Camera access denied. Please allow camera access.', 'error');
+      }
+    }
+
+    async function onScanSuccess(decodedText, decodedResult) {
+      // Flash effect
+      const flash = document.getElementById('flash-overlay');
+      flash.classList.add('active');
+      setTimeout(() => flash.classList.remove('active'), 200);
+
+      // Show what was scanned
+      document.getElementById('scan-result').textContent = `✅ Scanned: ${decodedText}`;
+      document.getElementById('scan-result').className = 'mt-2 text-sm font-medium text-green-600';
+      
+      // Stop scanner temporarily to avoid multiple scans
+      if (html5QrCode && isScanning) {
+        try {
+          await html5QrCode.stop();
+          isScanning = false;
+        } catch(e) {}
+      }
+
+      // Process the QR code
+      await processQRCode(decodedText);
+      
+      // Restart scanner after processing
+      setTimeout(async () => {
+        if (html5QrCode && !isScanning && scannerInitialized) {
+          try {
+            await html5QrCode.start(
+              { facingMode: "environment" },
+              { fps: 15, qrbox: { width: 200, height: 200 }, aspectRatio: 1.0 },
+              onScanSuccess,
+              onScanError
+            );
+            isScanning = true;
+          } catch(e) {
+            console.log('Restart error:', e);
+          }
+        }
+      }, 3000);
+    }
+
+    function onScanError(error) {
+      // Silent error - just ignore
+    }
+
+    async function processManualQR() {
+      const input = document.getElementById('qr-input');
+      const qrCode = input.value.trim();
+      if (!qrCode) {
+        showToast('Please enter a QR code', 'error');
+        return;
+      }
+      await processQRCode(qrCode);
+      input.value = '';
+    }
+
+    async function processQRCode(qrCode) {
+      const resultEl = document.getElementById('scan-result');
+      
+      try {
+        // 1. البحث عن المنتج بالـ QR
+        const { data: item, error: itemError } = await sb
+          .from('product_items')
+          .select('*, product:products(*)')
+          .eq('qr_code', qrCode)
+          .eq('gym_id', gymId)
+          .single();
+
+        if (item) {
+          // المنتج موجود
+          if (item.status === 'sold') {
+            resultEl.textContent = '❌ This item has already been sold!';
+            resultEl.className = 'mt-2 text-sm font-medium text-red-600';
+            showToast('❌ This item has already been sold!', 'error');
+            return;
+          }
+
+          // اختيار العضو المشتري
+          const memberId = await showMemberSelectModal();
+          if (!memberId) {
+            resultEl.textContent = '❌ Purchase cancelled';
+            resultEl.className = 'mt-2 text-sm font-medium text-yellow-600';
+            return;
+          }
+
+          // 2. تسجيل عملية الشراء
+          const { error: purchaseError } = await sb.rpc('record_product_purchase', {
+            p_member_id: memberId,
+            p_product_item_id: item.id,
+            p_gym_id: gymId,
+            p_price_paid: item.product.price,
+            p_payment_method: 'cash'
+          });
+
+          if (purchaseError) {
+            resultEl.textContent = '❌ Error: ' + purchaseError.message;
+            resultEl.className = 'mt-2 text-sm font-medium text-red-600';
+            showToast('❌ Purchase failed: ' + purchaseError.message, 'error');
+            return;
+          }
+
+          const memberName = members.find(m => m.id === memberId)?.full_name || 'Member';
+          const pointsEarned = Math.floor(item.product.price * 3);
+          
+          resultEl.textContent = `✅ ${item.product.name} sold to ${memberName}! ⭐ ${pointsEarned} points earned!`;
+          resultEl.className = 'mt-2 text-sm font-medium text-green-600';
+          showToast(`✅ ${item.product.name} sold to ${memberName}!`, 'success');
+          
+          // 3. إعادة تحميل البيانات
+          await loadData();
+          renderProducts();
+          renderInventory();
+          renderSales();
+          renderPrintProducts();
+          
+          return;
+        }
+
+        // 4. التحقق من QR الخاص بالعضو (تسجيل حضور)
+        const { data: memberQR, error: memberError } = await sb
+          .from('member_qr_codes')
+          .select('*, member:users(*)')
+          .eq('qr_code', qrCode)
+          .eq('gym_id', gymId)
+          .single();
+
+        if (memberQR) {
+          // تسجيل حضور العضو
+          const { error: checkinError } = await sb
+            .from('attendance_logs')
+            .insert({
+              user_id: memberQR.member_id,
+              gym_id: gymId,
+              method: 'qr_code',
+              type: 'member'
+            });
+
+          if (checkinError) {
+            resultEl.textContent = '❌ Check-in failed: ' + checkinError.message;
+            resultEl.className = 'mt-2 text-sm font-medium text-red-600';
+            showToast('❌ Check-in failed', 'error');
+            return;
+          }
+
+          await sb
+            .from('member_qr_codes')
+            .update({ last_used_at: new Date().toISOString() })
+            .eq('id', memberQR.id);
+
+          const memberName = memberQR.member?.full_name || 'Member';
+          resultEl.textContent = `✅ ${memberName} checked in successfully!`;
+          resultEl.className = 'mt-2 text-sm font-medium text-green-600';
+          showToast(`✅ ${memberName} checked in!`, 'success');
+          
+          // إضافة نقاط ولاء
+          try {
+            await sb.rpc('add_loyalty_points', {
+              p_member_id: memberQR.member_id,
+              p_gym_id: gymId,
+              p_points: 5,
+              p_source: 'attendance',
+              p_description: 'Check-in QR scan'
+            });
+          } catch (e) {
+            console.log('Loyalty points error:', e);
+          }
+          return;
+        }
+
+        // 5. QR غير معروف
+        resultEl.textContent = '❌ Invalid QR code - not found in system';
+        resultEl.className = 'mt-2 text-sm font-medium text-red-600';
+        showToast('❌ Invalid QR code', 'error');
+
+      } catch (err) {
+        resultEl.textContent = '❌ Error: ' + err.message;
+        resultEl.className = 'mt-2 text-sm font-medium text-red-600';
+        showToast('❌ Error: ' + err.message, 'error');
+      }
+    }
+
+    // ============================================================
+    // MEMBER SELECT MODAL
+    // ============================================================
+    function showMemberSelectModal() {
+      return new Promise((resolve) => {
+        const modal = document.createElement('div');
+        modal.className = 'member-select-modal';
+        modal.innerHTML = `
+          <div class="member-select-content">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">👤 Select Member</h3>
+            <p class="text-sm text-gray-500 mb-4">Choose the member who is purchasing this item</p>
+            <select id="purchase-member-select" class="w-full rounded-lg border border-gray-300 px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 text-base">
+              <option value="">-- Select a member --</option>
+              ${members.map(m => `<option value="${m.id}">${m.full_name || 'Unknown'} - ${m.email || ''}</option>`).join('')}
+            </select>
+            <div class="flex gap-3">
+              <button id="purchase-cancel-btn" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-medium px-4 py-2">Cancel</button>
+              <button id="purchase-confirm-btn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2">Confirm Purchase</button>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(modal);
+
+        const confirmBtn = modal.querySelector('#purchase-confirm-btn');
+        const cancelBtn = modal.querySelector('#purchase-cancel-btn');
+        const select = modal.querySelector('#purchase-member-select');
+
+        const cleanup = () => {
+          if (modal.parentNode) modal.parentNode.removeChild(modal);
+        };
+
+        confirmBtn.addEventListener('click', () => {
+          const val = select.value;
+          cleanup();
+          resolve(val || null);
+        });
+
+        cancelBtn.addEventListener('click', () => {
+          cleanup();
+          resolve(null);
+        });
+
+        select.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            const val = select.value;
+            cleanup();
+            resolve(val || null);
+          }
+        });
+
+        // Auto-select if only one member
+        if (members.length === 1) {
+          select.value = members[0].id;
+        }
+      });
+    }
+
+    // ============================================================
+    // CLOSE SCANNER
+    // ============================================================
+    async function closeScanner() {
+      if (html5QrCode) {
+        try {
+          await html5QrCode.stop();
+          html5QrCode.clear();
+        } catch(e) {}
+        html5QrCode = null;
+        scannerInitialized = false;
+        isScanning = false;
+      }
+      document.getElementById('scan-modal').classList.add('hidden');
+      document.getElementById('scanner').innerHTML = '';
+    }
+
+    // ============================================================
+    // TOGGLE FLASH
+    // ============================================================
+    let flashOn = false;
+    async function toggleFlash() {
+      if (html5QrCode) {
+        try {
+          flashOn = !flashOn;
+          await html5QrCode.applyVideoConstraints({
+            advanced: [{ torch: flashOn }]
+          });
+          document.getElementById('toggle-flash-btn').textContent = flashOn ? '💡 Flash ON' : '💡 Flash';
+        } catch(e) {
+          showToast('Flash not supported on this device', 'error');
+        }
+      }
+    }
+
+    // ============================================================
+    // PRODUCTS FUNCTIONS
     // ============================================================
     async function addProduct(e) {
       e.preventDefault();
@@ -617,8 +1070,6 @@
     // ============================================================
     // PRINT & DOWNLOAD QR FUNCTIONS
     // ============================================================
-    
-    // Download single product QR as PDF
     async function downloadProductQR(productId) {
       const product = products.find(p => p.id === productId);
       const items = productItems.filter(item => item.product_id === productId && item.status === 'available');
@@ -958,196 +1409,6 @@
 
       doc.save('qr-codes.pdf');
       showToast(`✅ Downloaded ${count} QR codes`, 'success');
-    }
-
-    // ============================================================
-    // SCAN QR - FIXED - تسجيل البيع تلقائياً
-    // ============================================================
-    async function processQR() {
-      const qrInput = document.getElementById('qr-input');
-      const resultEl = document.getElementById('scan-result');
-      const qrCode = qrInput.value.trim();
-
-      if (!qrCode) {
-        resultEl.textContent = '⚠️ Please enter a QR code';
-        resultEl.className = 'mt-4 text-sm text-red-600';
-        return;
-      }
-
-      resultEl.textContent = '⏳ Processing...';
-      resultEl.className = 'mt-4 text-sm text-blue-600';
-
-      try {
-        // 1. البحث عن المنتج بالـ QR
-        const { data: item, error: itemError } = await sb
-          .from('product_items')
-          .select('*, product:products(*)')
-          .eq('qr_code', qrCode)
-          .eq('gym_id', gymId)
-          .single();
-
-        if (item) {
-          // المنتج موجود - تحقق من حالته
-          if (item.status === 'sold') {
-            resultEl.textContent = '❌ This item has already been sold!';
-            resultEl.className = 'mt-4 text-sm text-red-600';
-            showToast('❌ This item has already been sold!', 'error');
-            return;
-          }
-
-          // اختيار العضو المشتري
-          const memberId = await selectMemberForPurchase();
-          if (!memberId) {
-            resultEl.textContent = '❌ Please select a member';
-            resultEl.className = 'mt-4 text-sm text-red-600';
-            return;
-          }
-
-          // 2. تسجيل عملية الشراء (تحديث الحالة + إضافة نقاط + تسجيل المبيعات)
-          const { error: purchaseError } = await sb.rpc('record_product_purchase', {
-            p_member_id: memberId,
-            p_product_item_id: item.id,
-            p_gym_id: gymId,
-            p_price_paid: item.product.price,
-            p_payment_method: 'cash'
-          });
-
-          if (purchaseError) {
-            resultEl.textContent = '❌ Error: ' + purchaseError.message;
-            resultEl.className = 'mt-4 text-sm text-red-600';
-            showToast('❌ Purchase failed: ' + purchaseError.message, 'error');
-            return;
-          }
-
-          // 3. عرض رسالة نجاح
-          const memberName = members.find(m => m.id === memberId)?.full_name || 'Member';
-          resultEl.textContent = `✅ ${item.product.name} sold to ${memberName}! ⭐ ${Math.floor(item.product.price * 3)} points earned!`;
-          resultEl.className = 'mt-4 text-sm text-green-600';
-          showToast(`✅ ${item.product.name} sold to ${memberName}!`, 'success');
-          
-          // 4. إعادة تحميل البيانات وتحديث الواجهة
-          await loadData();
-          renderProducts();
-          renderInventory();
-          renderSales();
-          renderPrintProducts();
-          qrInput.value = '';
-          return;
-        }
-
-        // 5. التحقق من QR الخاص بالعضو (تسجيل حضور)
-        const { data: memberQR, error: memberError } = await sb
-          .from('member_qr_codes')
-          .select('*, member:users(*)')
-          .eq('qr_code', qrCode)
-          .eq('gym_id', gymId)
-          .single();
-
-        if (memberQR) {
-          // تسجيل حضور العضو
-          const { error: checkinError } = await sb
-            .from('attendance_logs')
-            .insert({
-              user_id: memberQR.member_id,
-              gym_id: gymId,
-              method: 'qr_code',
-              type: 'member'
-            });
-
-          if (checkinError) {
-            resultEl.textContent = '❌ Check-in failed: ' + checkinError.message;
-            resultEl.className = 'mt-4 text-sm text-red-600';
-            showToast('❌ Check-in failed', 'error');
-            return;
-          }
-
-          // تحديث آخر استخدام
-          await sb
-            .from('member_qr_codes')
-            .update({ last_used_at: new Date().toISOString() })
-            .eq('id', memberQR.id);
-
-          const memberName = memberQR.member?.full_name || 'Member';
-          resultEl.textContent = `✅ ${memberName} checked in successfully!`;
-          resultEl.className = 'mt-4 text-sm text-green-600';
-          showToast(`✅ ${memberName} checked in!`, 'success');
-          qrInput.value = '';
-          
-          // إضافة نقاط ولاء لتسجيل الحضور
-          try {
-            await sb.rpc('add_loyalty_points', {
-              p_member_id: memberQR.member_id,
-              p_gym_id: gymId,
-              p_points: 5,
-              p_source: 'attendance',
-              p_description: 'Check-in QR scan'
-            });
-          } catch (e) {
-            console.log('Loyalty points error:', e);
-          }
-          return;
-        }
-
-        // 6. QR غير معروف
-        resultEl.textContent = '❌ Invalid QR code - not found in system';
-        resultEl.className = 'mt-4 text-sm text-red-600';
-        showToast('❌ Invalid QR code', 'error');
-
-      } catch (err) {
-        resultEl.textContent = '❌ Error: ' + err.message;
-        resultEl.className = 'mt-4 text-sm text-red-600';
-        showToast('❌ Error: ' + err.message, 'error');
-      }
-    }
-
-    async function selectMemberForPurchase() {
-      // استخدام select box بدلاً من prompt
-      return new Promise((resolve) => {
-        const modal = document.createElement('div');
-        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]';
-        modal.innerHTML = `
-          <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
-            <h3 class="text-lg font-bold text-gray-800 mb-4">Select Member</h3>
-            <select id="purchase-member-select" class="w-full rounded-lg border border-gray-300 px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="">-- Select a member --</option>
-              ${members.map(m => `<option value="${m.id}">${m.full_name || 'Unknown'} - ${m.email || ''}</option>`).join('')}
-            </select>
-            <div class="flex gap-3">
-              <button id="purchase-cancel-btn" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-medium px-4 py-2">Cancel</button>
-              <button id="purchase-confirm-btn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2">Confirm</button>
-            </div>
-          </div>
-        `;
-        document.body.appendChild(modal);
-
-        const confirmBtn = modal.querySelector('#purchase-confirm-btn');
-        const cancelBtn = modal.querySelector('#purchase-cancel-btn');
-        const select = modal.querySelector('#purchase-member-select');
-
-        const cleanup = () => {
-          if (modal.parentNode) modal.parentNode.removeChild(modal);
-        };
-
-        confirmBtn.addEventListener('click', () => {
-          const val = select.value;
-          cleanup();
-          resolve(val || null);
-        });
-
-        cancelBtn.addEventListener('click', () => {
-          cleanup();
-          resolve(null);
-        });
-
-        // Enter key support
-        select.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') {
-            const val = select.value;
-            cleanup();
-            resolve(val || null);
-          }
-        });
-      });
     }
 
     // ============================================================

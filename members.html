@@ -142,6 +142,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <script src="js/supabaseClient.js"></script>
+  <script src="js/language.js"></script>
   <script>
     let gymId = null;
     let allMembers = [];
@@ -359,6 +360,12 @@
       }
 
       try {
+        // 0. Save the admin's current session so we can restore it —
+        // auth.signUp() below silently switches the client to the
+        // new member's session otherwise.
+        const { data: sessionData } = await sb.auth.getSession();
+        const adminSession = sessionData?.session;
+
         // 1. Create auth user
         const tempEmail = email || `${fullName.replace(/\s/g,'')}_${Date.now()}@temp.com`;
         const { data: authData, error: authError } = await sb.auth.signUp({
@@ -373,42 +380,26 @@
           throw new Error('Failed to create user');
         }
 
-        // 2. Create user profile
-        const { error: profileError } = await sb
-          .from('users')
-          .insert({
-            id: authData.user.id,
-            full_name: fullName,
-            email: email || tempEmail,
-            phone: phone,
-            gym_id: gymId,
-            role: 'member'
+        // 2. Restore the admin's session immediately
+        if (adminSession) {
+          await sb.auth.setSession({
+            access_token: adminSession.access_token,
+            refresh_token: adminSession.refresh_token
           });
-
-        if (profileError) throw profileError;
-
-        // 3. If membership selected, create subscription
-        if (membershipId) {
-          const membership = memberships.find(m => m.id === membershipId);
-          if (membership) {
-            const startDate = new Date();
-            const endDate = new Date();
-            endDate.setMonth(endDate.getMonth() + membership.duration_months);
-            
-            const { error: subError } = await sb
-              .from('subscriptions')
-              .insert({
-                member_id: authData.user.id,
-                membership_id: membershipId,
-                gym_id: gymId,
-                start_date: startDate.toISOString().split('T')[0],
-                end_date: endDate.toISOString().split('T')[0],
-                status: 'active'
-              });
-            
-            if (subError) console.error('Subscription error:', subError);
-          }
         }
+
+        // 3. Finish setup (link gym/role + optional subscription) via
+        // a safe RPC — avoids re-inserting into users (the sign-up
+        // trigger already created that row) and runs as the admin.
+        const { error: setupError } = await sb.rpc('finish_member_setup', {
+          p_member_id: authData.user.id,
+          p_gym_id: gymId,
+          p_full_name: fullName,
+          p_phone: phone,
+          p_membership_id: membershipId
+        });
+
+        if (setupError) throw setupError;
 
         // 4. Generate member QR code
         try {

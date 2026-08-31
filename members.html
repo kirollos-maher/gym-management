@@ -299,7 +299,7 @@
     }
 
     // ============================================================
-    // ADD MEMBER - مع دعم الخطة المخصصة
+    // ADD MEMBER - مع دعم الخطة المخصصة (باستخدام insert مباشر)
     // ============================================================
     async function addMember(e) {
       e.preventDefault();
@@ -318,7 +318,7 @@
       let membershipId = null;
 
       // ==========================================================
-      // Handle custom plan - استخدام الدالة الآمنة
+      // Handle custom plan - استخدام insert مباشر (بدون RPC)
       // ==========================================================
       if (membershipValue === 'custom') {
         const customDuration = parseFloat(document.getElementById('custom-duration').value);
@@ -334,27 +334,65 @@
         }
 
         try {
-          // استخدام الدالة الجديدة create_custom_membership (بتتجاوز RLS)
-          const { data: newMembershipId, error: createError } = await sb.rpc('create_custom_membership', {
-            p_gym_id: gymId,
-            p_name: `مخصص - ${customDuration} شهر`,
-            p_description: `خطة مخصصة لمدة ${customDuration} شهر`,
-            p_price: customPrice || (customDuration * 50),
-            p_duration: customDuration,
-            p_perks: ['خطة مخصصة']
-          });
+          // Insert مباشر في جدول memberships
+          const { data: newMembership, error: createError } = await sb
+            .from('memberships')
+            .insert({
+              gym_id: gymId,
+              name: `مخصص - ${customDuration} شهر`,
+              description: `خطة مخصصة لمدة ${customDuration} شهر`,
+              price: customPrice || (customDuration * 50),
+              duration_months: customDuration,
+              perks: ['خطة مخصصة']
+            })
+            .select()
+            .single();
           
           if (createError) {
             console.error('Create custom membership error:', createError);
-            throw new Error(createError.message);
+            
+            // لو في مشكلة RLS، حاول تاني من غير select
+            if (createError.message.includes('row-level security')) {
+              const { error: insertError } = await sb
+                .from('memberships')
+                .insert({
+                  gym_id: gymId,
+                  name: `مخصص - ${customDuration} شهر`,
+                  description: `خطة مخصصة لمدة ${customDuration} شهر`,
+                  price: customPrice || (customDuration * 50),
+                  duration_months: customDuration,
+                  perks: ['خطة مخصصة']
+                });
+              
+              if (insertError) throw insertError;
+              
+              // جلب الـ ID بعد الإدراج
+              const { data: fetched } = await sb
+                .from('memberships')
+                .select('id')
+                .eq('gym_id', gymId)
+                .eq('name', `مخصص - ${customDuration} شهر`)
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .single();
+              
+              if (fetched) {
+                membershipId = fetched.id;
+              } else {
+                throw new Error('Could not retrieve custom plan ID');
+              }
+            } else {
+              throw createError;
+            }
+          } else {
+            membershipId = newMembership.id;
           }
-          
-          membershipId = newMembershipId;
           
           // إعادة تحميل الخطط عشان تظهر في القائمة
           await loadMemberships();
           
         } catch (err) {
+          console.error('Custom plan error:', err);
           msgEl.textContent = '❌ Error creating custom plan: ' + err.message;
           msgEl.className = 'text-sm text-red-600';
           msgEl.classList.remove('hidden');
@@ -407,7 +445,51 @@
 
         if (setupError) {
           console.error('Setup error:', setupError);
-          throw new Error(setupError.message || 'Failed to complete member setup');
+          
+          // لو الدالة مش موجودة، نعمل setup يدوي
+          if (setupError.message.includes('Could not find the function')) {
+            // تحديث المستخدم مباشرة
+            const { error: updateError } = await sb
+              .from('users')
+              .update({
+                gym_id: gymId,
+                full_name: fullName,
+                phone: phone,
+                role: 'member'
+              })
+              .eq('id', authData.user.id);
+            
+            if (updateError) throw updateError;
+            
+            // إنشاء QR Code
+            await sb.rpc('ensure_member_qr', {
+              p_member_id: authData.user.id,
+              p_gym_id: gymId
+            });
+            
+            // إذا كان فيه خطة عضوية، نضيف اشتراك
+            if (membershipId) {
+              const plan = memberships.find(m => m.id === membershipId);
+              if (plan) {
+                const endDate = new Date();
+                endDate.setDate(endDate.getDate() + (plan.duration_months * 30));
+                
+                await sb
+                  .from('subscriptions')
+                  .insert({
+                    member_id: authData.user.id,
+                    membership_id: membershipId,
+                    gym_id: gymId,
+                    start_date: new Date().toISOString().split('T')[0],
+                    end_date: endDate.toISOString().split('T')[0],
+                    status: 'active',
+                    auto_renew: false
+                  });
+              }
+            }
+          } else {
+            throw new Error(setupError.message || 'Failed to complete member setup');
+          }
         }
 
         msgEl.textContent = '✅ Member added successfully!';

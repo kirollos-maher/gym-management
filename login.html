@@ -3,44 +3,58 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sign In - Gym Management</title>
+  <title>Gym Management System</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
-  <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-    <div class="w-full max-w-md bg-white rounded-lg shadow-md overflow-hidden">
-      <div class="px-6 py-4 border-b flex items-center justify-between">
-        <h2 class="text-2xl font-semibold text-gray-900 text-center flex-1" data-i18n="auth.signin">Sign In</h2>
-        <button id="lang-toggle" class="px-3 py-1 text-sm font-medium text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
-          عربي
-        </button>
-      </div>
-      <div class="px-6 py-4">
-        <form id="login-form" class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="auth.email">Email</label>
-            <input type="email" id="email" required data-i18n-placeholder="auth.enter.email"
-              class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="auth.password">Password</label>
-            <input type="password" id="password" required data-i18n-placeholder="auth.enter.password"
-              class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          </div>
-          <div id="error-box" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm"></div>
-          <button type="submit" id="submit-btn"
-            class="w-full rounded-lg font-medium bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 flex items-center justify-center">
-            <span data-i18n="auth.signin">Sign In</span>
+  <main class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div class="max-w-4xl w-full bg-white rounded-2xl shadow-xl p-8">
+      <div class="text-center">
+        <div class="flex justify-end mb-4">
+          <button id="lang-toggle" class="px-4 py-2 text-sm font-medium text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
+            عربي
           </button>
-          <p class="text-center text-sm text-gray-500">
-            <span data-i18n="auth.noaccount">Don't have an account?</span>
-            <a href="signup.html" class="text-blue-600 hover:underline" data-i18n="auth.create">Create one</a>
-          </p>
-        </form>
+        </div>
+        <h1 class="text-4xl font-bold text-gray-800 mb-4" data-i18n="nav.gymmanagement">🏋️ Gym Management System</h1>
+        <p class="text-gray-600 text-lg mb-8" data-i18n="index.subtitle">Complete solution for gym check-in, loyalty points, and notifications</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <div class="bg-blue-50 p-6 rounded-xl">
+            <div class="text-3xl mb-2">✅</div>
+            <h3 class="font-semibold text-gray-700" data-i18n="nav.checkin">Check-In</h3>
+            <p class="text-sm text-gray-500" data-i18n="index.checkin.desc">QR Code &amp; Manual</p>
+          </div>
+          <div class="bg-purple-50 p-6 rounded-xl">
+            <div class="text-3xl mb-2">⭐</div>
+            <h3 class="font-semibold text-gray-700" data-i18n="nav.loyalty">Loyalty Points</h3>
+            <p class="text-sm text-gray-500" data-i18n="index.loyalty.desc">Earn &amp; Redeem</p>
+          </div>
+          <div class="bg-green-50 p-6 rounded-xl">
+            <div class="text-3xl mb-2">📱</div>
+            <h3 class="font-semibold text-gray-700" data-i18n="index.notifications">Notifications</h3>
+            <p class="text-sm text-gray-500" data-i18n="index.notifications.desc">WhatsApp, SMS, Email</p>
+          </div>
+        </div>
+
+        <div class="space-x-4 space-x-reverse">
+          <a href="check-in.html" class="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition" data-i18n="nav.checkin">
+            Start Check-In
+          </a>
+          <a href="dashboard.html" class="inline-block bg-gray-200 text-gray-700 px-8 py-3 rounded-lg font-semibold hover:bg-gray-300 transition" data-i18n="nav.dashboard">
+            Dashboard
+          </a>
+        </div>
+
+        <p class="mt-6 text-sm text-gray-400">
+          <span data-i18n="auth.noaccount">Don't have an account?</span>
+          <a href="signup.html" class="text-blue-600 hover:underline" data-i18n="auth.create">Create one</a>
+          ·
+          <a href="login.html" class="text-blue-600 hover:underline" data-i18n="auth.signin.link">Sign in</a>
+        </p>
       </div>
     </div>
-  </div>
+  </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabaseClient.js"></script>
@@ -48,7 +62,7 @@
   
   <script>
     // ============================================
-    // زر تغيير اللغة
+    // زر تغيير اللغة - إعادة تحميل الصفحة
     // ============================================
     document.addEventListener('DOMContentLoaded', function() {
       const langToggle = document.getElementById('lang-toggle');
@@ -59,42 +73,11 @@
           const currentLang = localStorage.getItem('gym_lang') || 'en';
           const newLang = currentLang === 'ar' ? 'en' : 'ar';
           localStorage.setItem('gym_lang', newLang);
-          document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr';
-          document.documentElement.lang = newLang;
-          updatePageLanguage();
-          updateLanguageToggle();
+          window.location.reload();
         });
       }
       
       updatePageLanguage();
-    });
-
-    // ============================================
-    // نموذج تسجيل الدخول
-    // ============================================
-    document.getElementById('login-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const errorBox = document.getElementById('error-box');
-      const submitBtn = document.getElementById('submit-btn');
-      errorBox.classList.add('hidden');
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = '<div class="spinner h-5 w-5"></div>';
-
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-
-      const { error } = await sb.auth.signInWithPassword({ email, password });
-
-      if (error) {
-        errorBox.textContent = error.message;
-        errorBox.classList.remove('hidden');
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<span data-i18n="auth.signin">Sign In</span>';
-        updatePageLanguage();
-        return;
-      }
-
-      window.location.href = 'dashboard.html';
     });
   </script>
 </body>

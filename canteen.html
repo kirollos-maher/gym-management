@@ -37,16 +37,9 @@
     .member-select-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 10000; backdrop-filter: blur(4px); }
     .member-select-content { background: white; border-radius: 16px; padding: 24px; max-width: 400px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
 
-    /* ============================================================
-       PRINT STYLES - CARD PRINTING (85.6mm x 54mm)
-       ============================================================ */
     @media print {
-      body * {
-        visibility: hidden;
-      }
-      #print-area, #print-area * {
-        visibility: visible;
-      }
+      body * { visibility: hidden; }
+      #print-area, #print-area * { visibility: visible; }
       #print-area {
         position: absolute;
         left: 0;
@@ -77,10 +70,7 @@
         border-radius: 2mm;
         border: 0.3mm solid #e5e7eb;
       }
-      @page {
-        size: 85.6mm 54mm;
-        margin: 0;
-      }
+      @page { size: 85.6mm 54mm; margin: 0; }
       html, body {
         margin: 0 !important;
         padding: 0 !important;
@@ -89,189 +79,8 @@
         overflow: hidden !important;
         background: white !important;
       }
-      * {
-        box-sizing: border-box !important;
-        page-break-inside: avoid !important;
-        page-break-after: avoid !important;
-      }
+      * { box-sizing: border-box !important; page-break-inside: avoid !important; page-break-after: avoid !important; }
     }
-
-    /* ============================================================
-       CARD TEMPLATE STYLES
-       ============================================================ */
-    .card-template-selector {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 15px;
-    }
-    .card-template-btn {
-      padding: 8px 16px;
-      border-radius: 8px;
-      border: 2px solid #e5e7eb;
-      background: white;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 500;
-      transition: all 0.2s;
-    }
-    .card-template-btn:hover {
-      border-color: #3b82f6;
-      background: #f0f7ff;
-    }
-    .card-template-btn.active {
-      border-color: #3b82f6;
-      background: #dbeafe;
-      color: #1e40af;
-    }
-    .card-template-preview {
-      width: 60px;
-      height: 38px;
-      border-radius: 4px;
-      display: inline-block;
-      vertical-align: middle;
-      margin-right: 8px;
-      border: 1px solid #ddd;
-    }
-
-    /* Template 1 - Dark Premium */
-    .card-template-dark {
-      background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%) !important;
-      color: white !important;
-    }
-    .card-template-dark .card-name { color: white !important; }
-    .card-template-dark .card-gym { color: rgba(255,255,255,0.7) !important; }
-    .card-template-dark .card-id { color: rgba(255,255,255,0.5) !important; }
-    .card-template-dark .card-date { color: rgba(255,255,255,0.4) !important; }
-    .card-template-dark .card-avatar { 
-      background: linear-gradient(135deg, #f472b6, #8b5cf6) !important;
-      color: white !important;
-    }
-    .card-template-dark .card-qr { background: white !important; padding: 0.5mm !important; border-radius: 1mm !important; }
-
-    /* Template 2 - Light Clean */
-    .card-template-light {
-      background: white !important;
-      border: 2px solid #e5e7eb !important;
-    }
-    .card-template-light .card-gym { color: #4f46e5 !important; font-weight: 800 !important; }
-    .card-template-light .card-name { color: #1a1a2e !important; }
-    .card-template-light .card-id { color: #6b7280 !important; }
-    .card-template-light .card-date { color: #9ca3af !important; }
-    .card-template-light .card-avatar { 
-      background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
-      color: white !important;
-      border: 2px solid #4f46e5 !important;
-    }
-    .card-template-light .card-qr { background: white !important; padding: 0.5mm !important; border-radius: 1mm !important; border: 1px solid #e5e7eb !important; }
-
-    /* Template 3 - Red Sport */
-    .card-template-red {
-      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 50%, #7f1d1d 100%) !important;
-      color: white !important;
-    }
-    .card-template-red .card-name { color: white !important; }
-    .card-template-red .card-gym { color: rgba(255,255,255,0.8) !important; font-weight: 700 !important; }
-    .card-template-red .card-id { color: rgba(255,255,255,0.5) !important; }
-    .card-template-red .card-date { color: rgba(255,255,255,0.4) !important; }
-    .card-template-red .card-avatar { 
-      background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
-      color: #7f1d1d !important;
-    }
-    .card-template-red .card-qr { background: white !important; padding: 0.5mm !important; border-radius: 1mm !important; }
-
-    /* Template 4 - Neon */
-    .card-template-neon {
-      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%) !important;
-      color: white !important;
-      border: 1px solid #00ff88 !important;
-    }
-    .card-template-neon .card-gym { 
-      color: #00ff88 !important; 
-      font-weight: 800 !important;
-      text-shadow: 0 0 20px rgba(0,255,136,0.3) !important;
-    }
-    .card-template-neon .card-name { color: white !important; }
-    .card-template-neon .card-id { color: rgba(0,255,136,0.5) !important; }
-    .card-template-neon .card-date { color: rgba(255,255,255,0.3) !important; }
-    .card-template-neon .card-avatar { 
-      background: linear-gradient(135deg, #00ff88, #00cc66) !important;
-      color: #0a0a0a !important;
-      border: 2px solid #00ff88 !important;
-      box-shadow: 0 0 30px rgba(0,255,136,0.2) !important;
-    }
-    .card-template-neon .card-qr { background: #0a0a0a !important; padding: 0.5mm !important; border-radius: 1mm !important; border: 1px solid #00ff88 !important; }
-    .card-template-neon .card-qr canvas { filter: invert(1) !important; }
-
-    /* Template 5 - Gradient Blue */
-    .card-template-blue {
-      background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%) !important;
-      color: white !important;
-    }
-    .card-template-blue .card-name { color: white !important; }
-    .card-template-blue .card-gym { color: rgba(255,255,255,0.8) !important; font-weight: 700 !important; }
-    .card-template-blue .card-id { color: rgba(255,255,255,0.5) !important; }
-    .card-template-blue .card-date { color: rgba(255,255,255,0.4) !important; }
-    .card-template-blue .card-avatar { 
-      background: linear-gradient(135deg, #f472b6, #ec4899) !important;
-      color: white !important;
-      border: 2px solid rgba(255,255,255,0.3) !important;
-    }
-    .card-template-blue .card-qr { background: white !important; padding: 0.5mm !important; border-radius: 1mm !important; }
-
-    /* Template 6 - Gold Luxury */
-    .card-template-gold {
-      background: linear-gradient(135deg, #1a1a2e 0%, #2d1810 50%, #1a1a2e 100%) !important;
-      color: white !important;
-      border: 2px solid #d4a853 !important;
-    }
-    .card-template-gold .card-gym { 
-      color: #d4a853 !important; 
-      font-weight: 800 !important;
-      text-shadow: 0 0 30px rgba(212,168,83,0.2) !important;
-    }
-    .card-template-gold .card-name { color: #d4a853 !important; }
-    .card-template-gold .card-id { color: rgba(212,168,83,0.5) !important; }
-    .card-template-gold .card-date { color: rgba(212,168,83,0.3) !important; }
-    .card-template-gold .card-avatar { 
-      background: linear-gradient(135deg, #d4a853, #f59e0b) !important;
-      color: #1a1a2e !important;
-      border: 2px solid #d4a853 !important;
-      box-shadow: 0 0 40px rgba(212,168,83,0.15) !important;
-    }
-    .card-template-gold .card-qr { background: #1a1a2e !important; padding: 0.5mm !important; border-radius: 1mm !important; border: 1px solid #d4a853 !important; }
-
-    /* Template 7 - Fitness Green */
-    .card-template-green {
-      background: linear-gradient(135deg, #065f46 0%, #059669 50%, #34d399 100%) !important;
-      color: white !important;
-    }
-    .card-template-green .card-name { color: white !important; }
-    .card-template-green .card-gym { color: rgba(255,255,255,0.8) !important; font-weight: 700 !important; }
-    .card-template-green .card-id { color: rgba(255,255,255,0.5) !important; }
-    .card-template-green .card-date { color: rgba(255,255,255,0.4) !important; }
-    .card-template-green .card-avatar { 
-      background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
-      color: #065f46 !important;
-      border: 2px solid rgba(255,255,255,0.3) !important;
-    }
-    .card-template-green .card-qr { background: white !important; padding: 0.5mm !important; border-radius: 1mm !important; }
-
-    /* Template 8 - Purple Dream */
-    .card-template-purple {
-      background: linear-gradient(135deg, #4c1d95 0%, #7c3aed 50%, #a78bfa 100%) !important;
-      color: white !important;
-    }
-    .card-template-purple .card-name { color: white !important; }
-    .card-template-purple .card-gym { color: rgba(255,255,255,0.8) !important; font-weight: 700 !important; }
-    .card-template-purple .card-id { color: rgba(255,255,255,0.5) !important; }
-    .card-template-purple .card-date { color: rgba(255,255,255,0.4) !important; }
-    .card-template-purple .card-avatar { 
-      background: linear-gradient(135deg, #f472b6, #ec4899) !important;
-      color: white !important;
-      border: 2px solid rgba(255,255,255,0.3) !important;
-    }
-    .card-template-purple .card-qr { background: white !important; padding: 0.5mm !important; border-radius: 1mm !important; }
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -285,12 +94,8 @@
         <p class="text-sm text-gray-500">Manage products, track sales, and process QR code purchases</p>
       </div>
       <div class="flex gap-2 flex-wrap">
-        <button id="scan-qr-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">
-          📷 Scan QR
-        </button>
-        <button id="add-product-btn" class="bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">
-          ➕ Add Product
-        </button>
+        <button id="scan-qr-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">📷 Scan QR</button>
+        <button id="add-product-btn" class="bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">➕ Add Product</button>
       </div>
     </div>
 
@@ -305,21 +110,15 @@
 
     <!-- Content -->
     <div id="tab-content">
-      <!-- Products Tab -->
       <div id="tab-products" class="space-y-6">
         <div class="flex gap-4 mb-4 flex-wrap">
           <input type="text" id="product-search" placeholder="Search products..." class="flex-1 min-w-[200px] rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          <select id="category-filter" class="rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option value="">All Categories</option>
-          </select>
-          <button id="print-all-qr-btn" class="bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">
-            🖨️ Print All QR
-          </button>
+          <select id="category-filter" class="rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"><option value="">All Categories</option></select>
+          <button id="print-all-qr-btn" class="bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">🖨️ Print All QR</button>
         </div>
         <div id="products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
       </div>
 
-      <!-- Inventory Tab -->
       <div id="tab-inventory" class="hidden">
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
           <div class="p-4 border-b"><h3 class="font-semibold text-gray-800">Inventory Status</h3><p class="text-sm text-gray-500">Track available, sold, and reserved items</p></div>
@@ -330,7 +129,6 @@
         </div>
       </div>
 
-      <!-- Sales Tab -->
       <div id="tab-sales" class="hidden">
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
           <div class="p-4 border-b"><h3 class="font-semibold text-gray-800">Recent Sales</h3><p class="text-sm text-gray-500">Track all customer purchases</p></div>
@@ -338,7 +136,6 @@
         </div>
       </div>
 
-      <!-- Member QR Tab -->
       <div id="tab-member-qr" class="hidden">
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
           <div class="p-4 border-b"><h3 class="font-semibold text-gray-800">Member QR Codes</h3><p class="text-sm text-gray-500">Generate and manage member QR codes for check-in</p></div>
@@ -353,7 +150,6 @@
         </div>
       </div>
 
-      <!-- Print QR Tab -->
       <div id="tab-print-qr" class="hidden">
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
           <div class="p-4 border-b flex items-center justify-between flex-wrap gap-3">
@@ -403,7 +199,6 @@
           <button id="close-scan" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
         </div>
       </div>
-      
       <div id="scanner-container">
         <div id="scanner"></div>
         <div class="scanner-overlay">
@@ -415,7 +210,6 @@
         </div>
         <div class="flash-overlay" id="flash-overlay"></div>
       </div>
-      
       <div class="mt-3 text-center">
         <p class="text-sm text-gray-500">Align the QR code within the frame to scan</p>
         <div id="scan-result" class="mt-2 text-sm font-medium"></div>
@@ -454,6 +248,7 @@
   <script>
     let gymId = null;
     let gymName = 'GYM';
+    let currencySymbol = 'ج.م';
     let products = [];
     let productItems = [];
     let members = [];
@@ -462,109 +257,16 @@
     let html5QrCode = null;
     let isScanning = false;
     let scannerInitialized = false;
-    let selectedCardTemplate = 'dark';
+    let realtimeRefreshTimeout = null;
 
     // ============================================================
-    // CARD TEMPLATES
+    // دالة تحديث العملة
     // ============================================================
-    const cardTemplates = {
-      dark: {
-        name: 'Dark Premium',
-        class: 'card-template-dark',
-        gradient: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)',
-        gymColor: 'rgba(255,255,255,0.7)',
-        nameColor: 'white',
-        idColor: 'rgba(255,255,255,0.5)',
-        dateColor: 'rgba(255,255,255,0.4)',
-        avatarGradient: 'linear-gradient(135deg, #f472b6, #8b5cf6)',
-        qrBg: 'white',
-        border: 'none'
-      },
-      light: {
-        name: 'Light Clean',
-        class: 'card-template-light',
-        gradient: 'white',
-        gymColor: '#4f46e5',
-        nameColor: '#1a1a2e',
-        idColor: '#6b7280',
-        dateColor: '#9ca3af',
-        avatarGradient: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
-        qrBg: 'white',
-        border: '2px solid #e5e7eb'
-      },
-      red: {
-        name: 'Red Sport',
-        class: 'card-template-red',
-        gradient: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 50%, #7f1d1d 100%)',
-        gymColor: 'rgba(255,255,255,0.8)',
-        nameColor: 'white',
-        idColor: 'rgba(255,255,255,0.5)',
-        dateColor: 'rgba(255,255,255,0.4)',
-        avatarGradient: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-        qrBg: 'white',
-        border: 'none'
-      },
-      neon: {
-        name: 'Neon Green',
-        class: 'card-template-neon',
-        gradient: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%)',
-        gymColor: '#00ff88',
-        nameColor: 'white',
-        idColor: 'rgba(0,255,136,0.5)',
-        dateColor: 'rgba(255,255,255,0.3)',
-        avatarGradient: 'linear-gradient(135deg, #00ff88, #00cc66)',
-        qrBg: '#0a0a0a',
-        border: '1px solid #00ff88'
-      },
-      blue: {
-        name: 'Ocean Blue',
-        class: 'card-template-blue',
-        gradient: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%)',
-        gymColor: 'rgba(255,255,255,0.8)',
-        nameColor: 'white',
-        idColor: 'rgba(255,255,255,0.5)',
-        dateColor: 'rgba(255,255,255,0.4)',
-        avatarGradient: 'linear-gradient(135deg, #f472b6, #ec4899)',
-        qrBg: 'white',
-        border: 'none'
-      },
-      gold: {
-        name: 'Gold Luxury',
-        class: 'card-template-gold',
-        gradient: 'linear-gradient(135deg, #1a1a2e 0%, #2d1810 50%, #1a1a2e 100%)',
-        gymColor: '#d4a853',
-        nameColor: '#d4a853',
-        idColor: 'rgba(212,168,83,0.5)',
-        dateColor: 'rgba(212,168,83,0.3)',
-        avatarGradient: 'linear-gradient(135deg, #d4a853, #f59e0b)',
-        qrBg: '#1a1a2e',
-        border: '2px solid #d4a853'
-      },
-      green: {
-        name: 'Fitness Green',
-        class: 'card-template-green',
-        gradient: 'linear-gradient(135deg, #065f46 0%, #059669 50%, #34d399 100%)',
-        gymColor: 'rgba(255,255,255,0.8)',
-        nameColor: 'white',
-        idColor: 'rgba(255,255,255,0.5)',
-        dateColor: 'rgba(255,255,255,0.4)',
-        avatarGradient: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-        qrBg: 'white',
-        border: 'none'
-      },
-      purple: {
-        name: 'Purple Dream',
-        class: 'card-template-purple',
-        gradient: 'linear-gradient(135deg, #4c1d95 0%, #7c3aed 50%, #a78bfa 100%)',
-        gymColor: 'rgba(255,255,255,0.8)',
-        nameColor: 'white',
-        idColor: 'rgba(255,255,255,0.5)',
-        dateColor: 'rgba(255,255,255,0.4)',
-        avatarGradient: 'linear-gradient(135deg, #f472b6, #ec4899)',
-        qrBg: 'white',
-        border: 'none'
-      }
-    };
+    async function updateCurrency() {
+      const currency = await getGymCurrency();
+      currencySymbol = getCurrencySymbol(currency);
+      console.log('💰 Currency set to:', currencySymbol);
+    }
 
     // ============================================================
     // INIT
@@ -575,6 +277,9 @@
       renderNav(auth.user, 'canteen');
       gymId = auth.profile?.gym_id;
       gymName = auth.profile?.gym?.name || 'GYM';
+      
+      // تحديث العملة من قاعدة البيانات
+      await updateCurrency();
 
       if (!gymId) {
         showToast('⚠️ No gym linked. Please create a gym first.', 'error');
@@ -588,57 +293,13 @@
       renderSales();
       populateMembers();
       renderPrintProducts();
-      renderTemplateSelector();
       subscribeToRealtimeUpdates();
-
       setTimeout(updatePageLanguage, 100);
     }
 
     // ============================================================
-    // RENDER TEMPLATE SELECTOR
-    // ============================================================
-    function renderTemplateSelector() {
-      const display = document.getElementById('member-qr-display');
-      const selector = document.createElement('div');
-      selector.className = 'card-template-selector w-full mb-4';
-      selector.id = 'template-selector';
-      
-      selector.innerHTML = Object.entries(cardTemplates).map(([key, template]) => `
-        <button class="card-template-btn ${key === selectedCardTemplate ? 'active' : ''}" 
-                data-template="${key}"
-                onclick="selectCardTemplate('${key}')">
-          <span class="card-template-preview" style="background:${template.gradient}; border:${template.border || '1px solid #ddd'};"></span>
-          ${template.name}
-        </button>
-      `).join('');
-      
-      // Insert before the existing content
-      const existingContent = display.querySelector('.qr-container');
-      if (existingContent) {
-        display.insertBefore(selector, existingContent);
-      } else {
-        display.prepend(selector);
-      }
-    }
-
-    function selectCardTemplate(templateKey) {
-      selectedCardTemplate = templateKey;
-      document.querySelectorAll('.card-template-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.template === templateKey);
-      });
-      // Regenerate QR if a member is selected
-      const memberId = document.getElementById('member-select').value;
-      if (memberId) {
-        generateMemberQR();
-      }
-    }
-    window.selectCardTemplate = selectCardTemplate;
-
-    // ============================================================
     // REALTIME
     // ============================================================
-    let realtimeRefreshTimeout = null;
-
     function subscribeToRealtimeUpdates() {
       const scheduleRefresh = () => {
         clearTimeout(realtimeRefreshTimeout);
@@ -653,16 +314,8 @@
       };
 
       sb.channel('canteen-live-' + gymId)
-        .on(
-          'postgres_changes',
-          { event: '*', schema: 'public', table: 'product_items', filter: `gym_id=eq.${gymId}` },
-          scheduleRefresh
-        )
-        .on(
-          'postgres_changes',
-          { event: '*', schema: 'public', table: 'customer_purchases', filter: `gym_id=eq.${gymId}` },
-          scheduleRefresh
-        )
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'product_items', filter: `gym_id=eq.${gymId}` }, scheduleRefresh)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'customer_purchases', filter: `gym_id=eq.${gymId}` }, scheduleRefresh)
         .subscribe();
     }
 
@@ -681,24 +334,13 @@
     // LOAD DATA
     // ============================================================
     async function loadData() {
-      const { data: productsData } = await sb
-        .from('products')
-        .select('*')
-        .eq('gym_id', gymId)
-        .order('created_at', { ascending: false });
+      const { data: productsData } = await sb.from('products').select('*').eq('gym_id', gymId).order('created_at', { ascending: false });
       products = productsData || [];
 
-      const { data: itemsData } = await sb
-        .from('product_items')
-        .select('*, product:products(name, price)')
-        .eq('gym_id', gymId);
+      const { data: itemsData } = await sb.from('product_items').select('*, product:products(name, price)').eq('gym_id', gymId);
       productItems = itemsData || [];
 
-      const { data: membersData } = await sb
-        .from('users')
-        .select('id, full_name, email')
-        .eq('gym_id', gymId)
-        .eq('role', 'member');
+      const { data: membersData } = await sb.from('users').select('id, full_name, email').eq('gym_id', gymId).eq('role', 'member');
       members = membersData || [];
     }
 
@@ -778,7 +420,7 @@
     }
 
     // ============================================================
-    // QR SCANNER
+    // QR SCANNER مع Auto-Focus
     // ============================================================
     async function openScanner() {
       const modal = document.getElementById('scan-modal');
@@ -808,10 +450,14 @@
         html5QrCode = new Html5Qrcode("scanner");
         
         const config = {
-          fps: 20,
+          fps: 30,
           qrbox: { width: 220, height: 220 },
           aspectRatio: 1.0,
-          formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ]
+          formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ],
+          videoConstraints: {
+            facingMode: "environment",
+            focusMode: "continuous"
+          }
         };
 
         await html5QrCode.start(
@@ -823,6 +469,13 @@
         
         scannerInitialized = true;
         isScanning = true;
+        
+        try {
+          await html5QrCode.applyVideoConstraints({
+            advanced: [{ focusMode: "continuous" }]
+          });
+        } catch(e) {}
+        
         document.getElementById('scan-result').textContent = '📷 Scanner ready - point at QR code';
         document.getElementById('scan-result').className = 'mt-2 text-sm font-medium text-green-600';
         
@@ -857,7 +510,7 @@
           try {
             await html5QrCode.start(
               { facingMode: "environment" },
-              { fps: 20, qrbox: { width: 220, height: 220 }, aspectRatio: 1.0 },
+              { fps: 30, qrbox: { width: 220, height: 220 }, aspectRatio: 1.0 },
               onScanSuccess,
               onScanError
             );
@@ -1161,7 +814,7 @@
     }
 
     // ============================================================
-    // RENDER PRODUCTS
+    // RENDER PRODUCTS - مع العملة
     // ============================================================
     function renderProducts() {
       const grid = document.getElementById('products-grid');
@@ -1201,7 +854,7 @@
                   <h4 class="font-semibold text-gray-800">${p.name}</h4>
                   ${p.category ? `<span class="text-xs text-gray-500">${p.category}</span>` : ''}
                 </div>
-                <span class="text-lg font-bold text-blue-600">$${p.price.toFixed(2)}</span>
+                <span class="text-lg font-bold text-blue-600">${currencySymbol}${p.price.toFixed(2)}</span>
               </div>
               ${p.description ? `<p class="text-sm text-gray-500 mt-1">${p.description}</p>` : ''}
               <div class="flex items-center gap-4 mt-3 text-sm">
@@ -1641,7 +1294,7 @@
     }
 
     // ============================================================
-    // SALES
+    // SALES - مع العملة
     // ============================================================
     async function renderSales() {
       const { data: sales } = await sb
@@ -1660,7 +1313,7 @@
       list.innerHTML = sales.map(s => `
         <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
           <div><p class="font-medium text-gray-800">${s.customer?.full_name || 'Unknown'}</p><p class="text-xs text-gray-500">${s.product_item?.product?.name || 'Product'}</p><p class="text-xs font-mono text-gray-400">${s.product_item?.qr_code || ''}</p></div>
-          <div class="text-right"><p class="font-bold text-blue-600">$${s.price_paid.toFixed(2)}</p><p class="text-xs text-gray-500">${new Date(s.purchase_date).toLocaleDateString()}</p>${s.loyalty_points_earned > 0 ? `<p class="text-xs text-green-600">⭐ ${s.loyalty_points_earned} pts</p>` : ''}</div>
+          <div class="text-right"><p class="font-bold text-blue-600">${currencySymbol}${s.price_paid.toFixed(2)}</p><p class="text-xs text-gray-500">${new Date(s.purchase_date).toLocaleDateString()}</p>${s.loyalty_points_earned > 0 ? `<p class="text-xs text-green-600">⭐ ${s.loyalty_points_earned} pts</p>` : ''}</div>
         </div>
       `).join('');
     }
@@ -1691,13 +1344,6 @@
         return;
       }
 
-      // Remove old selector if exists
-      const oldSelector = document.getElementById('template-selector');
-      if (oldSelector) oldSelector.remove();
-
-      // Re-render selector
-      renderTemplateSelector();
-
       const { data: existing } = await sb
         .from('member_qr_codes')
         .select('qr_code')
@@ -1717,28 +1363,10 @@
         qrCode = result.data;
       }
 
-      const template = cardTemplates[selectedCardTemplate] || cardTemplates.dark;
-
       display.innerHTML = `
-        <div id="template-selector" class="card-template-selector w-full mb-4"></div>
-        <div class="card-preview" style="width:85.6mm;height:54mm;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3mm;box-sizing:border-box;font-family:Arial,sans-serif;border-radius:2mm;border:${template.border || 'none'};background:${template.gradient};position:relative;margin:0 auto;">
-          <div style="font-size:3.8mm;font-weight:800;color:${template.gymColor};text-align:center;letter-spacing:0.3mm;position:relative;z-index:1;margin-bottom:1mm;text-transform:uppercase;">
-            ${gymName || 'GYM'}
-          </div>
-          <div style="width:18mm;height:18mm;border-radius:50%;background:${template.avatarGradient};display:flex;align-items:center;justify-content:center;font-size:7.5mm;color:${template.avatarGradient.includes('white') ? 'white' : '#1a1a2e'};font-weight:700;position:relative;z-index:1;box-shadow:0 2mm 4mm rgba(0,0,0,0.2);margin-bottom:1mm;user-select:none;">
-            ${getInitials(member.full_name)}
-          </div>
-          <div style="font-size:4mm;font-weight:700;color:${template.nameColor};text-align:center;position:relative;z-index:1;line-height:1.2;">
-            ${member.full_name || 'Member'}
-          </div>
-          <div style="font-size:2.2mm;color:${template.idColor};text-align:center;margin-top:0.3mm;position:relative;z-index:1;font-family:monospace;letter-spacing:0.3mm;">
-            MEM-${member.id.substring(0, 12)}
-          </div>
-          <div id="member-qr-display-canvas" style="width:13mm;height:13mm;margin-top:1mm;position:relative;z-index:1;background:${template.qrBg};padding:0.3mm;border-radius:0.5mm;display:flex;align-items:center;justify-content:center;"></div>
-          <div style="font-size:1.8mm;color:${template.dateColor};text-align:center;margin-top:0.5mm;position:relative;z-index:1;letter-spacing:0.2mm;">
-            Valid from ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-          </div>
-        </div>
+        <div class="qr-container"><div id="member-qr-display-canvas"></div></div>
+        <p class="font-medium text-gray-800 mt-4">${member.full_name || 'Member'}</p>
+        <p class="text-sm text-gray-500">${member.email || ''}</p>
         <p class="text-xs font-mono text-gray-400 mt-2">${qrCode}</p>
         <div class="flex gap-2 mt-4 flex-wrap">
           <button onclick="printMemberQR()" class="bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium px-4 py-2 flex items-center gap-2">🖨️ Print</button>
@@ -1746,26 +1374,13 @@
         </div>
       `;
 
-      // Re-render template selector buttons
-      const selectorContainer = document.getElementById('template-selector');
-      selectorContainer.innerHTML = Object.entries(cardTemplates).map(([key, t]) => `
-        <button class="card-template-btn ${key === selectedCardTemplate ? 'active' : ''}" 
-                data-template="${key}"
-                onclick="selectCardTemplate('${key}')">
-          <span class="card-template-preview" style="background:${t.gradient}; border:${t.border || '1px solid #ddd'};"></span>
-          ${t.name}
-        </button>
-      `).join('');
-
       if (typeof QRCode !== 'undefined') {
         const container = document.getElementById('member-qr-display-canvas');
         container.innerHTML = '';
         new QRCode(container, {
           text: qrCode,
-          width: 48,
-          height: 48,
-          colorDark: template.qrBg === '#0a0a0a' || template.qrBg === '#1a1a2e' ? '#ffffff' : '#1a1a2e',
-          colorLight: template.qrBg === '#0a0a0a' || template.qrBg === '#1a1a2e' ? '#0a0a0a' : '#ffffff'
+          width: 150,
+          height: 150
         });
       }
     }
@@ -1782,7 +1397,7 @@
     }
 
     // ============================================================
-    // PRINT MEMBER QR - With Selected Template
+    // PRINT MEMBER QR
     // ============================================================
     async function printMemberQR() {
       const memberId = document.getElementById('member-select').value;
@@ -1816,8 +1431,6 @@
         qrCode = result.data;
       }
 
-      const template = cardTemplates[selectedCardTemplate] || cardTemplates.dark;
-
       const printArea = document.getElementById('print-area');
       printArea.style.display = 'block';
       printArea.style.position = 'fixed';
@@ -1835,14 +1448,6 @@
       printArea.style.boxShadow = 'none';
       printArea.className = '';
 
-      // QR color based on template
-      let qrColorDark = '#1a1a2e';
-      let qrColorLight = '#ffffff';
-      if (template.qrBg === '#0a0a0a' || template.qrBg === '#1a1a2e') {
-        qrColorDark = '#ffffff';
-        qrColorLight = '#0a0a0a';
-      }
-
       printArea.innerHTML = `
         <div class="card-content" style="
           width: 85.6mm;
@@ -1854,27 +1459,18 @@
           padding: 3mm;
           box-sizing: border-box;
           font-family: Arial, sans-serif;
-          border-radius: 2mm;
-          background: ${template.gradient};
-          border: ${template.border || 'none'};
+          background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
           position: relative;
+          border-radius: 2mm;
+          border: 0.3mm solid #e5e7eb;
         ">
-          <div style="font-size:3.8mm;font-weight:800;color:${template.gymColor};text-align:center;letter-spacing:0.3mm;position:relative;z-index:1;margin-bottom:1mm;text-transform:uppercase;">
-            ${gymName || 'GYM'}
-          </div>
-          <div style="width:18mm;height:18mm;border-radius:50%;background:${template.avatarGradient};display:flex;align-items:center;justify-content:center;font-size:7.5mm;color:#1a1a2e;font-weight:700;position:relative;z-index:1;box-shadow:0 2mm 4mm rgba(0,0,0,0.2);margin-bottom:1mm;user-select:none;">
-            ${getInitials(member.full_name)}
-          </div>
-          <div style="font-size:4mm;font-weight:700;color:${template.nameColor};text-align:center;position:relative;z-index:1;line-height:1.2;">
-            ${member.full_name || 'Member'}
-          </div>
-          <div style="font-size:2.2mm;color:${template.idColor};text-align:center;margin-top:0.3mm;position:relative;z-index:1;font-family:monospace;letter-spacing:0.3mm;">
-            MEM-${member.id.substring(0, 12)}
-          </div>
-          <div id="member-qr-print" style="width:13mm;height:13mm;margin-top:1mm;position:relative;z-index:1;background:${template.qrBg};padding:0.3mm;border-radius:0.5mm;display:flex;align-items:center;justify-content:center;"></div>
-          <div style="font-size:1.8mm;color:${template.dateColor};text-align:center;margin-top:0.5mm;position:relative;z-index:1;letter-spacing:0.2mm;">
-            Valid from ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-          </div>
+          <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);border-radius:2mm;opacity:0.06;pointer-events:none;"></div>
+          <div style="font-size:3.8mm;font-weight:800;color:rgba(255,255,255,0.7);text-align:center;letter-spacing:0.3mm;position:relative;z-index:1;margin-bottom:1mm;text-transform:uppercase;">${gymName || 'GYM'}</div>
+          <div style="width:18mm;height:18mm;border-radius:50%;background:linear-gradient(135deg,#f472b6,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:7.5mm;color:white;font-weight:700;position:relative;z-index:1;box-shadow:0 2mm 4mm rgba(79,70,229,0.3);margin-bottom:1mm;user-select:none;">${getInitials(member.full_name)}</div>
+          <div style="font-size:4mm;font-weight:700;color:white;text-align:center;position:relative;z-index:1;line-height:1.2;">${member.full_name || 'Member'}</div>
+          <div style="font-size:2.2mm;color:rgba(255,255,255,0.5);text-align:center;margin-top:0.3mm;position:relative;z-index:1;font-family:monospace;letter-spacing:0.3mm;">MEM-${member.id.substring(0, 12)}</div>
+          <div id="member-qr-print" style="width:13mm;height:13mm;margin-top:1mm;position:relative;z-index:1;background:white;padding:0.3mm;border-radius:0.5mm;display:flex;align-items:center;justify-content:center;"></div>
+          <div style="font-size:1.8mm;color:rgba(255,255,255,0.4);text-align:center;margin-top:0.5mm;position:relative;z-index:1;letter-spacing:0.2mm;">Valid from ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
         </div>
       `;
 
@@ -1886,8 +1482,8 @@
             text: qrCode,
             width: 48,
             height: 48,
-            colorDark: qrColorDark,
-            colorLight: qrColorLight,
+            colorDark: '#1a1a2e',
+            colorLight: '#ffffff',
             correctLevel: QRCode.CorrectLevel.H
           });
         }
@@ -1909,11 +1505,7 @@
     async function deleteProduct(productId) {
       if (!confirm('Are you sure you want to delete this product and all its items?')) return;
       
-      const { error } = await sb
-        .from('products')
-        .delete()
-        .eq('id', productId)
-        .eq('gym_id', gymId);
+      const { error } = await sb.from('products').delete().eq('id', productId).eq('gym_id', gymId);
       
       if (error) {
         showToast('Error deleting product: ' + error.message, 'error');
@@ -1939,7 +1531,6 @@
     window.toggleProductSelect = toggleProductSelect;
     window.printItemsQR = printItemsQR;
     window.downloadItemsQR = downloadItemsQR;
-    window.selectCardTemplate = selectCardTemplate;
 
     // Run init
     if (document.readyState === 'loading') {

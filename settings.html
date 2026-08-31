@@ -181,6 +181,8 @@
       transition: all 0.2s;
       background: white;
       margin-bottom: 8px;
+      flex-wrap: wrap;
+      gap: 8px;
     }
     .plan-card:hover {
       border-color: #3b82f6;
@@ -351,7 +353,7 @@
       </div>
 
       <!-- ============================================ -->
-      <!-- MEMBERSHIP PLANS SECTION (جديد) -->
+      <!-- MEMBERSHIP PLANS SECTION -->
       <!-- ============================================ -->
       <div class="setting-group">
         <h3>📋 Membership Plans <span class="badge">Manage subscription plans</span></h3>
@@ -518,6 +520,28 @@
     };
 
     // ============================================================
+    // HELPER FUNCTIONS
+    // ============================================================
+    function getCurrencySymbol(currency) {
+      const symbols = {
+        'USD': '$',
+        'EUR': '€',
+        'GBP': '£',
+        'EGP': 'ج.م',
+        'SAR': 'ر.س'
+      };
+      return symbols[currency] || currency;
+    }
+
+    function getCurrentCurrency() {
+      return document.getElementById('f-currency').value || 'EGP';
+    }
+
+    function getCurrencySymbolFromSelect() {
+      return getCurrencySymbol(getCurrentCurrency());
+    }
+
+    // ============================================================
     // TOAST
     // ============================================================
     function showToast(message, type = 'success') {
@@ -578,7 +602,7 @@
         document.getElementById('f-address').value = gym.address || '';
         document.getElementById('f-phone').value = gym.phone || '';
         document.getElementById('f-email').value = gym.email || '';
-        document.getElementById('f-currency').value = gym.currency || 'USD';
+        document.getElementById('f-currency').value = gym.currency || 'EGP';
         gymLogoUrl = gym.logo_url || null;
       }
     }
@@ -677,6 +701,7 @@
 
     function renderPlans() {
       const container = document.getElementById('plans-list');
+      const currencySymbol = getCurrencySymbolFromSelect();
       
       if (plans.length === 0) {
         container.innerHTML = `
@@ -701,7 +726,7 @@
           <div class="plan-card" data-plan-id="${plan.id}">
             <div class="plan-info flex-1 flex flex-wrap items-center gap-3">
               <span class="plan-name">${plan.name}</span>
-              <span class="plan-detail">💰 $${plan.price}</span>
+              <span class="plan-detail">💰 ${currencySymbol}${plan.price}</span>
               <span class="plan-detail">⏱ ${durationText}</span>
               <span class="plan-detail text-xs text-gray-400">🎁 ${perksText}</span>
             </div>
@@ -721,10 +746,11 @@
       const plan = plans.find(p => p.id === planId);
       if (!plan) return;
 
-      // Create edit form
       const container = document.getElementById('plans-list');
       const planCard = container.querySelector(`[data-plan-id="${planId}"]`);
       if (!planCard) return;
+
+      const currencySymbol = getCurrencySymbolFromSelect();
 
       planCard.innerHTML = `
         <div class="flex flex-wrap items-center gap-2 w-full">
@@ -732,6 +758,7 @@
           <input type="number" id="edit-price-${planId}" value="${plan.price}" class="plan-edit-input w-[80px]" step="0.01" placeholder="Price" />
           <input type="number" id="edit-duration-${planId}" value="${plan.duration_months}" class="plan-edit-input w-[60px]" step="0.5" placeholder="Months" />
           <input type="text" id="edit-perks-${planId}" value="${plan.perks ? plan.perks.join(', ') : ''}" class="plan-edit-input flex-1 min-w-[120px]" placeholder="Perks" />
+          <span class="text-xs text-gray-400">${currencySymbol}</span>
           <button onclick="savePlan('${planId}')" class="btn-sm btn-sm-success">💾 Save</button>
           <button onclick="cancelEditPlan('${planId}')" class="btn-sm btn-sm-danger">✖️</button>
         </div>
@@ -745,7 +772,7 @@
       const perksRaw = document.getElementById(`edit-perks-${planId}`).value;
       const perks = perksRaw.split(',').map(p => p.trim()).filter(Boolean);
 
-      if (!name || !price || !duration || duration <= 0) {
+      if (!name || isNaN(price) || !duration || duration <= 0) {
         showToast('Please fill all fields correctly', 'error');
         return;
       }
@@ -804,7 +831,7 @@
       const perks = perksRaw.split(',').map(p => p.trim()).filter(Boolean);
       const msgEl = document.getElementById('plan-add-msg');
 
-      if (!name || !duration || duration <= 0 || !price || price < 0) {
+      if (!name || !duration || duration <= 0 || isNaN(price) || price < 0) {
         msgEl.textContent = '⚠️ Please fill all fields correctly';
         msgEl.className = 'text-sm text-red-600 mt-2';
         msgEl.classList.remove('hidden');
@@ -854,13 +881,9 @@
     // SETUP EVENT LISTENERS
     // ============================================================
     function setupEventListeners() {
-      // Save settings
       document.getElementById('save-btn').addEventListener('click', saveSettings);
-      
-      // Save template
       document.getElementById('save-template-btn').addEventListener('click', saveTemplatePreference);
       
-      // Logo upload
       document.getElementById('upload-logo-btn').addEventListener('click', () => {
         document.getElementById('logo-upload').click();
       });
@@ -868,10 +891,8 @@
       document.getElementById('logo-upload').addEventListener('change', uploadLogo);
       document.getElementById('remove-logo-btn').addEventListener('click', removeLogo);
       
-      // Add plan
       document.getElementById('add-plan-btn').addEventListener('click', addNewPlan);
       
-      // Enter key for add plan
       document.getElementById('new-plan-name').addEventListener('keydown', (e) => {
         if (e.key === 'Enter') addNewPlan();
       });
@@ -885,9 +906,13 @@
         if (e.key === 'Enter') addNewPlan();
       });
       
-      // Update template preview when gym name changes
       document.getElementById('f-name').addEventListener('input', () => {
         renderTemplates();
+      });
+      
+      // تحديث عرض الخطط عند تغيير العملة
+      document.getElementById('f-currency').addEventListener('change', () => {
+        renderPlans();
       });
     }
 
@@ -925,6 +950,7 @@
       showToast('Settings saved successfully!', 'success');
       
       await saveTemplatePreference(true);
+      renderPlans();
     }
 
     // ============================================================
@@ -1063,13 +1089,14 @@
     // ============================================================
     window.getGymSettings = async function() {
       const [gymResult, settingsResult] = await Promise.all([
-        sb.from('gym_profiles').select('logo_url, name').eq('id', gymId).single(),
+        sb.from('gym_profiles').select('logo_url, name, currency').eq('id', gymId).single(),
         sb.from('gym_settings').select('card_template').eq('gym_id', gymId).single()
       ]);
 
       return {
         logoUrl: gymResult.data?.logo_url || null,
         gymName: gymResult.data?.name || 'GYM',
+        currency: gymResult.data?.currency || 'EGP',
         template: settingsResult.data?.card_template || 'dark'
       };
     };

@@ -68,6 +68,7 @@
   <script src="js/language.js"></script>
   <script>
     let gymId = null;
+    let currencySymbol = '$';
 
     async function init() {
       const auth = await requireAuth();
@@ -75,6 +76,9 @@
       
       renderNav(auth.user, 'dashboard');
       gymId = auth.profile?.gym_id;
+      
+      // جلب العملة
+      currencySymbol = getCurrencySymbol(await getGymCurrency());
       
       if (!gymId) {
         document.getElementById('loading-state').innerHTML =
@@ -111,8 +115,6 @@
       document.getElementById('dashboard-content').classList.remove('hidden');
       setTimeout(updatePageLanguage, 50);
     }
-
-    // ---------- Data fetching ----------
 
     async function getDashboardStats() {
       const today = new Date().toISOString().split('T')[0];
@@ -262,8 +264,6 @@
       return data || [];
     }
 
-    // ---------- Rendering ----------
-
     function renderStats(stats) {
       const lang = localStorage.getItem('gym_lang') || 'en';
       const titles = {
@@ -284,7 +284,7 @@
           color: 'text-purple-600',
           subtitle: `${stats.checkInRate}% ${titles['of.total']}`
         },
-        { title: titles['monthly.revenue'], value: `$${stats.monthlyRevenue.toLocaleString()}`, icon: '💰', color: 'text-yellow-600' }
+        { title: titles['monthly.revenue'], value: `${currencySymbol}${stats.monthlyRevenue.toLocaleString()}`, icon: '💰', color: 'text-yellow-600' }
       ];
 
       document.getElementById('stats-cards').innerHTML = cards
@@ -377,8 +377,6 @@
         )
         .join('');
     }
-
-    // ---------- Charts ----------
 
     function setupCanvas(canvas) {
       const rect = canvas.parentElement.getBoundingClientRect();
@@ -475,7 +473,7 @@
         ctx.fillStyle = '#6b7280';
         ctx.font = '12px sans-serif';
         ctx.textAlign = 'right';
-        ctx.fillText(`$${Math.round(value)}`, padding.left - 10, y + 4);
+        ctx.fillText(`${currencySymbol}${Math.round(value)}`, padding.left - 10, y + 4);
       }
 
       const barWidth = Math.min((chartWidth / data.length) * 0.6, 30);
@@ -560,7 +558,6 @@
         .join('');
     }
 
-    // Run init when DOM is ready
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', init);
     } else {

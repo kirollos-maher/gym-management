@@ -77,8 +77,8 @@
       renderNav(auth.user, 'dashboard');
       gymId = auth.profile?.gym_id;
       
-      // جلب العملة
-      currencySymbol = getCurrencySymbol(await getGymCurrency());
+      // جلب العملة (من بيانات الجيم اللي أصلاً راجعة مع البروفايل)
+      currencySymbol = getCurrencySymbol(auth.profile?.gym?.currency || 'EGP');
       
       if (!gymId) {
         document.getElementById('loading-state').innerHTML =

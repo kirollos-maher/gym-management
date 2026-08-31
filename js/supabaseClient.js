@@ -72,6 +72,21 @@ function daysBetween(date1, date2) {
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 }
 
+// ---------- Currency helpers (shared across all pages) ----------
+
+const CURRENCY_SYMBOLS = {
+  USD: '$',
+  EUR: '€',
+  GBP: '£',
+  EGP: 'ج.م',
+  SAR: 'ر.س'
+};
+
+// Converts a currency code (e.g. 'EGP') to its display symbol.
+function getCurrencySymbol(currency) {
+  return CURRENCY_SYMBOLS[currency] || currency || '$';
+}
+
 function getInitials(name) {
   if (!name) return '?';
   const parts = name.trim().split(' ');

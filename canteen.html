@@ -84,6 +84,15 @@
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
+  <script>
+  // أضف ده تحت <body> في كل صفحة
+    (function() {
+      const isDark = localStorage.getItem('gym_theme') === 'dark';
+      if (isDark) {
+        document.body.classList.add('dark-mode');
+      }
+    })();
+  </script>
   <div id="app-nav"></div>
 
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

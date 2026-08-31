@@ -260,15 +260,6 @@
     let realtimeRefreshTimeout = null;
 
     // ============================================================
-    // دالة تحديث العملة
-    // ============================================================
-    async function updateCurrency() {
-      const currency = await getGymCurrency();
-      currencySymbol = getCurrencySymbol(currency);
-      console.log('💰 Currency set to:', currencySymbol);
-    }
-
-    // ============================================================
     // INIT
     // ============================================================
     async function init() {
@@ -277,9 +268,10 @@
       renderNav(auth.user, 'canteen');
       gymId = auth.profile?.gym_id;
       gymName = auth.profile?.gym?.name || 'GYM';
-      
-      // تحديث العملة من قاعدة البيانات
-      await updateCurrency();
+
+      // تحديث العملة (من بيانات الجيم اللي أصلاً راجعة مع البروفايل)
+      currencySymbol = getCurrencySymbol(auth.profile?.gym?.currency || 'EGP');
+      console.log('💰 Currency set to:', currencySymbol);
 
       if (!gymId) {
         showToast('⚠️ No gym linked. Please create a gym first.', 'error');

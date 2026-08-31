@@ -7,196 +7,266 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="css/styles.css" />
   <style>
-    /* ============================================
-       DARK MODE STYLES
-       ============================================ */
-    body {
-      transition: background-color 0.3s ease, color 0.3s ease;
+    .logo-preview {
+      width: 80px;
+      height: 80px;
+      border-radius: 12px;
+      border: 2px dashed #d1d5db;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #f9fafb;
+      transition: all 0.3s;
     }
-    
-    body.dark-mode {
-      background-color: #0f172a !important;
-      color: #e2e8f0 !important;
+    .logo-preview:hover {
+      border-color: #3b82f6;
     }
-    
-    body.dark-mode .bg-white {
-      background-color: #1e293b !important;
-      color: #e2e8f0 !important;
+    .logo-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
-    
-    body.dark-mode .bg-gray-50 {
-      background-color: #0f172a !important;
+    .logo-preview .placeholder {
+      color: #9ca3af;
+      font-size: 14px;
+      text-align: center;
+      padding: 8px;
     }
-    
-    body.dark-mode .bg-gray-100 {
-      background-color: #1e293b !important;
+    .card-template-selector {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 10px 0;
     }
-    
-    body.dark-mode .bg-blue-50 {
-      background-color: #1e3a5f !important;
+    .card-template-btn {
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: 2px solid #e5e7eb;
+      background: white;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-    
-    body.dark-mode .bg-green-50 {
-      background-color: #064e3b !important;
+    .card-template-btn:hover {
+      border-color: #3b82f6;
+      background: #f0f7ff;
     }
-    
-    body.dark-mode .bg-red-50 {
-      background-color: #4c0519 !important;
+    .card-template-btn.active {
+      border-color: #3b82f6;
+      background: #dbeafe;
+      color: #1e40af;
     }
-    
-    body.dark-mode .bg-yellow-50 {
-      background-color: #4d2e00 !important;
+    .card-template-preview {
+      width: 40px;
+      height: 26px;
+      border-radius: 4px;
+      display: inline-block;
+      border: 1px solid #ddd;
+      flex-shrink: 0;
     }
-    
-    body.dark-mode .bg-purple-50 {
-      background-color: #2e1065 !important;
+    .setting-group {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
-    
-    body.dark-mode .bg-indigo-50 {
-      background-color: #1e1b4b !important;
+    .setting-group h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-    
-    body.dark-mode .text-gray-800 {
-      color: #e2e8f0 !important;
+    .setting-group h3 .badge {
+      font-size: 11px;
+      background: #dbeafe;
+      color: #1e40af;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-weight: 500;
     }
-    
-    body.dark-mode .text-gray-700 {
-      color: #cbd5e1 !important;
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      color: white;
+      z-index: 9999;
+      animation: slideUp 0.3s ease;
+      max-width: 400px;
+      font-size: 14px;
     }
+    .toast-success { background: #10b981; }
+    .toast-error { background: #ef4444; }
+    .toast-info { background: #3b82f6; }
+    @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     
-    body.dark-mode .text-gray-600 {
-      color: #94a3b8 !important;
+    .template-preview-card {
+      width: 100%;
+      max-width: 280px;
+      height: 177px;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      font-family: Arial, sans-serif;
+      position: relative;
+      margin: 0 auto;
     }
-    
-    body.dark-mode .text-gray-500 {
-      color: #64748b !important;
+    .template-preview-card .preview-gym {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 2px;
     }
-    
-    body.dark-mode .text-gray-900 {
-      color: #f1f5f9 !important;
+    .template-preview-card .preview-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 2px;
     }
-    
-    body.dark-mode .border-gray-300 {
-      border-color: #334155 !important;
+    .template-preview-card .preview-name {
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 1.2;
     }
-    
-    body.dark-mode .border-gray-200 {
-      border-color: #334155 !important;
+    .template-preview-card .preview-id {
+      font-size: 7px;
+      font-family: monospace;
+      letter-spacing: 0.3px;
+      margin-top: 1px;
     }
-    
-    body.dark-mode .border-gray-100 {
-      border-color: #1e293b !important;
+    .template-preview-card .preview-qr {
+      width: 22px;
+      height: 22px;
+      margin-top: 2px;
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      font-weight: bold;
     }
-    
-    body.dark-mode .shadow-md {
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5) !important;
+    .template-preview-card .preview-date {
+      font-size: 5px;
+      margin-top: 2px;
+      letter-spacing: 0.2px;
     }
-    
-    body.dark-mode .shadow-lg {
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.6) !important;
+
+    .plan-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s;
+      background: white;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+      gap: 8px;
     }
-    
-    body.dark-mode input,
-    body.dark-mode select,
-    body.dark-mode textarea {
-      background-color: #0f172a !important;
-      color: #e2e8f0 !important;
-      border-color: #334155 !important;
+    .plan-card:hover {
+      border-color: #3b82f6;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
-    
-    body.dark-mode input:focus,
-    body.dark-mode select:focus,
-    body.dark-mode textarea:focus {
-      border-color: #3b82f6 !important;
-      ring-color: #3b82f6 !important;
+    .plan-card .plan-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
     }
-    
-    body.dark-mode .bg-gradient-to-br {
-      background-image: linear-gradient(to bottom right, #0f172a, #1e293b) !important;
+    .plan-card .plan-info .plan-name {
+      font-weight: 600;
+      color: #1f2937;
+      min-width: 80px;
     }
-    
-    body.dark-mode .bg-gradient-to-br.from-blue-50 {
-      background-image: linear-gradient(to bottom right, #0f172a, #1e293b) !important;
+    .plan-card .plan-info .plan-detail {
+      font-size: 13px;
+      color: #6b7280;
     }
-    
-    body.dark-mode .bg-gradient-to-br.to-indigo-100 {
-      background-image: linear-gradient(to bottom right, #0f172a, #1e293b) !important;
+    .plan-card .plan-actions {
+      display: flex;
+      gap: 8px;
     }
-    
-    body.dark-mode .setting-group {
-      background-color: #1e293b !important;
+    .plan-edit-input {
+      padding: 4px 8px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      font-size: 13px;
+      width: 80px;
     }
-    
-    body.dark-mode .plan-card {
-      background-color: #0f172a !important;
-      border-color: #334155 !important;
+    .plan-edit-input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      ring: 2px solid #93c5fd;
     }
-    
-    body.dark-mode .plan-card:hover {
-      border-color: #3b82f6 !important;
+    .btn-sm {
+      padding: 4px 12px;
+      font-size: 12px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
     }
-    
-    body.dark-mode .logo-preview {
-      background-color: #0f172a !important;
-      border-color: #334155 !important;
+    .btn-sm-primary {
+      background: #3b82f6;
+      color: white;
     }
-    
-    body.dark-mode .logo-preview .placeholder {
-      color: #64748b !important;
+    .btn-sm-primary:hover {
+      background: #2563eb;
     }
-    
-    body.dark-mode .card-template-btn {
-      background-color: #0f172a !important;
-      border-color: #334155 !important;
-      color: #e2e8f0 !important;
+    .btn-sm-success {
+      background: #10b981;
+      color: white;
     }
-    
-    body.dark-mode .card-template-btn:hover {
-      border-color: #3b82f6 !important;
-      background-color: #1e293b !important;
+    .btn-sm-success:hover {
+      background: #059669;
     }
-    
-    body.dark-mode .card-template-btn.active {
-      border-color: #3b82f6 !important;
-      background-color: #1e3a5f !important;
-      color: #60a5fa !important;
+    .btn-sm-danger {
+      background: #ef4444;
+      color: white;
     }
-    
-    body.dark-mode .template-preview-card {
-      background: #0f172a !important;
+    .btn-sm-danger:hover {
+      background: #dc2626;
     }
-    
-    body.dark-mode .toast {
-      background-color: #1e293b !important;
-      color: #e2e8f0 !important;
+    .btn-sm-warning {
+      background: #f59e0b;
+      color: white;
     }
-    
-    body.dark-mode .toast-success {
-      background-color: #065f46 !important;
+    .btn-sm-warning:hover {
+      background: #d97706;
     }
-    
-    body.dark-mode .toast-error {
-      background-color: #7f1d1d !important;
-    }
-    
-    body.dark-mode .toast-info {
-      background-color: #1e3a5f !important;
-    }
-    
-    /* Dark mode toggle switch */
+
+    /* Theme switch */
     .theme-switch {
       position: relative;
       display: inline-block;
       width: 50px;
       height: 26px;
     }
-    
     .theme-switch input {
       opacity: 0;
       width: 0;
       height: 0;
     }
-    
     .theme-switch .slider {
       position: absolute;
       cursor: pointer;
@@ -208,7 +278,6 @@
       transition: .4s;
       border-radius: 34px;
     }
-    
     .theme-switch .slider:before {
       position: absolute;
       content: "";
@@ -220,15 +289,12 @@
       transition: .4s;
       border-radius: 50%;
     }
-    
     .theme-switch input:checked + .slider {
       background-color: #3b82f6;
     }
-    
     .theme-switch input:checked + .slider:before {
       transform: translateX(24px);
     }
-    
     .theme-switch .slider .icon-sun,
     .theme-switch .slider .icon-moon {
       position: absolute;
@@ -237,23 +303,95 @@
       font-size: 14px;
       z-index: 1;
     }
-    
     .theme-switch .slider .icon-sun {
       left: 6px;
       color: #f59e0b;
     }
-    
     .theme-switch .slider .icon-moon {
       right: 6px;
       color: #6366f1;
     }
-    
     .theme-switch input:checked + .slider .icon-sun {
       opacity: 0.3;
     }
-    
     .theme-switch input:not(:checked) + .slider .icon-moon {
       opacity: 0.3;
+    }
+
+    /* Dark mode overrides for settings */
+    body.dark-mode .setting-group {
+      background-color: #1e293b !important;
+    }
+    body.dark-mode .setting-group h3 {
+      color: #e2e8f0 !important;
+    }
+    body.dark-mode .setting-group h3 .badge {
+      background-color: #1e3a5f !important;
+      color: #60a5fa !important;
+    }
+    body.dark-mode .plan-card {
+      background-color: #0f172a !important;
+      border-color: #334155 !important;
+    }
+    body.dark-mode .plan-card .plan-name {
+      color: #e2e8f0 !important;
+    }
+    body.dark-mode .plan-card .plan-detail {
+      color: #94a3b8 !important;
+    }
+    body.dark-mode .plan-card:hover {
+      border-color: #3b82f6 !important;
+    }
+    body.dark-mode .logo-preview {
+      background-color: #0f172a !important;
+      border-color: #334155 !important;
+    }
+    body.dark-mode .logo-preview .placeholder {
+      color: #64748b !important;
+    }
+    body.dark-mode .card-template-btn {
+      background-color: #0f172a !important;
+      border-color: #334155 !important;
+      color: #e2e8f0 !important;
+    }
+    body.dark-mode .card-template-btn:hover {
+      border-color: #3b82f6 !important;
+      background-color: #1e293b !important;
+    }
+    body.dark-mode .card-template-btn.active {
+      border-color: #3b82f6 !important;
+      background-color: #1e3a5f !important;
+      color: #60a5fa !important;
+    }
+    body.dark-mode .template-preview-card {
+      background: #0f172a !important;
+    }
+    body.dark-mode .plan-edit-input {
+      background-color: #0f172a !important;
+      color: #e2e8f0 !important;
+      border-color: #334155 !important;
+    }
+    body.dark-mode .theme-switch .slider {
+      background-color: #475569 !important;
+    }
+    body.dark-mode .theme-switch input:checked + .slider {
+      background-color: #3b82f6 !important;
+    }
+    body.dark-mode .btn-sm-warning {
+      background-color: #b45309 !important;
+      color: white !important;
+    }
+    body.dark-mode .btn-sm-danger {
+      background-color: #b91c1c !important;
+      color: white !important;
+    }
+    body.dark-mode .btn-sm-success {
+      background-color: #047857 !important;
+      color: white !important;
+    }
+    body.dark-mode .btn-sm-primary {
+      background-color: #1d4ed8 !important;
+      color: white !important;
     }
   </style>
 </head>
@@ -267,8 +405,8 @@
 
     <div id="content" class="hidden space-y-6">
       <div>
-        <h1 class="text-2xl font-bold text-gray-800">⚙️ Settings</h1>
-        <p class="text-sm text-gray-500">Manage your gym profile, logo, card templates, and membership plans</p>
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">⚙️ Settings</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Manage your gym profile, logo, card templates, and membership plans</p>
       </div>
 
       <!-- Gym Profile -->
@@ -276,24 +414,24 @@
         <h3>🏋️ Gym Profile</h3>
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Gym Name</label>
-            <input type="text" id="f-name" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Gym Name</label>
+            <input type="text" id="f-name" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
-            <input type="text" id="f-address" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Address</label>
+            <input type="text" id="f-address" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-            <input type="text" id="f-phone" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone Number</label>
+            <input type="text" id="f-phone" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input type="email" id="f-email" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+            <input type="email" id="f-email" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Currency</label>
-            <select id="f-currency" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Currency</label>
+            <select id="f-currency" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
               <option value="USD">USD ($)</option>
               <option value="EUR">EUR (€)</option>
               <option value="GBP">GBP (£)</option>
@@ -304,12 +442,12 @@
         </div>
       </div>
 
-      <!-- Theme Settings - Dark Mode -->
+      <!-- Theme Settings -->
       <div class="setting-group">
         <h3>🌓 Theme <span class="badge">Dark / Light Mode</span></h3>
         <div class="flex items-center gap-6 flex-wrap">
           <div class="flex items-center gap-3">
-            <span class="text-sm text-gray-600" id="theme-label-light">☀️ Light</span>
+            <span class="text-sm text-gray-600 dark:text-gray-400" id="theme-label-light">☀️ Light</span>
             <label class="theme-switch">
               <input type="checkbox" id="theme-toggle" />
               <span class="slider">
@@ -317,11 +455,11 @@
                 <span class="icon-moon">🌙</span>
               </span>
             </label>
-            <span class="text-sm text-gray-600" id="theme-label-dark">🌙 Dark</span>
+            <span class="text-sm text-gray-600 dark:text-gray-400" id="theme-label-dark">🌙 Dark</span>
           </div>
-          <span id="theme-status" class="text-sm text-gray-500"></span>
+          <span id="theme-status" class="text-sm text-gray-500 dark:text-gray-400"></span>
         </div>
-        <p class="text-xs text-gray-400 mt-2">Switch between light and dark mode. Your preference will be saved automatically.</p>
+        <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">Switch between light and dark mode. Your preference will be saved automatically.</p>
       </div>
 
       <!-- Gym Logo -->
@@ -332,11 +470,11 @@
             <div class="placeholder" id="logo-placeholder">📷<br />Upload Logo</div>
           </div>
           <div class="flex-1 space-y-3">
-            <p class="text-sm text-gray-500">Upload your gym logo to display on member cards instead of the gym name text.</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Upload your gym logo to display on member cards instead of the gym name text.</p>
             <div class="flex gap-3 flex-wrap">
               <input type="file" id="logo-upload" accept="image/*" class="hidden" />
               <button id="upload-logo-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2 text-sm">📤 Upload Logo</button>
-              <button id="remove-logo-btn" class="bg-red-100 hover:bg-red-200 text-red-700 rounded-lg font-medium px-4 py-2 text-sm">🗑️ Remove Logo</button>
+              <button id="remove-logo-btn" class="bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 rounded-lg font-medium px-4 py-2 text-sm">🗑️ Remove Logo</button>
             </div>
             <div id="logo-status" class="text-sm"></div>
           </div>
@@ -346,7 +484,7 @@
       <!-- Card Templates -->
       <div class="setting-group">
         <h3>🎨 Card Templates <span class="badge">Choose member card style</span></h3>
-        <p class="text-sm text-gray-500 mb-4">Select a template for member QR cards. This will be used when printing from the Canteen page.</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Select a template for member QR cards. This will be used when printing from the Canteen page.</p>
         <div id="card-templates-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
         <div class="mt-4 flex items-center gap-3">
           <button id="save-template-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2 text-sm">💾 Save Template Selection</button>
@@ -357,27 +495,27 @@
       <!-- Membership Plans -->
       <div class="setting-group">
         <h3>📋 Membership Plans <span class="badge">Manage subscription plans</span></h3>
-        <p class="text-sm text-gray-500 mb-4">Add, edit, or remove membership plans. These will appear when adding new members.</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Add, edit, or remove membership plans. These will appear when adding new members.</p>
         <div id="plans-list" class="space-y-2 mb-4"></div>
         
-        <div class="border-t pt-4 mt-4">
-          <h4 class="font-medium text-gray-700 mb-3">➕ Add New Plan</h4>
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+          <h4 class="font-medium text-gray-700 dark:text-gray-300 mb-3">➕ Add New Plan</h4>
           <div class="flex flex-wrap gap-3 items-end">
             <div class="flex-1 min-w-[120px]">
-              <label class="block text-xs font-medium text-gray-600 mb-1">Plan Name</label>
-              <input type="text" id="new-plan-name" placeholder="e.g., شهري" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Plan Name</label>
+              <input type="text" id="new-plan-name" placeholder="e.g., شهري" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div class="w-[80px]">
-              <label class="block text-xs font-medium text-gray-600 mb-1">Months</label>
-              <input type="number" id="new-plan-duration" placeholder="1" min="0.5" step="0.5" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Months</label>
+              <input type="number" id="new-plan-duration" placeholder="1" min="0.5" step="0.5" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div class="w-[100px]">
-              <label class="block text-xs font-medium text-gray-600 mb-1">Price</label>
-              <input type="number" id="new-plan-price" placeholder="50" min="0" step="0.01" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Price</label>
+              <input type="number" id="new-plan-price" placeholder="50" min="0" step="0.01" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div class="flex-1 min-w-[150px]">
-              <label class="block text-xs font-medium text-gray-600 mb-1">Perks (comma separated)</label>
-              <input type="text" id="new-plan-perks" placeholder="دخول غير محدود, خزانة" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Perks (comma separated)</label>
+              <input type="text" id="new-plan-perks" placeholder="دخول غير محدود, خزانة" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <button id="add-plan-btn" class="bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-4 py-2 text-sm whitespace-nowrap">➕ Add Plan</button>
           </div>
@@ -386,7 +524,7 @@
       </div>
 
       <!-- Save Button -->
-      <div class="bg-white rounded-lg shadow-md p-6">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
         <div class="flex items-center gap-3">
           <button id="save-btn" class="bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-6 py-2">💾 Save All Settings</button>
           <span id="msg" class="text-sm"></span>
@@ -407,33 +545,6 @@
     let gymLogoUrl = null;
     let plans = [];
     let currencySymbol = '$';
-
-    // ============================================================
-    // DARK MODE
-    // ============================================================
-    function initDarkMode() {
-      const isDark = localStorage.getItem('gym_theme') === 'dark';
-      const toggle = document.getElementById('theme-toggle');
-      
-      if (isDark) {
-        document.body.classList.add('dark-mode');
-        if (toggle) toggle.checked = true;
-      }
-      
-      if (toggle) {
-        toggle.addEventListener('change', function() {
-          if (this.checked) {
-            document.body.classList.add('dark-mode');
-            localStorage.setItem('gym_theme', 'dark');
-            document.getElementById('theme-status').textContent = '🌙 Dark mode activated';
-          } else {
-            document.body.classList.remove('dark-mode');
-            localStorage.setItem('gym_theme', 'light');
-            document.getElementById('theme-status').textContent = '☀️ Light mode activated';
-          }
-        });
-      }
-    }
 
     const cardTemplates = {
       dark: {
@@ -551,6 +662,30 @@
         'SAR': 'ر.س'
       };
       return symbols[currency] || currency;
+    }
+
+    function initDarkMode() {
+      const isDark = localStorage.getItem('gym_theme') === 'dark';
+      const toggle = document.getElementById('theme-toggle');
+      
+      if (isDark) {
+        document.body.classList.add('dark-mode');
+        if (toggle) toggle.checked = true;
+      }
+      
+      if (toggle) {
+        toggle.addEventListener('change', function() {
+          if (this.checked) {
+            document.body.classList.add('dark-mode');
+            localStorage.setItem('gym_theme', 'dark');
+            document.getElementById('theme-status').textContent = '🌙 Dark mode activated';
+          } else {
+            document.body.classList.remove('dark-mode');
+            localStorage.setItem('gym_theme', 'light');
+            document.getElementById('theme-status').textContent = '☀️ Light mode activated';
+          }
+        });
+      }
     }
 
     async function init() {
@@ -676,11 +811,11 @@
         `;
 
         return `
-          <div class="border rounded-xl p-3 ${isActive ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-200'} hover:border-blue-300 transition-all cursor-pointer"
+          <div class="border rounded-xl p-3 ${isActive ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-200 dark:border-gray-700'} hover:border-blue-300 transition-all cursor-pointer"
                onclick="selectTemplate('${key}')"
                data-template="${key}">
             ${previewHtml}
-            <p class="text-center text-xs font-medium mt-2 ${isActive ? 'text-blue-600' : 'text-gray-600'}">${template.name}</p>
+            <p class="text-center text-xs font-medium mt-2 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400'}">${template.name}</p>
             ${isActive ? '<p class="text-center text-[10px] text-blue-500">✓ Selected</p>' : ''}
           </div>
         `;
@@ -698,7 +833,7 @@
       
       if (plans.length === 0) {
         container.innerHTML = `
-          <div class="text-center py-8 text-gray-500 bg-gray-50 rounded-lg border border-dashed">
+          <div class="text-center py-8 text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-lg border border-dashed border-gray-300 dark:border-gray-600">
             <p>No membership plans yet. Add one below!</p>
           </div>
         `;
@@ -742,9 +877,9 @@
 
       planCard.innerHTML = `
         <div class="flex flex-wrap items-center gap-2 w-full">
-          <input type="text" id="edit-name-${planId}" value="${plan.name}" class="plan-edit-input w-[100px]" placeholder="Name" />
-          <input type="number" id="edit-price-${planId}" value="${plan.price}" class="plan-edit-input w-[80px]" step="0.01" placeholder="Price" />
-          <input type="number" id="edit-duration-${planId}" value="${plan.duration_months}" class="plan-edit-input w-[60px]" step="0.5" placeholder="Months" />
+          <input type="text" id="edit-name-${planId}" value="${plan.name}" class="plan-edit-input" placeholder="Name" />
+          <input type="number" id="edit-price-${planId}" value="${plan.price}" class="plan-edit-input" step="0.01" placeholder="Price" />
+          <input type="number" id="edit-duration-${planId}" value="${plan.duration_months}" class="plan-edit-input" step="0.5" placeholder="Months" />
           <input type="text" id="edit-perks-${planId}" value="${plan.perks ? plan.perks.join(', ') : ''}" class="plan-edit-input flex-1 min-w-[120px]" placeholder="Perks" />
           <span class="text-xs text-gray-400">${currencySymbol}</span>
           <button onclick="savePlan('${planId}')" class="btn-sm btn-sm-success">💾 Save</button>
@@ -818,7 +953,7 @@
 
       if (!name || !duration || duration <= 0 || isNaN(price) || price < 0) {
         msgEl.textContent = '⚠️ Please fill all fields correctly';
-        msgEl.className = 'text-sm text-red-600 mt-2';
+        msgEl.className = 'text-sm text-red-600 dark:text-red-400 mt-2';
         msgEl.classList.remove('hidden');
         return;
       }
@@ -841,14 +976,14 @@
 
       if (error) {
         msgEl.textContent = '❌ Error: ' + error.message;
-        msgEl.className = 'text-sm text-red-600 mt-2';
+        msgEl.className = 'text-sm text-red-600 dark:text-red-400 mt-2';
         msgEl.classList.remove('hidden');
         showToast('Error adding plan: ' + error.message, 'error');
         return;
       }
 
       msgEl.textContent = '✅ Plan added successfully!';
-      msgEl.className = 'text-sm text-green-600 mt-2';
+      msgEl.className = 'text-sm text-green-600 dark:text-green-400 mt-2';
       msgEl.classList.remove('hidden');
       
       document.getElementById('new-plan-name').value = '';
@@ -901,7 +1036,7 @@
     async function saveSettings() {
       const msgEl = document.getElementById('msg');
       msgEl.textContent = '⏳ Saving...';
-      msgEl.className = 'text-sm text-blue-600';
+      msgEl.className = 'text-sm text-blue-600 dark:text-blue-400';
 
       const payload = {
         name: document.getElementById('f-name').value,
@@ -919,7 +1054,7 @@
 
       if (error) {
         msgEl.textContent = '❌ Failed to save: ' + error.message;
-        msgEl.className = 'text-sm text-red-600';
+        msgEl.className = 'text-sm text-red-600 dark:text-red-400';
         showToast('Failed to save settings', 'error');
         return;
       }
@@ -933,7 +1068,7 @@
       }
 
       msgEl.textContent = '✅ Settings saved successfully!';
-      msgEl.className = 'text-sm text-green-600';
+      msgEl.className = 'text-sm text-green-600 dark:text-green-400';
       showToast('Settings saved successfully!', 'success');
       
       await saveTemplatePreference(true);
@@ -948,7 +1083,7 @@
       const msgEl = document.getElementById('template-save-msg');
       if (!silent) {
         msgEl.textContent = '⏳ Saving...';
-        msgEl.className = 'text-sm text-blue-600';
+        msgEl.className = 'text-sm text-blue-600 dark:text-blue-400';
       }
 
       const { error } = await sb
@@ -962,7 +1097,7 @@
       if (error) {
         if (!silent) {
           msgEl.textContent = '❌ Failed: ' + error.message;
-          msgEl.className = 'text-sm text-red-600';
+          msgEl.className = 'text-sm text-red-600 dark:text-red-400';
         }
         showToast('Failed to save template', 'error');
         return;
@@ -970,7 +1105,7 @@
 
       if (!silent) {
         msgEl.textContent = '✅ Template saved!';
-        msgEl.className = 'text-sm text-green-600';
+        msgEl.className = 'text-sm text-green-600 dark:text-green-400';
         setTimeout(() => { msgEl.textContent = ''; }, 3000);
       }
       showToast('Template preference saved!', 'success');
@@ -992,7 +1127,7 @@
 
       const statusEl = document.getElementById('logo-status');
       statusEl.textContent = '⏳ Uploading...';
-      statusEl.className = 'text-sm text-blue-600';
+      statusEl.className = 'text-sm text-blue-600 dark:text-blue-400';
 
       try {
         const fileExt = file.name.split('.').pop();
@@ -1025,7 +1160,7 @@
         updateLogoPreview(publicUrl);
         
         statusEl.textContent = '✅ Logo uploaded successfully!';
-        statusEl.className = 'text-sm text-green-600';
+        statusEl.className = 'text-sm text-green-600 dark:text-green-400';
         showToast('Logo uploaded successfully!', 'success');
 
         renderTemplates();
@@ -1033,7 +1168,7 @@
       } catch (err) {
         console.error('Upload error:', err);
         statusEl.textContent = '❌ Upload failed: ' + err.message;
-        statusEl.className = 'text-sm text-red-600';
+        statusEl.className = 'text-sm text-red-600 dark:text-red-400';
         showToast('Failed to upload logo', 'error');
       }
 
@@ -1045,7 +1180,7 @@
 
       const statusEl = document.getElementById('logo-status');
       statusEl.textContent = '⏳ Removing...';
-      statusEl.className = 'text-sm text-blue-600';
+      statusEl.className = 'text-sm text-blue-600 dark:text-blue-400';
 
       try {
         const { error } = await sb
@@ -1059,12 +1194,12 @@
         updateLogoPreview(null);
         
         statusEl.textContent = '✅ Logo removed successfully!';
-        statusEl.className = 'text-sm text-green-600';
+        statusEl.className = 'text-sm text-green-600 dark:text-green-400';
         showToast('Logo removed successfully!', 'success');
 
       } catch (err) {
         statusEl.textContent = '❌ Failed to remove: ' + err.message;
-        statusEl.className = 'text-sm text-red-600';
+        statusEl.className = 'text-sm text-red-600 dark:text-red-400';
         showToast('Failed to remove logo', 'error');
       }
     }

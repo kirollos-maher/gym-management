@@ -494,17 +494,6 @@
       setTimeout(() => toast.classList.add('hidden'), 4000);
     }
 
-    function getCurrencySymbolFromSelect(currency) {
-      const symbols = {
-        'USD': '$',
-        'EUR': '€',
-        'GBP': '£',
-        'EGP': 'ج.م',
-        'SAR': 'ر.س'
-      };
-      return symbols[currency] || currency;
-    }
-
     async function init() {
       const auth = await requireAuth();
       if (!auth) return;
@@ -551,7 +540,7 @@
         document.getElementById('f-email').value = gym.email || '';
         document.getElementById('f-currency').value = gym.currency || 'EGP';
         gymLogoUrl = gym.logo_url || null;
-        currencySymbol = getCurrencySymbolFromSelect(gym.currency || 'EGP');
+        currencySymbol = getCurrencySymbol(gym.currency || 'EGP');
       }
     }
 
@@ -844,7 +833,7 @@
       });
       
       document.getElementById('f-currency').addEventListener('change', () => {
-        currencySymbol = getCurrencySymbolFromSelect(document.getElementById('f-currency').value);
+        currencySymbol = getCurrencySymbol(document.getElementById('f-currency').value);
         renderPlans();
       });
     }
@@ -875,15 +864,10 @@
         return;
       }
 
-      // تحديث العملة في الكاش عشان تظهر في باقي الصفحات
+      // تحديث رمز العملة محليًا؛ باقي الصفحات هتاخد القيمة الجديدة تلقائيًا
+      // من gym_profiles.currency في المرة الجاية اللي يفتحوا فيها (عن طريق auth.profile.gym.currency)
       const newCurrency = payload.currency;
-      currencySymbol = getCurrencySymbolFromSelect(newCurrency);
-      
-      // تحديث العملة في supabaseClient.js كاش
-      if (typeof cachedCurrency !== 'undefined') {
-        cachedCurrency = newCurrency;
-        cachedCurrencySymbol = currencySymbol;
-      }
+      currencySymbol = getCurrencySymbol(newCurrency);
 
       msgEl.textContent = '✅ Settings saved successfully!';
       msgEl.className = 'text-sm text-green-600';

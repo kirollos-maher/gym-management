@@ -9,7 +9,7 @@
 </head>
 <body class="bg-gray-50 min-h-screen">
   <script>
-  // أضف ده تحت <body> في كل صفحة
+    // تطبيق Dark Mode فوراً عند تحميل الصفحة
     (function() {
       const isDark = localStorage.getItem('gym_theme') === 'dark';
       if (isDark) {
@@ -40,20 +40,36 @@
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden col-span-1">
-          <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700"><h3 class="text-lg font-semibold text-gray-900 dark:text-white" data-i18n="dashboard.revenue.overview">Revenue Overview</h3></div>
-          <div class="px-6 py-4"><div class="w-full h-[300px]"><canvas id="revenue-chart"></canvas></div></div>
+          <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white" data-i18n="dashboard.revenue.overview">Revenue Overview</h3>
+          </div>
+          <div class="px-6 py-4">
+            <div class="w-full h-[300px]">
+              <canvas id="revenue-chart"></canvas>
+            </div>
+          </div>
         </div>
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden col-span-1">
-          <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700"><h3 class="text-lg font-semibold text-gray-900 dark:text-white" data-i18n="dashboard.attendance.activity">Check-in Activity</h3></div>
-          <div class="px-6 py-4"><div class="w-full h-[300px]"><canvas id="attendance-chart"></canvas></div></div>
+          <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white" data-i18n="dashboard.attendance.activity">Check-in Activity</h3>
+          </div>
+          <div class="px-6 py-4">
+            <div class="w-full h-[300px]">
+              <canvas id="attendance-chart"></canvas>
+            </div>
+          </div>
         </div>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="lg:col-span-1 bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-          <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700"><h3 class="text-lg font-semibold text-gray-900 dark:text-white" data-i18n="dashboard.member.distribution">Member Distribution</h3></div>
+          <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white" data-i18n="dashboard.member.distribution">Member Distribution</h3>
+          </div>
           <div class="px-6 py-4">
-            <div class="w-full h-[300px]"><canvas id="distribution-chart"></canvas></div>
+            <div class="w-full h-[300px]">
+              <canvas id="distribution-chart"></canvas>
+            </div>
             <div id="distribution-legend" class="flex flex-wrap gap-3 mt-4 justify-center"></div>
           </div>
         </div>
@@ -62,13 +78,19 @@
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white" data-i18n="dashboard.upcoming.renewals">Upcoming Renewals</h3>
             <p class="text-sm text-gray-500 dark:text-gray-400" data-i18n="dashboard.renewals.desc">Members expiring in the next 7 days</p>
           </div>
-          <div class="px-6 py-4"><div id="renewals-list" class="space-y-3"></div></div>
+          <div class="px-6 py-4">
+            <div id="renewals-list" class="space-y-3"></div>
+          </div>
         </div>
       </div>
 
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700"><h3 class="text-lg font-semibold text-gray-900 dark:text-white" data-i18n="dashboard.recent.activity">Recent Activity</h3></div>
-        <div class="px-6 py-4"><div id="activity-list" class="space-y-4"></div></div>
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white" data-i18n="dashboard.recent.activity">Recent Activity</h3>
+        </div>
+        <div class="px-6 py-4">
+          <div id="activity-list" class="space-y-4"></div>
+        </div>
       </div>
     </div>
   </main>
@@ -208,7 +230,9 @@
 
       (data || []).forEach((log) => {
         const date = log.check_in_time.split('T')[0];
-        if (dateMap.has(date)) dateMap.set(date, dateMap.get(date) + 1);
+        if (dateMap.has(date)) {
+          dateMap.set(date, dateMap.get(date) + 1);
+        }
       });
 
       return Array.from(dateMap.entries())

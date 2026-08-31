@@ -93,6 +93,7 @@ function renderNav(user, activePage) {
     { href: 'dashboard.html', label: 'dashboard', key: 'dashboard' },
     { href: 'check-in.html', label: 'checkin', key: 'check-in' },
     { href: 'members.html', label: 'members', key: 'members' },
+    { href: 'canteen.html', label: 'canteen', key: 'canteen' },
     { href: 'loyalty.html', label: 'loyalty', key: 'loyalty' },
     { href: 'settings.html', label: 'settings', key: 'settings' }
   ];
@@ -102,43 +103,62 @@ function renderNav(user, activePage) {
     dashboard: lang === 'ar' ? 'لوحة التحكم' : 'Dashboard',
     checkin: lang === 'ar' ? 'تسجيل الحضور' : 'Check-In',
     members: lang === 'ar' ? 'الأعضاء' : 'Members',
+    canteen: lang === 'ar' ? 'الكانتين' : 'Canteen',
     loyalty: lang === 'ar' ? 'برنامج الولاء' : 'Loyalty',
     settings: lang === 'ar' ? 'الإعدادات' : 'Settings',
     gymmanagement: lang === 'ar' ? '🏋️ إدارة الجيم' : '🏋️ Gym Management',
     signout: lang === 'ar' ? 'تسجيل الخروج' : 'Sign Out'
   };
 
+  const renderLink = (l, mobile) => `
+    <a href="${l.href}" class="${mobile ? 'block px-3 py-2 rounded-md text-base' : 'px-3 py-2 rounded-md text-sm'} font-medium ${
+      l.key === activePage ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50'
+    }">${navLabels[l.label]}</a>
+  `;
+
   el.innerHTML = `
     <nav class="bg-white shadow-sm border-b">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16 items-center flex-wrap gap-3">
-          <div class="flex items-center gap-8">
-            <h1 class="text-xl font-bold text-gray-800">${navLabels.gymmanagement}</h1>
+        <div class="flex justify-between h-16 items-center gap-3">
+          <div class="flex items-center gap-8 min-w-0">
+            <h1 class="text-lg sm:text-xl font-bold text-gray-800 whitespace-nowrap">${navLabels.gymmanagement}</h1>
             <div class="hidden md:flex items-center gap-1">
-              ${links
-                .map(
-                  (l) => `
-                <a href="${l.href}" class="px-3 py-2 rounded-md text-sm font-medium ${
-                    l.key === activePage
-                      ? 'bg-blue-50 text-blue-700'
-                      : 'text-gray-600 hover:bg-gray-50'
-                  }">${navLabels[l.label]}</a>
-              `
-                )
-                .join('')}
+              ${links.map((l) => renderLink(l, false)).join('')}
             </div>
           </div>
-          <div class="flex items-center space-x-4">
-            <span class="text-sm text-gray-600">${user.email}</span>
-            <button id="lang-toggle" class="px-3 py-1 text-sm font-medium text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
+          <div class="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+            <span class="hidden sm:inline text-sm text-gray-600 truncate max-w-[160px]">${user.email}</span>
+            <button id="lang-toggle" class="px-2.5 py-1 text-xs sm:text-sm font-medium text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors whitespace-nowrap">
               ${lang === 'ar' ? 'EN' : 'عربي'}
             </button>
-            <button id="sign-out-btn" class="text-sm text-red-600 hover:text-red-800">${navLabels.signout}</button>
+            <button id="sign-out-btn" class="text-xs sm:text-sm text-red-600 hover:text-red-800 whitespace-nowrap">${navLabels.signout}</button>
+            <button id="mobile-menu-btn" class="md:hidden p-2 rounded-md text-gray-600 hover:bg-gray-50" aria-label="Menu">
+              <svg id="menu-icon-open" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+              <svg id="menu-icon-close" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
+        </div>
+        <div id="mobile-menu" class="md:hidden hidden pb-3 space-y-1">
+          ${links.map((l) => renderLink(l, true)).join('')}
+          <div class="sm:hidden px-3 pt-2 text-sm text-gray-500 border-t mt-2">${user.email}</div>
         </div>
       </div>
     </nav>
   `;
+
+  // Mobile menu toggle
+  document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+    const menu = document.getElementById('mobile-menu');
+    const openIcon = document.getElementById('menu-icon-open');
+    const closeIcon = document.getElementById('menu-icon-close');
+    menu.classList.toggle('hidden');
+    openIcon.classList.toggle('hidden');
+    closeIcon.classList.toggle('hidden');
+  });
 
   // Language toggle - DIRECT IMPLEMENTATION
   document.getElementById('lang-toggle').addEventListener('click', function(e) {

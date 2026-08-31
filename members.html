@@ -8,6 +8,16 @@
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body class="bg-gray-50 min-h-screen">
+  <script>
+    // تطبيق Dark Mode فوراً عند تحميل الصفحة
+    (function() {
+      const isDark = localStorage.getItem('gym_theme') === 'dark';
+      if (isDark) {
+        document.body.classList.add('dark-mode');
+      }
+    })();
+  </script>
+
   <div id="app-nav"></div>
 
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -144,19 +154,16 @@
       renderNav(auth.user, 'members');
       gymId = auth.profile?.gym_id;
       
-      // جلب العملة
       const currency = await getGymCurrency();
       currencySymbol = getCurrencySymbol(currency);
 
       await loadMemberships();
       await fetchMembers();
       
-      // Event Listeners
       document.getElementById('refresh-btn').addEventListener('click', fetchMembers);
       document.getElementById('search-input').addEventListener('input', (e) => renderMembers(e.target.value));
       document.getElementById('status-filter').addEventListener('change', () => renderMembers(document.getElementById('search-input').value));
       
-      // Add Member Modal
       document.getElementById('add-member-btn').addEventListener('click', () => {
         document.getElementById('add-member-modal').classList.remove('hidden');
         populateMembershipSelect();
@@ -176,15 +183,12 @@
       });
       document.getElementById('add-member-form').addEventListener('submit', addMember);
       
-      // Membership select change - show details
       document.getElementById('new-membership').addEventListener('change', showPlanDetails);
       
-      // Details Modal
       document.getElementById('close-details-btn').addEventListener('click', () => {
         document.getElementById('member-details-modal').classList.add('hidden');
       });
       
-      // QR Modal
       document.getElementById('close-qr-modal').addEventListener('click', () => {
         document.getElementById('member-qr-modal').classList.add('hidden');
       });
@@ -699,42 +703,36 @@
       if (!confirm(confirmText)) return;
       
       try {
-        // 1. حذف الاشتراكات
         await sb
           .from('subscriptions')
           .delete()
           .eq('member_id', memberId)
           .eq('gym_id', gymId);
         
-        // 2. حذف سجل الحضور
         await sb
           .from('attendance_logs')
           .delete()
           .eq('user_id', memberId)
           .eq('gym_id', gymId);
         
-        // 3. حذف نقاط الولاء
         await sb
           .from('loyalty_transactions')
           .delete()
           .eq('member_id', memberId)
           .eq('gym_id', gymId);
         
-        // 4. حذف QR codes
         await sb
           .from('member_qr_codes')
           .delete()
           .eq('member_id', memberId)
           .eq('gym_id', gymId);
         
-        // 5. حذف المدفوعات
         await sb
           .from('customer_purchases')
           .delete()
           .eq('customer_id', memberId)
           .eq('gym_id', gymId);
         
-        // 6. حذف المستخدم
         const { error } = await sb
           .from('users')
           .delete()

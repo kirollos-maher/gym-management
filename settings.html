@@ -170,7 +170,6 @@
       letter-spacing: 0.2px;
     }
 
-    /* Plan management styles */
     .plan-card {
       border: 1px solid #e5e7eb;
       border-radius: 8px;
@@ -271,9 +270,7 @@
         <p class="text-sm text-gray-500">Manage your gym profile, logo, card templates, and membership plans</p>
       </div>
 
-      <!-- ============================================ -->
-      <!-- GYM PROFILE SECTION -->
-      <!-- ============================================ -->
+      <!-- Gym Profile -->
       <div class="setting-group">
         <h3>🏋️ Gym Profile</h3>
         <div class="space-y-4">
@@ -306,64 +303,42 @@
         </div>
       </div>
 
-      <!-- ============================================ -->
-      <!-- GYM LOGO SECTION -->
-      <!-- ============================================ -->
+      <!-- Gym Logo -->
       <div class="setting-group">
         <h3>🖼️ Gym Logo <span class="badge">Appears on member cards</span></h3>
         <div class="flex items-start gap-6 flex-wrap">
           <div class="logo-preview" id="logo-preview">
-            <div class="placeholder" id="logo-placeholder">
-              📷<br />Upload Logo
-            </div>
+            <div class="placeholder" id="logo-placeholder">📷<br />Upload Logo</div>
           </div>
           <div class="flex-1 space-y-3">
             <p class="text-sm text-gray-500">Upload your gym logo to display on member cards instead of the gym name text.</p>
             <div class="flex gap-3 flex-wrap">
               <input type="file" id="logo-upload" accept="image/*" class="hidden" />
-              <button id="upload-logo-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2 text-sm">
-                📤 Upload Logo
-              </button>
-              <button id="remove-logo-btn" class="bg-red-100 hover:bg-red-200 text-red-700 rounded-lg font-medium px-4 py-2 text-sm">
-                🗑️ Remove Logo
-              </button>
+              <button id="upload-logo-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2 text-sm">📤 Upload Logo</button>
+              <button id="remove-logo-btn" class="bg-red-100 hover:bg-red-200 text-red-700 rounded-lg font-medium px-4 py-2 text-sm">🗑️ Remove Logo</button>
             </div>
             <div id="logo-status" class="text-sm"></div>
           </div>
         </div>
       </div>
 
-      <!-- ============================================ -->
-      <!-- CARD TEMPLATES SECTION -->
-      <!-- ============================================ -->
+      <!-- Card Templates -->
       <div class="setting-group">
         <h3>🎨 Card Templates <span class="badge">Choose member card style</span></h3>
         <p class="text-sm text-gray-500 mb-4">Select a template for member QR cards. This will be used when printing from the Canteen page.</p>
-        
-        <div id="card-templates-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <!-- Templates will be rendered here by JavaScript -->
-        </div>
-        
+        <div id="card-templates-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
         <div class="mt-4 flex items-center gap-3">
-          <button id="save-template-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2 text-sm">
-            💾 Save Template Selection
-          </button>
+          <button id="save-template-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-2 text-sm">💾 Save Template Selection</button>
           <span id="template-save-msg" class="text-sm"></span>
         </div>
       </div>
 
-      <!-- ============================================ -->
-      <!-- MEMBERSHIP PLANS SECTION -->
-      <!-- ============================================ -->
+      <!-- Membership Plans -->
       <div class="setting-group">
         <h3>📋 Membership Plans <span class="badge">Manage subscription plans</span></h3>
         <p class="text-sm text-gray-500 mb-4">Add, edit, or remove membership plans. These will appear when adding new members.</p>
+        <div id="plans-list" class="space-y-2 mb-4"></div>
         
-        <div id="plans-list" class="space-y-2 mb-4">
-          <!-- Plans will be rendered here -->
-        </div>
-        
-        <!-- Add new plan form -->
         <div class="border-t pt-4 mt-4">
           <h4 class="font-medium text-gray-700 mb-3">➕ Add New Plan</h4>
           <div class="flex flex-wrap gap-3 items-end">
@@ -383,22 +358,16 @@
               <label class="block text-xs font-medium text-gray-600 mb-1">Perks (comma separated)</label>
               <input type="text" id="new-plan-perks" placeholder="دخول غير محدود, خزانة" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
-            <button id="add-plan-btn" class="bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-4 py-2 text-sm whitespace-nowrap">
-              ➕ Add Plan
-            </button>
+            <button id="add-plan-btn" class="bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-4 py-2 text-sm whitespace-nowrap">➕ Add Plan</button>
           </div>
           <div id="plan-add-msg" class="text-sm mt-2 hidden"></div>
         </div>
       </div>
 
-      <!-- ============================================ -->
-      <!-- SAVE BUTTON -->
-      <!-- ============================================ -->
+      <!-- Save Button -->
       <div class="bg-white rounded-lg shadow-md p-6">
         <div class="flex items-center gap-3">
-          <button id="save-btn" class="bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-6 py-2">
-            💾 Save All Settings
-          </button>
+          <button id="save-btn" class="bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium px-6 py-2">💾 Save All Settings</button>
           <span id="msg" class="text-sm"></span>
         </div>
       </div>
@@ -416,10 +385,8 @@
     let selectedTemplate = 'dark';
     let gymLogoUrl = null;
     let plans = [];
+    let currencySymbol = '$';
 
-    // ============================================================
-    // CARD TEMPLATES
-    // ============================================================
     const cardTemplates = {
       dark: {
         name: 'Dark Premium',
@@ -519,10 +486,15 @@
       }
     };
 
-    // ============================================================
-    // HELPER FUNCTIONS
-    // ============================================================
-    function getCurrencySymbol(currency) {
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `toast toast-${type}`;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 4000);
+    }
+
+    function getCurrencySymbolFromSelect(currency) {
       const symbols = {
         'USD': '$',
         'EUR': '€',
@@ -533,28 +505,6 @@
       return symbols[currency] || currency;
     }
 
-    function getCurrentCurrency() {
-      return document.getElementById('f-currency').value || 'EGP';
-    }
-
-    function getCurrencySymbolFromSelect() {
-      return getCurrencySymbol(getCurrentCurrency());
-    }
-
-    // ============================================================
-    // TOAST
-    // ============================================================
-    function showToast(message, type = 'success') {
-      const toast = document.getElementById('toast');
-      toast.textContent = message;
-      toast.className = `toast toast-${type}`;
-      toast.classList.remove('hidden');
-      setTimeout(() => toast.classList.add('hidden'), 4000);
-    }
-
-    // ============================================================
-    // INIT
-    // ============================================================
     async function init() {
       const auth = await requireAuth();
       if (!auth) return;
@@ -587,9 +537,6 @@
       setTimeout(updatePageLanguage, 100);
     }
 
-    // ============================================================
-    // LOAD DATA
-    // ============================================================
     async function loadGymData() {
       const { data: gym } = await sb
         .from('gym_profiles')
@@ -604,6 +551,7 @@
         document.getElementById('f-email').value = gym.email || '';
         document.getElementById('f-currency').value = gym.currency || 'EGP';
         gymLogoUrl = gym.logo_url || null;
+        currencySymbol = getCurrencySymbolFromSelect(gym.currency || 'EGP');
       }
     }
 
@@ -651,9 +599,6 @@
       renderPlans();
     }
 
-    // ============================================================
-    // RENDER FUNCTIONS
-    // ============================================================
     function updateLogoPreview(url) {
       const preview = document.getElementById('logo-preview');
       if (url) {
@@ -701,7 +646,6 @@
 
     function renderPlans() {
       const container = document.getElementById('plans-list');
-      const currencySymbol = getCurrencySymbolFromSelect();
       
       if (plans.length === 0) {
         container.innerHTML = `
@@ -712,7 +656,7 @@
         return;
       }
 
-      container.innerHTML = plans.map((plan, index) => {
+      container.innerHTML = plans.map((plan) => {
         const durationText = plan.duration_months === 1 ? 'شهر' : 
                             plan.duration_months === 2 ? 'شهرين' :
                             plan.duration_months === 3 ? 'ربع سنوي' :
@@ -739,9 +683,6 @@
       }).join('');
     }
 
-    // ============================================================
-    // PLAN CRUD OPERATIONS
-    // ============================================================
     window.editPlan = function(planId) {
       const plan = plans.find(p => p.id === planId);
       if (!plan) return;
@@ -749,8 +690,6 @@
       const container = document.getElementById('plans-list');
       const planCard = container.querySelector(`[data-plan-id="${planId}"]`);
       if (!planCard) return;
-
-      const currencySymbol = getCurrencySymbolFromSelect();
 
       planCard.innerHTML = `
         <div class="flex flex-wrap items-center gap-2 w-full">
@@ -820,9 +759,6 @@
       await loadPlans();
     };
 
-    // ============================================================
-    // ADD NEW PLAN
-    // ============================================================
     async function addNewPlan() {
       const name = document.getElementById('new-plan-name').value.trim();
       const duration = parseFloat(document.getElementById('new-plan-duration').value);
@@ -877,9 +813,6 @@
       setTimeout(() => msgEl.classList.add('hidden'), 3000);
     }
 
-    // ============================================================
-    // SETUP EVENT LISTENERS
-    // ============================================================
     function setupEventListeners() {
       document.getElementById('save-btn').addEventListener('click', saveSettings);
       document.getElementById('save-template-btn').addEventListener('click', saveTemplatePreference);
@@ -910,15 +843,12 @@
         renderTemplates();
       });
       
-      // تحديث عرض الخطط عند تغيير العملة
       document.getElementById('f-currency').addEventListener('change', () => {
+        currencySymbol = getCurrencySymbolFromSelect(document.getElementById('f-currency').value);
         renderPlans();
       });
     }
 
-    // ============================================================
-    // SAVE SETTINGS
-    // ============================================================
     async function saveSettings() {
       const msgEl = document.getElementById('msg');
       msgEl.textContent = '⏳ Saving...';
@@ -945,17 +875,29 @@
         return;
       }
 
+      // تحديث العملة في الكاش عشان تظهر في باقي الصفحات
+      const newCurrency = payload.currency;
+      currencySymbol = getCurrencySymbolFromSelect(newCurrency);
+      
+      // تحديث العملة في supabaseClient.js كاش
+      if (typeof cachedCurrency !== 'undefined') {
+        cachedCurrency = newCurrency;
+        cachedCurrencySymbol = currencySymbol;
+      }
+
       msgEl.textContent = '✅ Settings saved successfully!';
       msgEl.className = 'text-sm text-green-600';
       showToast('Settings saved successfully!', 'success');
       
       await saveTemplatePreference(true);
       renderPlans();
+      
+      // تحديث الصفحة بعد 1.5 ثانية عشان تظهر العملة الجديدة في كل الصفحات
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
     }
 
-    // ============================================================
-    // SAVE TEMPLATE PREFERENCE
-    // ============================================================
     async function saveTemplatePreference(silent = false) {
       const msgEl = document.getElementById('template-save-msg');
       if (!silent) {
@@ -988,9 +930,6 @@
       showToast('Template preference saved!', 'success');
     }
 
-    // ============================================================
-    // LOGO UPLOAD / REMOVE
-    // ============================================================
     async function uploadLogo(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -1084,9 +1023,7 @@
       }
     }
 
-    // ============================================================
-    // EXPORT FUNCTIONS FOR CANTEEN PAGE
-    // ============================================================
+    // دالة لجلب إعدادات الجيم من أي صفحة تانية
     window.getGymSettings = async function() {
       const [gymResult, settingsResult] = await Promise.all([
         sb.from('gym_profiles').select('logo_url, name, currency').eq('id', gymId).single(),
@@ -1101,7 +1038,7 @@
       };
     };
 
-    // Run init
+    // تشغيل الصفحة
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', init);
     } else {
